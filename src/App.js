@@ -112,7 +112,9 @@ function App() {
 
   const fetchMediaItems = async (groupId) => {
     try {
-      const response = await fetch(`http://localhost:3107/media/${groupId}`);
+      const response = await fetch(
+        `http://wave-server.noshado.ws/media/${groupId}`
+      );
       if (response.ok) {
         const data = await response.json();
         setMediaItems(data.media);
