@@ -2,14 +2,24 @@
   RewriteEngine On
   RewriteBase /
   
-  # Redirect all requests to index.html except for existing files or directories
+  # First allow static files through
+  RewriteCond %{REQUEST_URI} !^/static/
+  RewriteCond %{REQUEST_URI} !\.(?:css|js|json|jpg|jpeg|gif|png|ico|woff|woff2|ttf|svg|eot)$ [NC]
+  
+  # Then check for actual files and directories
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [QSA,L]
+  
+  # Send everything else to index.html
+  RewriteRule ^ index.html [L]
 </IfModule>
 
 # Disable directory browsing
 Options -Indexes
+
+# Proper MIME types
+AddType application/javascript .js
+AddType text/css .css
 
 # Specify default character set
 AddDefaultCharset UTF-8
