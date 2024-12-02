@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 
 const Page = styled.div`
@@ -184,36 +185,38 @@ function App() {
   };
 
   return (
-    <Page>
-      {groupId && (
-        <Container>
-          <UploadButton $isLoading={isUploading}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              multiple
-              disabled={isUploading}
-            />
-            {isUploading ? "..." : "+"}
-          </UploadButton>
-          <MediaGrid>
-            {mediaItems.map((item, index) => (
-              <MediaItem key={index}>
-                <img
-                  src={`http://localhost:3107/media/${groupId}/${item.filename}`}
-                  alt={item.filename}
-                />
-                <MediaDetails>
-                  <Name>{item.uploader.name}</Name>
-                  <Time>{formatDateTime(item.created)}</Time>
-                </MediaDetails>
-              </MediaItem>
-            ))}
-          </MediaGrid>
-        </Container>
-      )}
-    </Page>
+    <BrowserRouter basename="/">
+      <Page>
+        {groupId && (
+          <Container>
+            <UploadButton $isLoading={isUploading}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                multiple
+                disabled={isUploading}
+              />
+              {isUploading ? "..." : "+"}
+            </UploadButton>
+            <MediaGrid>
+              {mediaItems.map((item, index) => (
+                <MediaItem key={index}>
+                  <img
+                    src={`http://localhost:3107/media/${groupId}/${item.filename}`}
+                    alt={item.filename}
+                  />
+                  <MediaDetails>
+                    <Name>{item.uploader.name}</Name>
+                    <Time>{formatDateTime(item.created)}</Time>
+                  </MediaDetails>
+                </MediaItem>
+              ))}
+            </MediaGrid>
+          </Container>
+        )}
+      </Page>
+    </BrowserRouter>
   );
 }
 
