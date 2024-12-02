@@ -154,7 +154,7 @@ function App() {
     formData.append("uploaderId", userId);
 
     try {
-      const response = await fetch("http://localhost:3107/upload", {
+      const response = await fetch("https://wave-server.noshado.ws/upload", {
         method: "POST",
         body: formData
       });
@@ -205,7 +205,7 @@ function App() {
               {mediaItems.map((item, index) => (
                 <MediaItem key={index}>
                   <img
-                    src={`http://localhost:3107/media/${groupId}/${item.filename}`}
+                    src={`https://wave-server.noshado.ws/media/${groupId}/${item.filename}`}
                     alt={item.filename}
                   />
                   <MediaDetails>
