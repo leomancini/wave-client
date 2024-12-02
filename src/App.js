@@ -48,8 +48,8 @@ const UploadButton = styled.label`
 const MediaGrid = styled.div`
   display: flex;
   flex-direction: column;
-  max-width: 32rem;
   gap: 1rem;
+  width: 100%;
 `;
 
 const MediaItem = styled.div`
@@ -94,7 +94,9 @@ function App() {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    const pathParts = window.location.pathname.substring(1).split("/");
+    const url = window.location.href;
+    const path = new URL(url).pathname;
+    const pathParts = path.substring(1).split("/");
     const [groupId, userId] = pathParts;
 
     if (groupId) {
