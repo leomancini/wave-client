@@ -20,15 +20,29 @@ const Container = styled.div`
 const UploadButton = styled.label`
   margin-bottom: 2.5rem;
   cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
-  font-size: 2.5rem;
   background: rgba(0, 0, 0, ${(props) => (props.$isLoading ? 0.5 : 1)});
+  height: 4rem;
+  line-height: 0.5rem;
   color: rgba(255, 255, 255, 1);
-  padding: 0.25rem 1rem 0.75rem 1rem;
   border: none;
   border-radius: 2rem;
-  width: calc(100% - 2rem);
+  width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  span {
+    height: 100%;
+    line-height: 140%;
+    font-size: 2.5rem;
+
+    &.loading {
+      height: unset;
+      line-height: unset;
+      font-size: 1.25rem;
+    }
+  }
 
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -199,7 +213,9 @@ function App() {
                 multiple
                 disabled={isUploading}
               />
-              {isUploading ? "..." : "+"}
+              <span className={isUploading ? "loading" : ""}>
+                {isUploading ? "Uploading..." : "+"}
+              </span>
             </UploadButton>
             <MediaGrid>
               {mediaItems.map((item, index) => (
