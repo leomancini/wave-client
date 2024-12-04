@@ -333,14 +333,20 @@ function App() {
                 <MediaItem
                   key={index}
                   onTouchStart={(e) => {
+                    if (e.touches.length !== 1) return;
+
+                    const target = e.currentTarget;
                     const now = Date.now();
-                    if (now - e.target._lastTap < 300) {
+                    const lastTap = target.getAttribute("data-last-tap") || 0;
+
+                    if (now - lastTap < 300) {
                       handleMediaItemDoubleClick(item.filename, {
                         userId,
                         reaction: "❤️"
                       });
                     }
-                    e.target._lastTap = now;
+
+                    target.setAttribute("data-last-tap", now.toString());
                   }}
                   onDoubleClick={() => {
                     handleMediaItemDoubleClick(item.filename, {
