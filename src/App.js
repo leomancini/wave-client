@@ -243,7 +243,7 @@ function App() {
     return `${formattedDate} at ${formattedTime}`;
   };
 
-  const handleMediaItemDoubleClick = async (filename, { userId, reaction }) => {
+  const handleMediaItemClick = async (filename, { userId, reaction }) => {
     const img = document.querySelector(`img[alt="${filename}"]`);
     const tempReaction = document.createElement("div");
     tempReaction.style.cssText = `
@@ -326,30 +326,14 @@ function App() {
             </UploadButton>
             <Banner>
               <Tag>New</Tag>
-              <p>Double tap any image to react</p>
+              <p>Tap any image to react</p>
             </Banner>
             <MediaGrid>
               {mediaItems.map((item, index) => (
                 <MediaItem
                   key={index}
-                  onTouchStart={(e) => {
-                    if (e.touches.length !== 1) return;
-
-                    const target = e.currentTarget;
-                    const now = Date.now();
-                    const lastTap = target.getAttribute("data-last-tap") || 0;
-
-                    if (now - lastTap < 300) {
-                      handleMediaItemDoubleClick(item.filename, {
-                        userId,
-                        reaction: "❤️"
-                      });
-                    }
-
-                    target.setAttribute("data-last-tap", now.toString());
-                  }}
-                  onDoubleClick={() => {
-                    handleMediaItemDoubleClick(item.filename, {
+                  onClick={() => {
+                    handleMediaItemClick(item.filename, {
                       userId,
                       reaction: "❤️"
                     });
