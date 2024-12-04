@@ -17,6 +17,41 @@ const Container = styled.div`
   max-width: 32rem;
 `;
 
+const Banner = styled.div`
+  margin-bottom: 2.5rem;
+  line-height: 0.5rem;
+  color: rgba(0, 0, 0, 1);
+  border: none;
+  border-radius: 2rem;
+  min-height: 4rem;
+  padding: 1rem 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
+    0px 2px 4px rgba(0, 122, 255, 0.25);
+  gap: 0.75rem;
+
+  p {
+    margin: 0;
+    line-height: 2rem;
+    font-size: 1.125rem;
+    font-weight: bold;
+  }
+`;
+
+const Tag = styled.div`
+  background: rgba(0, 122, 255, 1);
+  padding: 0.75rem 1rem;
+  border-radius: 2rem;
+  color: rgba(255, 255, 255, 1);
+  font-size: 1rem;
+  font-weight: bold;
+`;
+
 const UploadButton = styled.label`
   margin-bottom: 2.5rem;
   cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
@@ -71,6 +106,7 @@ const MediaItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-bottom: 1rem;
 
   img {
     border-radius: 2rem;
@@ -90,7 +126,6 @@ const MediaDetails = styled.div`
   gap: 0.5rem;
   font-size: 1rem;
   padding: 0 1rem;
-  margin-bottom: 1.5rem;
 `;
 
 const Name = styled.p`
@@ -99,6 +134,14 @@ const Name = styled.p`
 
 const Time = styled.p`
   color: rgba(0, 0, 0, 0.5);
+`;
+
+const Reactions = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  height: 1rem;
 `;
 
 function App() {
@@ -200,6 +243,70 @@ function App() {
     return `${formattedDate} at ${formattedTime}`;
   };
 
+  const handleMediaItemDoubleClick = async (filename, { userId, reaction }) => {
+    const img = document.querySelector(`img[alt="${filename}"]`);
+    const tempReaction = document.createElement("div");
+    tempReaction.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      margin-top: -2rem;
+      font-size: 5rem;
+      opacity: 0;
+      pointer-events: none;
+      animation: reactionPopup 0.4s ease-out forwards,
+        reactionFadeOut 0.5s ease-out 0.8s forwards;
+    `;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes reactionPopup {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      }
+      @keyframes reactionFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    tempReaction.textContent = reaction;
+    img.parentElement.style.position = "relative";
+    img.parentElement.appendChild(tempReaction);
+
+    setTimeout(() => {
+      tempReaction.remove();
+      style.remove();
+    }, 2000);
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/media/${groupId}/${filename}/reactions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId,
+            reaction
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add reaction");
+      }
+
+      fetchMediaItems(groupId);
+    } catch (error) {
+      console.error("Error adding reaction:", error);
+    }
+  };
+
   return (
     <BrowserRouter basename="/">
       <Page>
@@ -217,9 +324,31 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
+            <Banner>
+              <Tag>New</Tag>
+              <p>Double tap any image to react</p>
+            </Banner>
             <MediaGrid>
               {mediaItems.map((item, index) => (
-                <MediaItem key={index}>
+                <MediaItem
+                  key={index}
+                  onTouchStart={(e) => {
+                    const now = Date.now();
+                    if (now - e.target._lastTap < 300) {
+                      handleMediaItemDoubleClick(item.filename, {
+                        userId,
+                        reaction: "❤️"
+                      });
+                    }
+                    e.target._lastTap = now;
+                  }}
+                  onDoubleClick={() => {
+                    handleMediaItemDoubleClick(item.filename, {
+                      userId,
+                      reaction: "❤️"
+                    });
+                  }}
+                >
                   <img
                     src={`${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`}
                     alt={item.filename}
@@ -228,6 +357,21 @@ function App() {
                     <Name>{item.uploader.name}</Name>
                     <Time>{formatDateTime(item.created)}</Time>
                   </MediaDetails>
+                  <Reactions>
+                    {Object.entries(
+                      item.reactions.reduce((acc, reaction) => {
+                        if (!acc[reaction.reaction]) {
+                          acc[reaction.reaction] = [];
+                        }
+                        acc[reaction.reaction].push(reaction.user.name);
+                        return acc;
+                      }, {})
+                    ).map(([reaction, users]) => (
+                      <div key={reaction}>
+                        {reaction} {users.join(", ")}
+                      </div>
+                    ))}
+                  </Reactions>
                 </MediaItem>
               ))}
             </MediaGrid>
