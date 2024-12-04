@@ -211,18 +211,14 @@ function App() {
     formData.append("uploaderId", userId);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
         method: "POST",
         body: formData
       });
-
-      const data = await response.json();
-      console.log(data);
-
-      fetchMediaItems(groupId);
     } catch (error) {
       alert("Sorry, something went wrong.");
     } finally {
+      fetchMediaItems(groupId);
       setIsUploading(false);
     }
   };
