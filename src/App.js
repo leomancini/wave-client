@@ -127,7 +127,7 @@ function App() {
   const fetchMediaItems = async (groupId) => {
     try {
       const response = await fetch(
-        `https://wave-server.noshado.ws/media/${groupId}`
+        `${process.env.REACT_APP_API_URL}/media/${groupId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -168,7 +168,7 @@ function App() {
     formData.append("uploaderId", userId);
 
     try {
-      const response = await fetch("https://wave-server.noshado.ws/upload", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
         method: "POST",
         body: formData
       });
@@ -221,7 +221,7 @@ function App() {
               {mediaItems.map((item, index) => (
                 <MediaItem key={index}>
                   <img
-                    src={`https://wave-server.noshado.ws/media/${groupId}/${item.filename}`}
+                    src={`${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`}
                     alt={item.filename}
                   />
                   <MediaDetails>
