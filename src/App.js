@@ -320,10 +320,10 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
-            <Banner>
+            {/* <Banner>
               <Tag>New</Tag>
               <p>Tap any image to react</p>
-            </Banner>
+            </Banner> */}
             <MediaGrid>
               {mediaItems.map((item) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
