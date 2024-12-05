@@ -24,8 +24,8 @@ const Banner = styled.div`
   border: none;
   border-radius: 2rem;
   min-height: 4rem;
-  padding: 1rem 0;
-  width: 100%;
+  padding: 1rem 2rem 1.25rem 2rem;
+  width: calc(100% - 4rem);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,10 +35,19 @@ const Banner = styled.div`
     0px 2px 4px rgba(0, 122, 255, 0.25);
   gap: 0.75rem;
 
-  p {
+  p,
+  strong {
     margin: 0;
-    line-height: 2rem;
-    font-size: 1.125rem;
+    line-height: 1.25rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  p {
+    font-weight: medium;
+  }
+
+  strong {
     font-weight: bold;
   }
 `;
@@ -47,9 +56,20 @@ const Tag = styled.div`
   background: rgba(0, 122, 255, 1);
   padding: 0.75rem 1rem;
   border-radius: 2rem;
-  color: rgba(255, 255, 255, 1);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: medium;
+  margin-bottom: 0.5rem;
+
+  strong {
+    color: rgba(255, 255, 255, 1);
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 0.75rem;
+    margin-right: 0.25rem;
+  }
 `;
 
 const UploadButton = styled.label`
@@ -320,10 +340,16 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
-            {/* <Banner>
-              <Tag>New</Tag>
-              <p>Tap any image to react</p>
-            </Banner> */}
+            <Banner>
+              <Tag>
+                <strong>Bug Fixes</strong> Dec 5, 2024
+              </Tag>
+              <p>When uploading, it won't temporarily show duplicate images</p>
+              <p>
+                Images are now compressed, which should speed up loading times
+              </p>
+              <strong>Enjoy!</strong>
+            </Banner>
             <MediaGrid>
               {mediaItems.map((item) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
