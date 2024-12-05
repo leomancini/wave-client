@@ -325,41 +325,46 @@ function App() {
               <p>Tap any image to react</p>
             </Banner>
             <MediaGrid>
-              {mediaItems.map((item, index) => (
-                <MediaItem
-                  key={index}
-                  onClick={() => {
-                    handleMediaItemClick(item.filename, {
-                      userId,
-                      reaction: "❤️"
-                    });
-                  }}
-                >
-                  <img
-                    src={`${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`}
-                    alt={item.filename}
-                  />
-                  <MediaDetails>
-                    <Name>{item.uploader.name}</Name>
-                    <Time>{formatDateTime(item.created)}</Time>
-                  </MediaDetails>
-                  <Reactions>
-                    {Object.entries(
-                      item.reactions.reduce((acc, reaction) => {
-                        if (!acc[reaction.reaction]) {
-                          acc[reaction.reaction] = [];
-                        }
-                        acc[reaction.reaction].push(reaction.user.name);
-                        return acc;
-                      }, {})
-                    ).map(([reaction, users]) => (
-                      <div key={reaction}>
-                        {reaction} {users.join(", ")}
-                      </div>
-                    ))}
-                  </Reactions>
-                </MediaItem>
-              ))}
+              {mediaItems.map((item) => {
+                const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
+                return (
+                  <MediaItem
+                    key={item.filename}
+                    onClick={() => {
+                      handleMediaItemClick(item.filename, {
+                        userId,
+                        reaction: "❤️"
+                      });
+                    }}
+                  >
+                    <img
+                      key={imageUrl}
+                      src={imageUrl}
+                      alt={item.filename}
+                      loading="eager"
+                    />
+                    <MediaDetails>
+                      <Name>{item.uploader.name}</Name>
+                      <Time>{formatDateTime(item.created)}</Time>
+                    </MediaDetails>
+                    <Reactions>
+                      {Object.entries(
+                        item.reactions.reduce((acc, reaction) => {
+                          if (!acc[reaction.reaction]) {
+                            acc[reaction.reaction] = [];
+                          }
+                          acc[reaction.reaction].push(reaction.user.name);
+                          return acc;
+                        }, {})
+                      ).map(([reaction, users]) => (
+                        <div key={reaction}>
+                          {reaction} {users.join(", ")}
+                        </div>
+                      ))}
+                    </Reactions>
+                  </MediaItem>
+                );
+              })}
             </MediaGrid>
           </Container>
         )}
