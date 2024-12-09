@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 
@@ -170,6 +170,10 @@ function App() {
   const [userId, setUserId] = useState("");
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const observer = useRef();
 
   useEffect(() => {
     const url = window.location.href;
@@ -187,17 +191,36 @@ function App() {
     }
   }, []);
 
-  const fetchMediaItems = async (groupId) => {
+  useEffect(() => {
+    if (groupId) {
+      console.log("Fetching initial items for groupId:", groupId);
+      setPage(1);
+      fetchMediaItems(groupId, 1, false);
+    }
+  }, [groupId]);
+
+  const fetchMediaItems = async (groupId, pageNum = 1, append = false) => {
+    if (!groupId) return;
     try {
+      setIsLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}`
+        `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
       );
       if (response.ok) {
         const data = await response.json();
-        setMediaItems(data.media);
+        console.log("Received data:", data);
+        const mediaArray = Array.isArray(data.media) ? data.media : data;
+        console.log("Media array to render:", mediaArray);
+        setHasMore(mediaArray.length > 0);
+        setMediaItems((prev) =>
+          append ? [...prev, ...mediaArray] : mediaArray
+        );
       }
     } catch (error) {
       console.error("Error fetching media items:", error);
+      setMediaItems([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -323,6 +346,34 @@ function App() {
     }
   };
 
+  const lastMediaElementRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            console.log("Loading more items...");
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchMediaItems(groupId, nextPage, true);
+          }
+        },
+        {
+          root: null,
+          rootMargin: "20px",
+          threshold: 0.1
+        }
+      );
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore, groupId, page]
+  );
+
+  console.log("Current mediaItems:", mediaItems);
+
   return (
     <BrowserRouter basename="/">
       <Page>
@@ -340,7 +391,7 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
-            <Banner>
+            {/* <Banner>
               <Tag>
                 <strong>Bug Fixes</strong> Dec 5, 2024
               </Tag>
@@ -349,48 +400,102 @@ function App() {
                 Images are now compressed, which should speed up loading times
               </p>
               <strong>Enjoy!</strong>
-            </Banner>
+            </Banner> */}
             <MediaGrid>
-              {mediaItems.map((item) => {
-                const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
-                return (
-                  <MediaItem
-                    key={item.filename}
-                    onClick={() => {
-                      handleMediaItemClick(item.filename, {
-                        userId,
-                        reaction: "❤️"
-                      });
-                    }}
-                  >
-                    <img
-                      key={imageUrl}
-                      src={imageUrl}
-                      alt={item.filename}
-                      loading="eager"
-                    />
-                    <MediaDetails>
-                      <Name>{item.uploader.name}</Name>
-                      <Time>{formatDateTime(item.created)}</Time>
-                    </MediaDetails>
-                    <Reactions>
-                      {Object.entries(
-                        item.reactions.reduce((acc, reaction) => {
-                          if (!acc[reaction.reaction]) {
-                            acc[reaction.reaction] = [];
-                          }
-                          acc[reaction.reaction].push(reaction.user.name);
-                          return acc;
-                        }, {})
-                      ).map(([reaction, users]) => (
-                        <div key={reaction}>
-                          {reaction} {users.join(", ")}
-                        </div>
-                      ))}
-                    </Reactions>
-                  </MediaItem>
-                );
-              })}
+              {mediaItems && mediaItems.length > 0 ? (
+                mediaItems.map((item, index) => {
+                  console.log("Rendering item:", item);
+                  const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
+                  if (index === mediaItems.length - 1) {
+                    return (
+                      <MediaItem
+                        ref={lastMediaElementRef}
+                        key={item.filename}
+                        onClick={() =>
+                          handleMediaItemClick(item.filename, {
+                            userId,
+                            reaction: "❤️"
+                          })
+                        }
+                      >
+                        <img src={imageUrl} alt={item.filename} />
+                        <MediaDetails>
+                          <Name>{item.uploader.name}</Name>
+                          <Time>{formatDateTime(item.created)}</Time>
+                        </MediaDetails>
+                        <Reactions>
+                          {Object.entries(
+                            item.reactions.reduce((acc, reaction) => {
+                              if (!acc[reaction.reaction]) {
+                                acc[reaction.reaction] = [];
+                              }
+                              acc[reaction.reaction].push(reaction.user.name);
+                              return acc;
+                            }, {})
+                          ).map(([reaction, users]) => (
+                            <div key={reaction}>
+                              {reaction} {users.join(", ")}
+                            </div>
+                          ))}
+                        </Reactions>
+                      </MediaItem>
+                    );
+                  }
+                  return (
+                    <MediaItem
+                      key={item.filename}
+                      onClick={() =>
+                        handleMediaItemClick(item.filename, {
+                          userId,
+                          reaction: "❤️"
+                        })
+                      }
+                    >
+                      <img src={imageUrl} alt={item.filename} />
+                      <MediaDetails>
+                        <Name>{item.uploader.name}</Name>
+                        <Time>{formatDateTime(item.created)}</Time>
+                      </MediaDetails>
+                      <Reactions>
+                        {Object.entries(
+                          item.reactions.reduce((acc, reaction) => {
+                            if (!acc[reaction.reaction]) {
+                              acc[reaction.reaction] = [];
+                            }
+                            acc[reaction.reaction].push(reaction.user.name);
+                            return acc;
+                          }, {})
+                        ).map(([reaction, users]) => (
+                          <div key={reaction}>
+                            {reaction} {users.join(", ")}
+                          </div>
+                        ))}
+                      </Reactions>
+                    </MediaItem>
+                  );
+                })
+              ) : (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    padding: "20px"
+                  }}
+                >
+                  No media items to display.
+                </div>
+              )}
+              {isLoading && (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    textAlign: "center",
+                    padding: "20px"
+                  }}
+                >
+                  Loading more...
+                </div>
+              )}
             </MediaGrid>
           </Container>
         )}
