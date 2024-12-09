@@ -128,14 +128,18 @@ const MediaItem = styled.div`
   gap: 1rem;
   margin-bottom: 1rem;
 
-  img {
-    border-radius: 2rem;
-    width: 100%;
-    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
   p {
     margin: 0;
+  }
+`;
+
+const MediaImage = styled.img`
+  border-radius: 2rem;
+  width: 100%;
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 32rem;
+  font-size: 0;
+  background-color: rgba(0, 0, 0, 0.05);dden;
   }
 `;
 
@@ -411,7 +415,7 @@ function App() {
                           })
                         }
                       >
-                        <img src={imageUrl} alt={item.filename} />
+                        <MediaImage src={imageUrl} alt={item.filename} />
                         <MediaDetails>
                           <Name>{item.uploader.name}</Name>
                           <Time>{formatDateTime(item.created)}</Time>
@@ -444,7 +448,7 @@ function App() {
                         })
                       }
                     >
-                      <img src={imageUrl} alt={item.filename} />
+                      <MediaImage src={imageUrl} alt={item.filename} />
                       <MediaDetails>
                         <Name>{item.uploader.name}</Name>
                         <Time>{formatDateTime(item.created)}</Time>
