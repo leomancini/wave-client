@@ -400,46 +400,12 @@ function App() {
               <strong>Enjoy!</strong>
             </Banner> */}
             <MediaGrid>
-              {mediaItems && mediaItems.length > 0 ? (
-                mediaItems.map((item, index) => {
-                  const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
-                  if (index === mediaItems.length - 1) {
-                    return (
-                      <MediaItem
-                        ref={lastMediaElementRef}
-                        key={item.filename}
-                        onClick={() =>
-                          handleMediaItemClick(item.filename, {
-                            userId,
-                            reaction: "❤️"
-                          })
-                        }
-                      >
-                        <MediaImage src={imageUrl} alt={item.filename} />
-                        <MediaDetails>
-                          <Name>{item.uploader.name}</Name>
-                          <Time>{formatDateTime(item.created)}</Time>
-                        </MediaDetails>
-                        <Reactions>
-                          {Object.entries(
-                            item.reactions.reduce((acc, reaction) => {
-                              if (!acc[reaction.reaction]) {
-                                acc[reaction.reaction] = [];
-                              }
-                              acc[reaction.reaction].push(reaction.user.name);
-                              return acc;
-                            }, {})
-                          ).map(([reaction, users]) => (
-                            <div key={reaction}>
-                              {reaction} {users.join(", ")}
-                            </div>
-                          ))}
-                        </Reactions>
-                      </MediaItem>
-                    );
-                  }
+              {mediaItems.map((item, index) => {
+                const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
+                if (index === mediaItems.length - 1) {
                   return (
                     <MediaItem
+                      ref={lastMediaElementRef}
                       key={item.filename}
                       onClick={() =>
                         handleMediaItemClick(item.filename, {
@@ -470,18 +436,40 @@ function App() {
                       </Reactions>
                     </MediaItem>
                   );
-                })
-              ) : (
-                <div
-                  style={{
-                    gridColumn: "1 / -1",
-                    textAlign: "center",
-                    padding: "20px"
-                  }}
-                >
-                  No media items to display.
-                </div>
-              )}
+                }
+                return (
+                  <MediaItem
+                    key={item.filename}
+                    onClick={() =>
+                      handleMediaItemClick(item.filename, {
+                        userId,
+                        reaction: "❤️"
+                      })
+                    }
+                  >
+                    <MediaImage src={imageUrl} alt={item.filename} />
+                    <MediaDetails>
+                      <Name>{item.uploader.name}</Name>
+                      <Time>{formatDateTime(item.created)}</Time>
+                    </MediaDetails>
+                    <Reactions>
+                      {Object.entries(
+                        item.reactions.reduce((acc, reaction) => {
+                          if (!acc[reaction.reaction]) {
+                            acc[reaction.reaction] = [];
+                          }
+                          acc[reaction.reaction].push(reaction.user.name);
+                          return acc;
+                        }, {})
+                      ).map(([reaction, users]) => (
+                        <div key={reaction}>
+                          {reaction} {users.join(", ")}
+                        </div>
+                      ))}
+                    </Reactions>
+                  </MediaItem>
+                );
+              })}
               {isLoading && (
                 <div
                   style={{
@@ -490,7 +478,7 @@ function App() {
                     padding: "20px"
                   }}
                 >
-                  Loading more...
+                  Loading...
                 </div>
               )}
             </MediaGrid>
