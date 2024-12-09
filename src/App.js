@@ -193,7 +193,6 @@ function App() {
 
   useEffect(() => {
     if (groupId) {
-      console.log("Fetching initial items for groupId:", groupId);
       setPage(1);
       fetchMediaItems(groupId, 1, false);
     }
@@ -208,9 +207,7 @@ function App() {
       );
       if (response.ok) {
         const data = await response.json();
-        console.log("Received data:", data);
         const mediaArray = Array.isArray(data.media) ? data.media : data;
-        console.log("Media array to render:", mediaArray);
         setHasMore(mediaArray.length > 0);
         setMediaItems((prev) =>
           append ? [...prev, ...mediaArray] : mediaArray
@@ -354,7 +351,6 @@ function App() {
       observer.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
-            console.log("Loading more items...");
             const nextPage = page + 1;
             setPage(nextPage);
             fetchMediaItems(groupId, nextPage, true);
@@ -371,8 +367,6 @@ function App() {
     },
     [isLoading, hasMore, groupId, page]
   );
-
-  console.log("Current mediaItems:", mediaItems);
 
   return (
     <BrowserRouter basename="/">
@@ -404,7 +398,6 @@ function App() {
             <MediaGrid>
               {mediaItems && mediaItems.length > 0 ? (
                 mediaItems.map((item, index) => {
-                  console.log("Rendering item:", item);
                   const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
                   if (index === mediaItems.length - 1) {
                     return (
