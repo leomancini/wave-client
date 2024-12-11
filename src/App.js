@@ -137,10 +137,8 @@ const MediaImage = styled.img`
   border-radius: 2rem;
   width: 100%;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 32rem;
   font-size: 0;
-  background-color: rgba(0, 0, 0, 0.05);dden;
-  }
+  background-color: rgba(0, 0, 0, 0.05);
 `;
 
 const MediaDetails = styled.div`
@@ -437,6 +435,7 @@ function App() {
                     </MediaItem>
                   );
                 }
+
                 return (
                   <MediaItem
                     key={item.filename}
