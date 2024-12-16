@@ -183,14 +183,19 @@ function App() {
     const pathParts = path.substring(1).split("/");
     const [groupId, userId] = pathParts;
 
-    if (groupId) {
-      setGroupId(groupId);
-      setUserId(userId);
-      fetchMediaItems(groupId);
-    } else {
-      alert("No group selected!");
+    if (!groupId) {
+      alert("No group ID");
       return;
     }
+
+    if (!userId) {
+      alert("No user ID");
+      return;
+    }
+
+    setGroupId(groupId);
+    setUserId(userId);
+    fetchMediaItems(groupId);
   }, []);
 
   useEffect(() => {
