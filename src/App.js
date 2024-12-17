@@ -165,6 +165,12 @@ const MediaThumbnail = styled.img`
   filter: blur(8px);
   transform: scale(1.125);
   transform-origin: center;
+  opacity: 0;
+  transition: opacity 0.5s;
+
+  &.loaded {
+    opacity: 1;
+  }
 `;
 
 const MediaDetails = styled.div`
@@ -458,6 +464,7 @@ function App() {
                         <MediaThumbnail
                           src={thumbnailUrl}
                           alt={item.filename}
+                          onLoad={(e) => e.target.classList.add("loaded")}
                         />
                       </MediaContainer>
                       <MediaDetails>
@@ -503,7 +510,11 @@ function App() {
                         alt={item.filename}
                         onLoad={(e) => e.target.classList.add("loaded")}
                       />
-                      <MediaThumbnail src={thumbnailUrl} alt={item.filename} />
+                      <MediaThumbnail
+                        src={thumbnailUrl}
+                        alt={item.filename}
+                        onLoad={(e) => e.target.classList.add("loaded")}
+                      />
                     </MediaContainer>
                     <MediaDetails>
                       <Name>{item.uploader.name}</Name>
