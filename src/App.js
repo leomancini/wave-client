@@ -133,12 +133,24 @@ const MediaItem = styled.div`
   }
 `;
 
-const MediaImage = styled.img`
+const MediaContainer = styled.div`
+  position: relative;
   border-radius: 2rem;
-  width: 100%;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0;
   background-color: rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+`;
+
+const MediaImage = styled.img`
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
+const MediaThumbnail = styled.img`
+  width: 100%;
 `;
 
 const MediaDetails = styled.div`
@@ -405,6 +417,7 @@ function App() {
             <MediaGrid>
               {mediaItems.map((item, index) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
+                const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/thumbnail`;
                 if (index === mediaItems.length - 1) {
                   return (
                     <MediaItem
@@ -417,7 +430,13 @@ function App() {
                         })
                       }
                     >
-                      <MediaImage src={imageUrl} alt={item.filename} />
+                      <MediaContainer>
+                        <MediaImage src={imageUrl} alt={item.filename} />
+                        <MediaThumbnail
+                          src={thumbnailUrl}
+                          alt={item.filename}
+                        />
+                      </MediaContainer>
                       <MediaDetails>
                         <Name>{item.uploader.name}</Name>
                         <Time>{formatDateTime(item.created)}</Time>
@@ -451,7 +470,10 @@ function App() {
                       })
                     }
                   >
-                    <MediaImage src={imageUrl} alt={item.filename} />
+                    <MediaContainer>
+                      <MediaImage src={imageUrl} alt={item.filename} />
+                      <MediaThumbnail src={thumbnailUrl} alt={item.filename} />
+                    </MediaContainer>
                     <MediaDetails>
                       <Name>{item.uploader.name}</Name>
                       <Time>{formatDateTime(item.created)}</Time>
