@@ -151,6 +151,8 @@ const MediaImage = styled.img`
 
 const MediaThumbnail = styled.img`
   width: 100%;
+  filter: blur(20px);
+  opacity: 0.5;
 `;
 
 const MediaDetails = styled.div`
