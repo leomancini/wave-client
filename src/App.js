@@ -148,6 +148,16 @@ const MediaImage = styled.img`
   top: 0;
   left: 0;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s, transform 0.5s, filter 0.5s;
+  transform: scale(1.125);
+  filter: blur(8px);
+
+  &.loaded {
+    filter: blur(0px);
+    transform: scale(1);
+    opacity: 1;
+  }
 `;
 
 const MediaThumbnail = styled.img`
@@ -439,7 +449,11 @@ function App() {
                           aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
                         }}
                       >
-                        <MediaImage src={imageUrl} alt={item.filename} />
+                        <MediaImage
+                          src={imageUrl}
+                          alt={item.filename}
+                          onLoad={(e) => e.target.classList.add("loaded")}
+                        />
                         <MediaThumbnail
                           src={thumbnailUrl}
                           alt={item.filename}
@@ -483,7 +497,11 @@ function App() {
                         aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
                       }}
                     >
-                      <MediaImage src={imageUrl} alt={item.filename} />
+                      <MediaImage
+                        src={imageUrl}
+                        alt={item.filename}
+                        onLoad={(e) => e.target.classList.add("loaded")}
+                      />
                       <MediaThumbnail src={thumbnailUrl} alt={item.filename} />
                     </MediaContainer>
                     <MediaDetails>
