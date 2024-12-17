@@ -152,9 +152,8 @@ const MediaImage = styled.img`
 
 const MediaThumbnail = styled.img`
   width: 100%;
-  filter: blur(24px);
-  opacity: 0.5;
-  transform: scale(1.25);
+  filter: blur(8px);
+  transform: scale(1.125);
   transform-origin: center;
 `;
 
