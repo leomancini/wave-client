@@ -437,7 +437,7 @@ function App() {
                     >
                       <MediaContainer
                         style={{
-                          aspectRatio: `${item.metadata.width} / ${item.metadata.height}`
+                          aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
                         }}
                       >
                         <MediaImage src={imageUrl} alt={item.filename} />
@@ -481,10 +481,10 @@ function App() {
                   >
                     <MediaContainer
                       style={{
-                        aspectRatio: `${item.metadata.width} / ${item.metadata.height}`
+                        aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
                       }}
                     >
-                      <MediaImage src={imageUrl} alt={item.filename} /> */}
+                      <MediaImage src={imageUrl} alt={item.filename} />
                       <MediaThumbnail src={thumbnailUrl} alt={item.filename} />
                     </MediaContainer>
                     <MediaDetails>
