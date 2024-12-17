@@ -94,13 +94,11 @@ const MediaImage = styled.img`
   left: 0;
   z-index: 1;
   opacity: 0;
-  transition: opacity 0.5s, transform 0.5s, filter 0.5s;
-  transform: scale(1.125);
+  transition: opacity 0.5s, filter 0.5s;
   filter: blur(8px);
 
   &.loaded {
     filter: blur(0px);
-    transform: scale(1);
     opacity: 1;
   }
 `;
