@@ -147,12 +147,15 @@ const MediaImage = styled.img`
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
 `;
 
 const MediaThumbnail = styled.img`
   width: 100%;
-  filter: blur(20px);
+  filter: blur(24px);
   opacity: 0.5;
+  transform: scale(1.25);
+  transform-origin: center;
 `;
 
 const MediaDetails = styled.div`
@@ -432,7 +435,11 @@ function App() {
                         })
                       }
                     >
-                      <MediaContainer>
+                      <MediaContainer
+                        style={{
+                          aspectRatio: `${item.metadata.width} / ${item.metadata.height}`
+                        }}
+                      >
                         <MediaImage src={imageUrl} alt={item.filename} />
                         <MediaThumbnail
                           src={thumbnailUrl}
@@ -441,7 +448,7 @@ function App() {
                       </MediaContainer>
                       <MediaDetails>
                         <Name>{item.uploader.name}</Name>
-                        <Time>{formatDateTime(item.created)}</Time>
+                        <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
                       </MediaDetails>
                       <Reactions>
                         {Object.entries(
@@ -472,13 +479,17 @@ function App() {
                       })
                     }
                   >
-                    <MediaContainer>
-                      <MediaImage src={imageUrl} alt={item.filename} />
+                    <MediaContainer
+                      style={{
+                        aspectRatio: `${item.metadata.width} / ${item.metadata.height}`
+                      }}
+                    >
+                      <MediaImage src={imageUrl} alt={item.filename} /> */}
                       <MediaThumbnail src={thumbnailUrl} alt={item.filename} />
                     </MediaContainer>
                     <MediaDetails>
                       <Name>{item.uploader.name}</Name>
-                      <Time>{formatDateTime(item.created)}</Time>
+                      <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
                     </MediaDetails>
                     <Reactions>
                       {Object.entries(
