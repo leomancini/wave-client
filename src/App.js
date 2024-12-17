@@ -324,6 +324,7 @@ function App() {
       font-size: 5rem;
       opacity: 0;
       pointer-events: none;
+      z-index: 2;
       animation: reactionPopup 0.4s ease-out forwards,
         reactionFadeOut 0.5s ease-out 0.8s forwards;
     `;
