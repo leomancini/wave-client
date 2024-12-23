@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import TextareaAutosize from "react-textarea-autosize";
 
 const TextFieldContainer = styled.div`
   display: flex;
@@ -8,11 +9,11 @@ const TextFieldContainer = styled.div`
   position: relative;
 `;
 
-const Input = styled.input`
+const Input = styled(TextareaAutosize)`
   background-color: rgba(0, 0, 0, 0.05);
   border: none;
-  border-radius: 3rem;
-  padding: 0 1.25rem;
+  border-radius: 1.25rem;
+  padding: 0.75rem 5rem 0.75rem 1rem;
   font-size: 1rem;
   height: 2.5rem;
 
@@ -37,7 +38,7 @@ const Button = styled.button`
   cursor: pointer;
   right: 0.25rem;
   height: 2rem;
-  top: 0.25rem;
+  bottom: 0.25rem;
   outline: none;
   -webkit-user-select: none;
   -moz-user-select: none;
