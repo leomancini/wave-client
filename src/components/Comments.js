@@ -111,7 +111,7 @@ export const Comments = ({ item, groupId, userId }) => {
             <Comment
               name={comment.user.id === userId ? "You" : comment.user.name}
               text={comment.comment}
-              timestamp={formatDateTime(comment.timestamp)}
+              timestamp={formatDateTime(comment.timestamp, "short")}
             />
           </ListItem>
         ))}
@@ -121,7 +121,7 @@ export const Comments = ({ item, groupId, userId }) => {
             <Comment
               name="You"
               text={comment}
-              timestamp={formatDateTime(new Date().getTime())}
+              timestamp={formatDateTime(new Date().getTime(), "short")}
               // TODO: This updates the timestamp of all new comments
               // when a new comment is posted, figure out a better way
             />
