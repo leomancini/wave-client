@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
-import { MediaItem } from "./components/MediaItem";
+
 import { UploadButton } from "./components/UploadButton";
+import { MediaItem } from "./components/MediaItem";
 
 const Page = styled.div`
   display: flex;
@@ -130,71 +131,6 @@ function App() {
     }
   };
 
-  const handleMediaItemClick = async (filename, { userId, reaction }) => {
-    const img = document.querySelector(`img[alt="${filename}"]`);
-    const tempReaction = document.createElement("div");
-    tempReaction.style.cssText = `
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      margin-top: -2rem;
-      font-size: 5rem;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 2;
-      animation: reactionPopup 0.4s ease-out forwards,
-        reactionFadeOut 0.5s ease-out 0.8s forwards;
-    `;
-
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes reactionPopup {
-        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      }
-      @keyframes reactionFadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    tempReaction.textContent = reaction;
-    img.parentElement.style.position = "relative";
-    img.parentElement.appendChild(tempReaction);
-
-    setTimeout(() => {
-      tempReaction.remove();
-      style.remove();
-    }, 2000);
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}/${filename}/reactions`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId,
-            reaction
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add reaction");
-      }
-
-      fetchMediaItems(groupId);
-    } catch (error) {
-      console.error("Error adding reaction:", error);
-    }
-  };
-
   const lastMediaElementRef = useCallback(
     (node) => {
       if (isLoading) return;
@@ -250,15 +186,12 @@ function App() {
                         : null
                     }
                     key={item.filename}
-                    onClick={() =>
-                      handleMediaItemClick(item.filename, {
-                        userId,
-                        reaction: "❤️"
-                      })
-                    }
                     item={item}
                     imageUrl={imageUrl}
                     thumbnailUrl={thumbnailUrl}
+                    fetchMediaItems={fetchMediaItems}
+                    groupId={groupId}
+                    userId={userId}
                   />
                 );
               })}
