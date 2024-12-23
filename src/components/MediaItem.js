@@ -76,6 +76,12 @@ const Reactions = styled.div`
   gap: 0.5rem;
   padding: 0 1rem;
   height: 1rem;
+
+  ${({ isEmpty }) =>
+    isEmpty &&
+    `
+      display: none;
+    `}
 `;
 
 const Reaction = styled.div`
@@ -191,7 +197,7 @@ export const MediaItem = forwardRef(
           </Name>
           <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
         </Details>
-        <Reactions>
+        <Reactions isEmpty={Object.keys(item.reactions).length === 0}>
           {Object.entries(
             item.reactions.reduce((acc, reaction) => {
               if (!acc[reaction.reaction]) {

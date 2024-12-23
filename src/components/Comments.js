@@ -14,7 +14,7 @@ const Container = styled.div`
 const List = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0rem;
+  gap: 0.5rem;
 `;
 
 const ListItem = styled.div`
@@ -28,7 +28,7 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
-  padding: 0.5rem 0.5rem;
+  padding: 0 0.5rem;
   justify-content: space-between;
   width: 100%;
 `;
