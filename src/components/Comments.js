@@ -76,6 +76,8 @@ export const Comments = ({ item, groupId, userId }) => {
   const [newComments, setNewComments] = useState([]);
 
   const onSubmit = async (comment) => {
+    setNewComments([...newComments, comment]);
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/comment`,
@@ -94,8 +96,6 @@ export const Comments = ({ item, groupId, userId }) => {
       if (!response.ok) {
         throw new Error("Failed to add comment");
       }
-
-      setNewComments([...newComments, comment]);
     } catch (error) {
       console.error("Error adding comment:", error);
     }
