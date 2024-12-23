@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 
+import { Banner } from "./components/Banner";
 import { UploadButton } from "./components/UploadButton";
 import { MediaItem } from "./components/MediaItem";
 
@@ -173,6 +174,11 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
+            <Banner
+              label="NEW"
+              date="Dec 23, 2024"
+              messages={["You can now comment on any item!"]}
+            />
             <MediaGrid>
               {mediaItems.map((item, index) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
