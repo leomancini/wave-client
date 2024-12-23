@@ -186,7 +186,9 @@ export const MediaItem = forwardRef(
           />
         </MediaContainer>
         <MediaDetails>
-          <Name>{item.uploader.name}</Name>
+          <Name>
+            {item.uploader.id === userId ? "You" : item.uploader.name}
+          </Name>
           <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
         </MediaDetails>
         <Reactions>
