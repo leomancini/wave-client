@@ -4,7 +4,7 @@ import { forwardRef } from "react";
 import { formatDateTime } from "../utilities/formatDateTime";
 import { Comments } from "./Comments";
 
-const MediaItemContainer = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -15,7 +15,7 @@ const MediaItemContainer = styled.div`
   }
 `;
 
-const MediaContainer = styled.div`
+const Media = styled.div`
   position: relative;
   border-radius: 2rem;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -24,7 +24,7 @@ const MediaContainer = styled.div`
   overflow: hidden;
 `;
 
-const MediaImage = styled.img`
+const Image = styled.img`
   width: 100%;
   position: absolute;
   top: 0;
@@ -40,7 +40,7 @@ const MediaImage = styled.img`
   }
 `;
 
-const MediaThumbnail = styled.img`
+const Thumbnail = styled.img`
   width: 100%;
   filter: blur(8px);
   transform: scale(1.125);
@@ -53,7 +53,7 @@ const MediaThumbnail = styled.img`
   }
 `;
 
-const MediaDetails = styled.div`
+const Details = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -161,8 +161,8 @@ export const handleMediaItemClick = async (
 export const MediaItem = forwardRef(
   ({ item, imageUrl, thumbnailUrl, fetchMediaItems, groupId, userId }, ref) => {
     return (
-      <MediaItemContainer ref={ref}>
-        <MediaContainer
+      <Container ref={ref}>
+        <Media
           style={{
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
@@ -174,23 +174,23 @@ export const MediaItem = forwardRef(
             })
           }
         >
-          <MediaImage
+          <Image
             src={imageUrl}
             alt={item.filename}
             onLoad={(e) => e.target.classList.add("loaded")}
           />
-          <MediaThumbnail
+          <Thumbnail
             src={thumbnailUrl}
             alt={item.filename}
             onLoad={(e) => e.target.classList.add("loaded")}
           />
-        </MediaContainer>
-        <MediaDetails>
+        </Media>
+        <Details>
           <Name>
             {item.uploader.id === userId ? "You" : item.uploader.name}
           </Name>
           <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
-        </MediaDetails>
+        </Details>
         <Reactions>
           {Object.entries(
             item.reactions.reduce((acc, reaction) => {
@@ -209,7 +209,7 @@ export const MediaItem = forwardRef(
           ))}
         </Reactions>
         <Comments item={item} groupId={groupId} userId={userId} />
-      </MediaItemContainer>
+      </Container>
     );
   }
 );
