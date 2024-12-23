@@ -15,7 +15,6 @@ const Input = styled.input`
   padding: 0 1.25rem;
   font-size: 1rem;
   height: 2.5rem;
-  -webkit-tap-highlight-color: transparent;
 
   &:active,
   &:focus {
@@ -40,7 +39,6 @@ const Button = styled.button`
   height: 2rem;
   top: 0.25rem;
   outline: none;
-  -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
