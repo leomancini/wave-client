@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
@@ -67,20 +69,48 @@ function App() {
     }
   }, [groupId]);
 
-  const fetchMediaItems = async (groupId, pageNum = 1, append = false) => {
+  const fetchMediaItems = async (
+    groupId,
+    pageNum = 1,
+    options = { append: false, refresh: false }
+  ) => {
     if (!groupId) return;
+    setIsLoading(true);
+
     try {
-      setIsLoading(true);
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const mediaArray = Array.isArray(data.media) ? data.media : data;
-        setHasMore(mediaArray.length > 0);
-        setMediaItems((prev) =>
-          append ? [...prev, ...mediaArray] : mediaArray
+      if (options.refresh) {
+        let allMedia = [];
+        let currentPage = 1;
+        let hasMoreItems = true;
+
+        while (hasMoreItems && currentPage <= page) {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${currentPage}`
+          );
+          const data = await response.json();
+          const mediaArray = Array.isArray(data.media) ? data.media : data;
+          allMedia = [...allMedia, ...mediaArray];
+          hasMoreItems = data.hasMore;
+          currentPage++;
+        }
+
+        setMediaItems(allMedia);
+        setHasMore(hasMoreItems);
+        if (currentPage <= page) {
+          setPage(currentPage - 1);
+        }
+      } else {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
         );
+        if (response.ok) {
+          const data = await response.json();
+          const mediaArray = Array.isArray(data.media) ? data.media : data;
+          setHasMore(data.hasMore);
+          setMediaItems((prev) =>
+            options.append ? [...prev, ...mediaArray] : mediaArray
+          );
+        }
       }
     } catch (error) {
       console.error("Error fetching media items:", error);
@@ -127,7 +157,7 @@ function App() {
     } catch (error) {
       alert("Sorry, something went wrong.");
     } finally {
-      fetchMediaItems(groupId);
+      fetchMediaItems(groupId, 1, { refresh: true });
       setIsUploading(false);
     }
   };
@@ -142,7 +172,7 @@ function App() {
           if (entries[0].isIntersecting && hasMore) {
             const nextPage = page + 1;
             setPage(nextPage);
-            fetchMediaItems(groupId, nextPage, true);
+            fetchMediaItems(groupId, nextPage, { append: true });
           }
         },
         {

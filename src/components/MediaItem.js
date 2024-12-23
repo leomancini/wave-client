@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { forwardRef } from "react";
 
@@ -98,6 +99,7 @@ const ReactionEmoji = styled.div`
 export const handleMediaItemClick = async (
   filename,
   fetchMediaItems,
+  setReactions,
   { groupId, userId, reaction }
 ) => {
   const img = document.querySelector(`img[alt="${filename}"]`);
@@ -139,6 +141,23 @@ export const handleMediaItemClick = async (
     style.remove();
   }, 2000);
 
+  setReactions((prevReactions) => {
+    const existingReactionIndex = prevReactions.findIndex(
+      (r) => r.user.id === userId && r.reaction === reaction
+    );
+
+    if (existingReactionIndex !== -1) {
+      return prevReactions.filter(
+        (_, index) => index !== existingReactionIndex
+      );
+    } else {
+      return [
+        ...prevReactions,
+        { user: { id: userId, name: "You" }, reaction }
+      ];
+    }
+  });
+
   try {
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/media/${groupId}/${filename}/reactions`,
@@ -158,7 +177,7 @@ export const handleMediaItemClick = async (
       throw new Error("Failed to add reaction");
     }
 
-    fetchMediaItems(groupId);
+    // await fetchMediaItems(groupId, 1, { refresh: true });
   } catch (error) {
     console.error("Error adding reaction:", error);
   }
@@ -166,6 +185,8 @@ export const handleMediaItemClick = async (
 
 export const MediaItem = forwardRef(
   ({ item, imageUrl, thumbnailUrl, fetchMediaItems, groupId, userId }, ref) => {
+    const [reactions, setReactions] = useState(item.reactions);
+
     return (
       <Container ref={ref}>
         <Media
@@ -173,7 +194,7 @@ export const MediaItem = forwardRef(
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
           onClick={() =>
-            handleMediaItemClick(item.filename, fetchMediaItems, {
+            handleMediaItemClick(item.filename, fetchMediaItems, setReactions, {
               groupId,
               userId,
               reaction: "❤️"
@@ -197,9 +218,9 @@ export const MediaItem = forwardRef(
           </Name>
           <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
         </Details>
-        <Reactions $isEmpty={Object.keys(item.reactions).length === 0}>
+        <Reactions $isEmpty={Object.keys(reactions).length === 0}>
           {Object.entries(
-            item.reactions.reduce((acc, reaction) => {
+            reactions.reduce((acc, reaction) => {
               if (!acc[reaction.reaction]) {
                 acc[reaction.reaction] = [];
               }
