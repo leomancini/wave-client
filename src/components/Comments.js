@@ -24,16 +24,16 @@ const ListItem = styled.div`
   justify-content: space-between;
 `;
 
-const CommentContainer = styled.div`
+const ContentContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 0rem;
+  gap: 0.5rem;
   padding: 0.5rem 0.5rem;
   justify-content: space-between;
   width: 100%;
 `;
 
-const CommentContent = styled.div`
+const Content = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
@@ -47,6 +47,7 @@ const Text = styled.div``;
 
 const Time = styled.div`
   color: rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
 `;
 
 const Separator = styled.div`
@@ -62,13 +63,13 @@ const Separator = styled.div`
 
 const Comment = ({ name, text, timestamp }) => {
   return (
-    <CommentContainer>
-      <CommentContent>
+    <ContentContainer>
+      <Content>
         <Name>{name}</Name>
         <Text>{text}</Text>
-      </CommentContent>
+      </Content>
       <Time>{timestamp}</Time>
-    </CommentContainer>
+    </ContentContainer>
   );
 };
 

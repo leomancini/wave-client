@@ -13,9 +13,11 @@ const Input = styled(TextareaAutosize)`
   background-color: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 1.25rem;
-  padding: 0.75rem 5rem 0.75rem 1rem;
+  padding: 0.625rem 5rem 0.75rem 1rem;
   font-size: 1rem;
   height: 2.5rem;
+  line-height: 1.25rem;
+  resize: none;
 
   &:active,
   &:focus {
@@ -26,7 +28,7 @@ const Input = styled(TextareaAutosize)`
 
 const Button = styled.button`
   background-color: rgba(0, 0, 0, 1);
-  width: 3rem;
+  width: 3.5rem;
   color: white;
   border: none;
   border-radius: 3rem;
@@ -37,7 +39,7 @@ const Button = styled.button`
   position: absolute;
   cursor: pointer;
   right: 0.25rem;
-  height: 2rem;
+  height: 2.125rem;
   bottom: 0.25rem;
   outline: none;
   -webkit-user-select: none;
@@ -62,6 +64,7 @@ export const TextField = ({ placeholder, onSubmit }) => {
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
+            e.preventDefault();
             onSubmit(value);
             setValue("");
           }
