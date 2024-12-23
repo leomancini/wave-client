@@ -58,8 +58,8 @@ export const Banner = ({ label, date, messages, footer }) => {
       <Label>
         <strong>{label}</strong> {date}
       </Label>
-      {messages.map((message) => (
-        <p>{message}</p>
+      {messages.map((message, index) => (
+        <p key={`banner-message-${index}`}>{message}</p>
       ))}
       {footer && <strong>{footer}</strong>}
     </BannerContainer>
