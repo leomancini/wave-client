@@ -122,6 +122,8 @@ export const Comments = ({ item, groupId, userId }) => {
               name="You"
               text={comment}
               timestamp={formatDateTime(new Date().getTime())}
+              // TODO: This updates the timestamp of all new comments
+              // when a new comment is posted, figure out a better way
             />
           </ListItem>
         ))}
