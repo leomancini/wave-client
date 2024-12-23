@@ -7,6 +7,7 @@ import styled from "styled-components";
 import { Banner } from "./components/Banner";
 import { UploadButton } from "./components/UploadButton";
 import { MediaItem } from "./components/MediaItem";
+import { Spinner } from "./components/Spinner";
 
 const Page = styled.div`
   display: flex;
@@ -231,17 +232,7 @@ function App() {
                   />
                 );
               })}
-              {isLoading && (
-                <div
-                  style={{
-                    gridColumn: "1 / -1",
-                    textAlign: "center",
-                    padding: "20px"
-                  }}
-                >
-                  Loading...
-                </div>
-              )}
+              {isLoading && <Spinner />}
             </MediaGrid>
           </Container>
         )}
