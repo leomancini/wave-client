@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import { forwardRef } from "react";
 
+import { formatDateTime } from "../utilities/formatDateTime";
+import { Comments } from "./Comments";
+
 const MediaItemContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -75,21 +78,16 @@ const Reactions = styled.div`
   height: 1rem;
 `;
 
-const formatDateTime = (date) => {
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  });
+const Reaction = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`;
 
-  const formattedTime = new Date(date).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
-  });
-
-  return `${formattedDate} at ${formattedTime}`;
-};
+const ReactionEmoji = styled.div`
+  font-size: 1.125rem;
+`;
 
 export const handleMediaItemClick = async (
   filename,
@@ -197,15 +195,18 @@ export const MediaItem = forwardRef(
               if (!acc[reaction.reaction]) {
                 acc[reaction.reaction] = [];
               }
-              acc[reaction.reaction].push(reaction.user.name);
+              acc[reaction.reaction].push(
+                reaction.user.id === userId ? "You" : reaction.user.name
+              );
               return acc;
             }, {})
           ).map(([reaction, users]) => (
-            <div key={reaction}>
-              {reaction} {users.join(", ")}
-            </div>
+            <Reaction key={reaction}>
+              <ReactionEmoji>{reaction}</ReactionEmoji> {users.join(", ")}
+            </Reaction>
           ))}
         </Reactions>
+        <Comments item={item} groupId={groupId} userId={userId} />
       </MediaItemContainer>
     );
   }
