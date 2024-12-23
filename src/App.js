@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
+import { MediaItem } from "./components/MediaItem";
+import { UploadButton } from "./components/UploadButton";
 
 const Page = styled.div`
   display: flex;
@@ -17,128 +19,11 @@ const Container = styled.div`
   max-width: 32rem;
 `;
 
-const UploadButton = styled.label`
-  margin-bottom: 2.5rem;
-  cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
-  background: rgba(0, 0, 0, ${(props) => (props.$isLoading ? 0.5 : 1)});
-  height: 4rem;
-  line-height: 0.5rem;
-  color: rgba(255, 255, 255, 1);
-  border: none;
-  border-radius: 2rem;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  span {
-    height: 100%;
-    line-height: 140%;
-    font-size: 2.5rem;
-
-    &.loading {
-      height: unset;
-      line-height: unset;
-      font-size: 1.25rem;
-    }
-  }
-
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-touch-callout: none;
-
-  transition: transform 0.2s, opacity 0.2s;
-
-  &:active {
-    transform: ${(props) => (props.$isLoading ? "none" : "scale(0.95)")};
-    opacity: ${(props) => (props.$isLoading ? 0.5 : 0.75)};
-  }
-
-  input[type="file"] {
-    display: none;
-  }
-`;
-
 const MediaGrid = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-`;
-
-const MediaItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1rem;
-
-  p {
-    margin: 0;
-  }
-`;
-
-const MediaContainer = styled.div`
-  position: relative;
-  border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 0;
-  background-color: rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-`;
-
-const MediaImage = styled.img`
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s, filter 0.5s;
-  filter: blur(8px);
-
-  &.loaded {
-    filter: blur(0px);
-    opacity: 1;
-  }
-`;
-
-const MediaThumbnail = styled.img`
-  width: 100%;
-  filter: blur(8px);
-  transform: scale(1.125);
-  transform-origin: center;
-  opacity: 0;
-  transition: opacity 0.5s;
-
-  &.loaded {
-    opacity: 1;
-  }
-`;
-
-const MediaDetails = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 1rem;
-  padding: 0 1rem;
-`;
-
-const Name = styled.p`
-  font-weight: bold;
-`;
-
-const Time = styled.p`
-  color: rgba(0, 0, 0, 0.5);
-`;
-
-const Reactions = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  padding: 0 1rem;
-  height: 1rem;
 `;
 
 function App() {
@@ -243,22 +128,6 @@ function App() {
       fetchMediaItems(groupId);
       setIsUploading(false);
     }
-  };
-
-  const formatDateTime = (date) => {
-    const formattedDate = new Date(date).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-
-    const formattedTime = new Date(date).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit"
-    });
-
-    return `${formattedDate} at ${formattedTime}`;
   };
 
   const handleMediaItemClick = async (filename, { userId, reaction }) => {
@@ -372,59 +241,14 @@ function App() {
               {mediaItems.map((item, index) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
                 const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/thumbnail`;
-                if (index === mediaItems.length - 1) {
-                  return (
-                    <MediaItem
-                      ref={lastMediaElementRef}
-                      key={item.filename}
-                      onClick={() =>
-                        handleMediaItemClick(item.filename, {
-                          userId,
-                          reaction: "❤️"
-                        })
-                      }
-                    >
-                      <MediaContainer
-                        style={{
-                          aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
-                        }}
-                      >
-                        <MediaImage
-                          src={imageUrl}
-                          alt={item.filename}
-                          onLoad={(e) => e.target.classList.add("loaded")}
-                        />
-                        <MediaThumbnail
-                          src={thumbnailUrl}
-                          alt={item.filename}
-                          onLoad={(e) => e.target.classList.add("loaded")}
-                        />
-                      </MediaContainer>
-                      <MediaDetails>
-                        <Name>{item.uploader.name}</Name>
-                        <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
-                      </MediaDetails>
-                      <Reactions>
-                        {Object.entries(
-                          item.reactions.reduce((acc, reaction) => {
-                            if (!acc[reaction.reaction]) {
-                              acc[reaction.reaction] = [];
-                            }
-                            acc[reaction.reaction].push(reaction.user.name);
-                            return acc;
-                          }, {})
-                        ).map(([reaction, users]) => (
-                          <div key={reaction}>
-                            {reaction} {users.join(", ")}
-                          </div>
-                        ))}
-                      </Reactions>
-                    </MediaItem>
-                  );
-                }
 
                 return (
                   <MediaItem
+                    ref={
+                      index === mediaItems.length - 1
+                        ? lastMediaElementRef
+                        : null
+                    }
                     key={item.filename}
                     onClick={() =>
                       handleMediaItemClick(item.filename, {
@@ -432,43 +256,10 @@ function App() {
                         reaction: "❤️"
                       })
                     }
-                  >
-                    <MediaContainer
-                      style={{
-                        aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
-                      }}
-                    >
-                      <MediaImage
-                        src={imageUrl}
-                        alt={item.filename}
-                        onLoad={(e) => e.target.classList.add("loaded")}
-                      />
-                      <MediaThumbnail
-                        src={thumbnailUrl}
-                        alt={item.filename}
-                        onLoad={(e) => e.target.classList.add("loaded")}
-                      />
-                    </MediaContainer>
-                    <MediaDetails>
-                      <Name>{item.uploader.name}</Name>
-                      <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
-                    </MediaDetails>
-                    <Reactions>
-                      {Object.entries(
-                        item.reactions.reduce((acc, reaction) => {
-                          if (!acc[reaction.reaction]) {
-                            acc[reaction.reaction] = [];
-                          }
-                          acc[reaction.reaction].push(reaction.user.name);
-                          return acc;
-                        }, {})
-                      ).map(([reaction, users]) => (
-                        <div key={reaction}>
-                          {reaction} {users.join(", ")}
-                        </div>
-                      ))}
-                    </Reactions>
-                  </MediaItem>
+                    item={item}
+                    imageUrl={imageUrl}
+                    thumbnailUrl={thumbnailUrl}
+                  />
                 );
               })}
               {isLoading && (
