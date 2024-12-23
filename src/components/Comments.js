@@ -14,7 +14,8 @@ const Container = styled.div`
 const List = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  margin-bottom: ${({ isEmpty }) => (isEmpty ? "0" : "0.75rem")};
 `;
 
 const ListItem = styled.div`
@@ -104,7 +105,7 @@ export const Comments = ({ item, groupId, userId }) => {
 
   return (
     <Container>
-      <List>
+      <List isEmpty={item.comments.length === 0 && newComments.length === 0}>
         {item.comments.map((comment) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
