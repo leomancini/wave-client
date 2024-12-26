@@ -62,7 +62,7 @@ const Details = styled.div`
   gap: 0.5rem;
   font-size: 1rem;
   padding: 0 1rem;
-  height: 1.25rem;
+  min-height: 1.25rem;
 `;
 
 const Name = styled.p`

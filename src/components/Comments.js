@@ -20,38 +20,39 @@ const List = styled.div`
 `;
 
 const ListItem = styled.div`
-  height: 1.25rem;
+  min-height: 1.25rem;
   display: flex;
   flex-direction: row;
   gap: 0rem;
   justify-content: space-between;
 `;
 
-const ContentContainer = styled.div`
+const CommentContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 0.5rem;
   padding: 0 0.5rem;
   justify-content: space-between;
   width: 100%;
 `;
 
-const Content = styled.div`
+const Metadata = styled.div`
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+  justify-content: space-between;
 `;
 
 const Name = styled.div`
   font-weight: bold;
 `;
 
-const Text = styled.div``;
-
 const Time = styled.div`
   color: rgba(0, 0, 0, 0.5);
   white-space: nowrap;
 `;
+
+const Text = styled.div``;
 
 const Separator = styled.div`
   &:first-child {
@@ -66,19 +67,19 @@ const Separator = styled.div`
 
 const Comment = ({ name, text, timestamp }) => {
   return (
-    <ContentContainer>
-      <Content>
+    <CommentContainer>
+      <Metadata>
         <Name>{name}</Name>
-        <Text>{text}</Text>
-      </Content>
-      <Time>
-        {timestamp === "new" ? (
-          <Spinner $size="small" $opacity={0.5} />
-        ) : (
-          timestamp
-        )}
-      </Time>
-    </ContentContainer>
+        <Time>
+          {timestamp === "new" ? (
+            <Spinner $size="small" $opacity={0.5} />
+          ) : (
+            timestamp
+          )}
+        </Time>
+      </Metadata>
+      <Text>{text}</Text>
+    </CommentContainer>
   );
 };
 
