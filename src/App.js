@@ -232,7 +232,7 @@ function App() {
                   />
                 );
               })}
-              {isLoading && <Spinner />}
+              {isLoading && <Spinner $size="large" />}
             </MediaGrid>
           </Container>
         )}

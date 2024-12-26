@@ -61,6 +61,7 @@ const Details = styled.div`
   gap: 0.5rem;
   font-size: 1rem;
   padding: 0 1rem;
+  height: 1.25rem;
 `;
 
 const Name = styled.p`
@@ -98,7 +99,6 @@ const ReactionEmoji = styled.div`
 
 export const handleMediaItemClick = async (
   filename,
-  fetchMediaItems,
   setReactions,
   { groupId, userId, reaction }
 ) => {
@@ -176,8 +176,6 @@ export const handleMediaItemClick = async (
     if (!response.ok) {
       throw new Error("Failed to add reaction");
     }
-
-    // await fetchMediaItems(groupId, 1, { refresh: true });
   } catch (error) {
     console.error("Error adding reaction:", error);
   }
@@ -194,7 +192,7 @@ export const MediaItem = forwardRef(
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
           onClick={() =>
-            handleMediaItemClick(item.filename, fetchMediaItems, setReactions, {
+            handleMediaItemClick(item.filename, setReactions, {
               groupId,
               userId,
               reaction: "❤️"

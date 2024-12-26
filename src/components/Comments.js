@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { TextField } from "./TextField";
+import { Spinner } from "./Spinner";
 
 const Container = styled.div`
   display: flex;
@@ -19,6 +20,7 @@ const List = styled.div`
 `;
 
 const ListItem = styled.div`
+  height: 1.25rem;
   display: flex;
   flex-direction: row;
   gap: 0rem;
@@ -69,7 +71,13 @@ const Comment = ({ name, text, timestamp }) => {
         <Name>{name}</Name>
         <Text>{text}</Text>
       </Content>
-      <Time>{timestamp}</Time>
+      <Time>
+        {timestamp === "new" ? (
+          <Spinner $size="small" $opacity={0.5} />
+        ) : (
+          timestamp
+        )}
+      </Time>
     </ContentContainer>
   );
 };
@@ -78,7 +86,8 @@ export const Comments = ({ item, groupId, userId }) => {
   const [newComments, setNewComments] = useState([]);
 
   const onSubmit = async (comment) => {
-    setNewComments([...newComments, comment]);
+    const timestamp = new Date().toISOString();
+    setNewComments([...newComments, { text: comment, timestamp }]);
 
     try {
       const response = await fetch(
@@ -98,6 +107,14 @@ export const Comments = ({ item, groupId, userId }) => {
       if (!response.ok) {
         throw new Error("Failed to add comment");
       }
+
+      item.comments.push({
+        comment,
+        timestamp,
+        user: { id: userId, name: "You" }
+      });
+
+      setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -119,13 +136,7 @@ export const Comments = ({ item, groupId, userId }) => {
         {newComments.map((comment) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
-            <Comment
-              name="You"
-              text={comment}
-              timestamp={formatDateTime(new Date().getTime(), "short")}
-              // TODO: This updates the timestamp of all new comments
-              // when a new comment is posted, figure out a better way
-            />
+            <Comment name="You" text={comment.text} timestamp="new" />
           </ListItem>
         ))}
       </List>
