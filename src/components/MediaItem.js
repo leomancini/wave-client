@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { Comments } from "./Comments";
+import { Spinner } from "./Spinner";
 
 const Container = styled.div`
   display: flex;
@@ -77,7 +78,7 @@ const Reactions = styled.div`
   flex-direction: row;
   gap: 0.5rem;
   padding: 0 1rem;
-  height: 1rem;
+  height: 1.25rem;
 
   ${({ $isEmpty }) =>
     $isEmpty &&
@@ -141,19 +142,24 @@ export const handleMediaItemClick = async (
     style.remove();
   }, 2000);
 
+  let isRemoving = false;
   setReactions((prevReactions) => {
+    isRemoving = prevReactions.some(
+      (r) => r.user.id === userId && r.reaction === reaction
+    );
+
     const existingReactionIndex = prevReactions.findIndex(
       (r) => r.user.id === userId && r.reaction === reaction
     );
 
     if (existingReactionIndex !== -1) {
-      return prevReactions.filter(
-        (_, index) => index !== existingReactionIndex
+      return prevReactions.map((r, index) =>
+        index === existingReactionIndex ? { ...r, isPending: true } : r
       );
     } else {
       return [
         ...prevReactions,
-        { user: { id: userId, name: "You" }, reaction }
+        { user: { id: userId }, reaction, isPending: true }
       ];
     }
   });
@@ -176,8 +182,39 @@ export const handleMediaItemClick = async (
     if (!response.ok) {
       throw new Error("Failed to add reaction");
     }
+
+    setReactions((prevReactions) => {
+      if (isRemoving) {
+        return prevReactions.filter(
+          (r) => !(r.user.id === userId && r.reaction === reaction)
+        );
+      } else {
+        return prevReactions.map((r) =>
+          r.user.id === userId && r.reaction === reaction
+            ? { ...r, isPending: false }
+            : r
+        );
+      }
+    });
   } catch (error) {
     console.error("Error adding reaction:", error);
+    setReactions((prevReactions) => {
+      const existingReactionIndex = prevReactions.findIndex(
+        (r) => r.user.id === userId && r.reaction === reaction
+      );
+
+      if (existingReactionIndex !== -1) {
+        return prevReactions.map((r) =>
+          r.user.id === userId && r.reaction === reaction
+            ? { ...r, isPending: false }
+            : r
+        );
+      } else {
+        return prevReactions.filter(
+          (r) => !(r.user.id === userId && r.reaction === reaction)
+        );
+      }
+    });
   }
 };
 
@@ -220,16 +257,23 @@ export const MediaItem = forwardRef(
           {Object.entries(
             reactions.reduce((acc, reaction) => {
               if (!acc[reaction.reaction]) {
-                acc[reaction.reaction] = [];
+                acc[reaction.reaction] = {
+                  users: [],
+                  isPending: reaction.isPending
+                };
               }
-              acc[reaction.reaction].push(
+              acc[reaction.reaction].users.push(
                 reaction.user.id === userId ? "You" : reaction.user.name
               );
+              acc[reaction.reaction].isPending =
+                acc[reaction.reaction].isPending || reaction.isPending;
               return acc;
             }, {})
-          ).map(([reaction, users]) => (
+          ).map(([reaction, { users, isPending }]) => (
             <Reaction key={reaction}>
-              <ReactionEmoji>{reaction}</ReactionEmoji> {users.join(", ")}
+              <ReactionEmoji>{reaction}</ReactionEmoji>
+              {users.join(", ")}
+              {isPending && <Spinner $size="small" $opacity={0.5} />}
             </Reaction>
           ))}
         </Reactions>
