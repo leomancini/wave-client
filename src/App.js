@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 
-import { Banner } from "./components/Banner";
 import { UploadButton } from "./components/UploadButton";
 import { MediaItem } from "./components/MediaItem";
 import { Spinner } from "./components/Spinner";
