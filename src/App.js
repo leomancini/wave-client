@@ -42,7 +42,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const observer = useRef();
 
-  useEffect(() => {
+  useEffect(async () => {
     const url = window.location.href;
     const path = new URL(url).pathname;
     const pathParts = path.substring(1).split("/");
@@ -55,6 +55,22 @@ function App() {
 
     if (!userId) {
       alert("No user ID");
+      return;
+    }
+
+    try {
+      const validateResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/validate-user/${groupId}/${userId}`
+      );
+
+      const validateData = await validateResponse.json();
+      if (!validateResponse.ok || !validateData.valid) {
+        alert("Invalid group or user ID");
+        return;
+      }
+    } catch (error) {
+      console.error("Error validating user:", error);
+      alert("Error validating user");
       return;
     }
 
