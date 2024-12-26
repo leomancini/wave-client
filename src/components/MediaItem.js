@@ -273,7 +273,7 @@ export const MediaItem = forwardRef(
             <Reaction key={reaction}>
               <ReactionEmoji>{reaction}</ReactionEmoji>
               {users.join(", ")}
-              {isPending && <Spinner $size="small" $opacity={0.5} />}
+              {isPending && <Spinner $size="small" />}
             </Reaction>
           ))}
         </Reactions>

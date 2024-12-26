@@ -71,11 +71,7 @@ const Comment = ({ name, text, timestamp }) => {
       <Metadata>
         <Name>{name}</Name>
         <Time>
-          {timestamp === "new" ? (
-            <Spinner $size="small" $opacity={0.5} />
-          ) : (
-            timestamp
-          )}
+          {timestamp === "new" ? <Spinner $size="small" /> : timestamp}
         </Time>
       </Metadata>
       <Text>{text}</Text>

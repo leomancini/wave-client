@@ -10,7 +10,7 @@ export const Spinner = styled.div`
     rgba(0, 0, 0, 0.8);
   border-radius: 50%;
   animation: spin 0.5s ease-in infinite;
-  opacity: ${({ $opacity }) => $opacity || 1};
+  box-sizing: border-box;
 
   @keyframes spin {
     0% {

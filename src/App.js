@@ -227,11 +227,6 @@ function App() {
                 {isUploading ? "Uploading..." : "+"}
               </span>
             </UploadButton>
-            <Banner
-              label="NEW"
-              date="Dec 23, 2024"
-              messages={["You can now comment on any item!"]}
-            />
             <MediaGrid>
               {mediaItems.map((item, index) => {
                 const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
