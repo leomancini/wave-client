@@ -137,7 +137,11 @@ export const Comments = ({ item, groupId, userId }) => {
           </ListItem>
         ))}
       </List>
-      <TextField placeholder="Write a comment..." onSubmit={onSubmit} />
+      <TextField
+        placeholder="Write a comment..."
+        onSubmit={onSubmit}
+        buttonLabel="↑"
+      />
     </Container>
   );
 };

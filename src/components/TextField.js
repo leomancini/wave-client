@@ -53,7 +53,7 @@ const Button = styled.button`
   }
 `;
 
-export const TextField = ({ placeholder, onSubmit }) => {
+export const TextField = ({ placeholder, onSubmit, buttonLabel }) => {
   const [value, setValue] = useState("");
 
   return (
@@ -77,7 +77,7 @@ export const TextField = ({ placeholder, onSubmit }) => {
             setValue("");
           }}
         >
-          ↑
+          {buttonLabel}
         </Button>
       )}
     </TextFieldContainer>
