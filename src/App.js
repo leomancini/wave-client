@@ -33,6 +33,7 @@ const MediaGrid = styled.div`
 
 function App() {
   const [, setSelectedFile] = useState(null);
+  const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState("");
   const [userId, setUserId] = useState("");
   const [mediaItems, setMediaItems] = useState([]);
@@ -41,6 +42,10 @@ function App() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const observer = useRef();
+
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
 
   useEffect(async () => {
     const url = window.location.href;
@@ -74,6 +79,7 @@ function App() {
       return;
     }
 
+    setTitle(groupId);
     setGroupId(groupId);
     setUserId(userId);
     fetchMediaItems(groupId);
