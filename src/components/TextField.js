@@ -53,7 +53,12 @@ const Button = styled.button`
   }
 `;
 
-export const TextField = ({ placeholder, onSubmit, buttonLabel }) => {
+export const TextField = ({
+  placeholder,
+  onSubmit,
+  buttonLabel,
+  handleChange
+}) => {
   const [value, setValue] = useState("");
 
   return (
@@ -61,9 +66,12 @@ export const TextField = ({ placeholder, onSubmit, buttonLabel }) => {
       <Input
         value={value}
         placeholder={placeholder}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          handleChange(e.target.value);
+        }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
+          if (buttonLabel && e.key === "Enter") {
             e.preventDefault();
             onSubmit(value);
             setValue("");

@@ -17,8 +17,9 @@ export const CreateGroup = () => {
   const [userName, setUserName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
+    console.log(groupName, userName);
 
     try {
       const response = await fetch(
@@ -28,17 +29,20 @@ export const CreateGroup = () => {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ name: groupName })
+          body: JSON.stringify({
+            groupName,
+            userName
+          })
         }
       );
 
-      if (!response.ok) {
+      const data = await response.json();
+
+      if (!data.success) {
         throw new Error("Failed to create group");
       }
 
-      const data = await response.json();
-
-      window.location.href = `/${data.groupId}/${data.adminId}`;
+      window.location.href = `/${data.groupId}/${data.userId}`;
     } catch (error) {
       console.error("Error creating group:", error);
       alert("Failed to create group. Please try again.");
@@ -53,17 +57,20 @@ export const CreateGroup = () => {
         <TextField
           placeholder="Group name"
           value={groupName}
-          onChange={(e) => setGroupName(e.target.value)}
+          handleChange={setGroupName}
           maxLength={50}
         />
         <TextField
           placeholder="Your name"
           value={userName}
-          onChange={(e) => setUserName(e.target.value)}
+          handleChange={setUserName}
           maxLength={50}
         />
         <Button
-          onClick={handleSubmit}
+          onClick={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
           $isLoading={isSubmitting}
           $size="small"
           $type="text"
