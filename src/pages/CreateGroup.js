@@ -21,13 +21,16 @@ export const CreateGroup = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/groups`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name: groupName })
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/create-group`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name: groupName })
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to create group");

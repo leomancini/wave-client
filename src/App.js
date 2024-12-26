@@ -11,11 +11,22 @@ const Container = styled.div`
   align-items: center;
 `;
 
+const Pages = {
+  CreateGroup: {
+    url: "create-group",
+    title: "Create Group",
+    component: CreateGroup
+  },
+  ViewGroup: {
+    component: ViewGroup
+  }
+};
+
 function App() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState("");
   const [userId, setUserId] = useState("");
-  const [pathParts, setPathParts] = useState([]);
+  const [page, setPage] = useState("");
 
   useEffect(() => {
     document.title = title;
@@ -25,58 +36,67 @@ function App() {
     const url = window.location.href;
     const path = new URL(url).pathname;
     const urlParts = path.substring(1).split("/");
-    setPathParts(urlParts);
-    const [groupId, userId] = urlParts;
 
-    if (urlParts[0] === "create") {
-      setTitle("Create Group");
-      return;
-    }
+    if (urlParts.length === 2) {
+      const [groupId, userId] = urlParts;
+      setPage(Pages.ViewGroup.url);
 
-    if (!groupId) {
-      alert("No group ID");
-      return;
-    }
-
-    if (!userId) {
-      alert("No user ID");
-      return;
-    }
-
-    const validateUser = async () => {
-      try {
-        const validateResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${userId}`
-        );
-
-        const validateData = await validateResponse.json();
-        if (!validateResponse.ok || !validateData.valid) {
-          alert("Invalid group or user ID");
-          return;
-        }
-
-        setTitle(groupId);
-        setGroupId(groupId);
-        setUserId(userId);
-      } catch (error) {
-        console.error("Error validating user:", error);
-        alert("Error validating user");
+      if (!groupId) {
+        alert("No group ID");
         return;
       }
-    };
 
-    (async () => {
-      await validateUser();
-    })();
+      if (!userId) {
+        alert("No user ID");
+        return;
+      }
+
+      const init = async () => {
+        await validateUser(groupId, userId);
+      };
+
+      init();
+      return;
+    }
+
+    const currentPageKey = Object.keys(Pages).find(
+      (key) => Pages[key].url === urlParts[0]
+    );
+
+    setPage(urlParts[0]);
+
+    if (currentPageKey) {
+      setTitle(Pages[currentPageKey].title);
+    }
   }, []);
+
+  const validateUser = async (groupId, userId) => {
+    try {
+      const validateResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${userId}`
+      );
+
+      const validateData = await validateResponse.json();
+      if (!validateResponse.ok || !validateData.valid) {
+        alert("Invalid group or user ID");
+        return;
+      }
+
+      setTitle(groupId);
+      setGroupId(groupId);
+      setUserId(userId);
+    } catch (error) {
+      console.error("Error validating user:", error);
+      alert("Error validating user");
+    }
+  };
 
   return (
     <BrowserRouter basename="/">
       <Container>
-        {pathParts[0] === "create" ? (
-          <CreateGroup />
-        ) : (
-          groupId && <ViewGroup groupId={groupId} userId={userId} />
+        {page === Pages.CreateGroup.url && <CreateGroup />}
+        {page === Pages.ViewGroup.url && (
+          <ViewGroup groupId={groupId} userId={userId} />
         )}
       </Container>
     </BrowserRouter>

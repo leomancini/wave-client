@@ -70,7 +70,7 @@ export const TextField = ({ placeholder, onSubmit, buttonLabel }) => {
           }
         }}
       />
-      {value && (
+      {value && buttonLabel && (
         <Button
           onClick={() => {
             onSubmit(value);

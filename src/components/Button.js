@@ -22,6 +22,7 @@ const StyledButton = styled.button`
   cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
   pointer-events: ${(props) => (props.$isLoading ? "none" : "auto")};
   transition: transform 0.2s, opacity 0.2s;
+  outline: none;
 
   &:active {
     transform: ${(props) => (props.$isLoading ? "none" : "scale(0.95)")};
@@ -29,10 +30,6 @@ const StyledButton = styled.button`
   }
 
   span {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", sans-serif;
-
     ${(props) => {
       switch (props.$type) {
         case "text":
@@ -61,6 +58,7 @@ const StyledButton = styled.button`
   input[type="file"] {
     position: absolute;
     opacity: 0;
+    cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
     width: 100%;
     height: 100%;
   }
