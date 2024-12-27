@@ -57,6 +57,7 @@ export const TextField = ({
   placeholder,
   onSubmit,
   buttonLabel,
+  multiLine = false,
   handleChange
 }) => {
   const [value, setValue] = useState("");
@@ -66,15 +67,22 @@ export const TextField = ({
       <Input
         value={value}
         placeholder={placeholder}
+        maxRows={multiLine ? 99999 : 1}
         onChange={(e) => {
           setValue(e.target.value);
-          handleChange(e.target.value);
+
+          if (handleChange) {
+            handleChange(e.target.value);
+          }
         }}
         onKeyDown={(e) => {
-          if (buttonLabel && e.key === "Enter") {
+          if (e.key === "Enter") {
             e.preventDefault();
-            onSubmit(value);
-            setValue("");
+
+            if (buttonLabel) {
+              onSubmit(value);
+              setValue("");
+            }
           }
         }}
       />

@@ -141,6 +141,7 @@ export const Comments = ({ item, groupId, userId }) => {
         placeholder="Write a comment..."
         onSubmit={onSubmit}
         buttonLabel="↑"
+        multiLine={true}
       />
     </Container>
   );
