@@ -37,13 +37,13 @@ export const JoinGroup = ({ groupId }) => {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error("Failed to create group");
+        throw new Error("Failed to join group");
       }
 
       window.location.href = `/${data.groupId}/${data.userId}`;
     } catch (error) {
-      console.error("Error creating group:", error);
-      alert("Failed to create group. Please try again.");
+      console.error("Error joining group:", error);
+      alert("Failed to join group. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
