@@ -27,7 +27,12 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (groupId && userId) {
       const init = async () => {
-        await validateUser(groupId, userId);
+        const isValidUserId = await validateUser(groupId, userId);
+        if (!isValidUserId) {
+          setIsLoading(false);
+          return;
+        }
+
         setPage(1);
         fetchMediaItems(groupId, 1, false);
       };
@@ -45,11 +50,13 @@ export const ViewGroup = ({ groupId, userId }) => {
       const validateData = await validateResponse.json();
       if (!validateResponse.ok || !validateData.valid) {
         alert("Invalid group or user ID");
-        return;
+        return false;
       }
+      return true;
     } catch (error) {
       console.error("Error validating user:", error);
       alert("Error validating user");
+      return false;
     }
   };
 

@@ -13,11 +13,13 @@ const Container = styled.div`
 
 const Pages = {
   CreateGroup: {
+    id: "CREATE_GROUP",
     url: "create-group",
     title: "Create Group",
     component: CreateGroup
   },
   ViewGroup: {
+    id: "VIEW_GROUP",
     component: ViewGroup
   }
 };
@@ -30,13 +32,15 @@ function App() {
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
-      (key) => Pages[key].url === pageId
+      (key) => Pages[key].id === pageId || Pages[key].url === pageId
     );
 
-    setPage(pageId);
-
     if (currentPageKey) {
+      setPage(Pages[currentPageKey].id);
       setTitle(Pages[currentPageKey].title);
+    } else {
+      alert("Invalid page");
+      return;
     }
   };
 
@@ -52,7 +56,7 @@ function App() {
     if (urlParts.length === 2) {
       // For viewing a specific group
       const [groupId, userId] = urlParts;
-      setPage(Pages.ViewGroup.url);
+      setPage(Pages.ViewGroup.id);
       setTitle(groupId);
       setGroupId(groupId);
       setUserId(userId);
@@ -76,8 +80,8 @@ function App() {
   return (
     <BrowserRouter basename="/">
       <Container>
-        {page === Pages.CreateGroup.url && <CreateGroup />}
-        {page === Pages.ViewGroup.url && (
+        {page === Pages.CreateGroup.id && <CreateGroup />}
+        {page === Pages.ViewGroup.id && (
           <ViewGroup groupId={groupId} userId={userId} />
         )}
       </Container>
