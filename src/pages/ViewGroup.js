@@ -21,15 +21,37 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const observer = useRef();
 
   useEffect(() => {
-    if (groupId) {
-      setPage(1);
-      fetchMediaItems(groupId, 1, false);
+    if (groupId && userId) {
+      const init = async () => {
+        await validateUser(groupId, userId);
+        setPage(1);
+        fetchMediaItems(groupId, 1, false);
+      };
+
+      init();
     }
-  }, [groupId]);
+  }, [groupId, userId]);
+
+  const validateUser = async (groupId, userId) => {
+    try {
+      const validateResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${userId}`
+      );
+
+      const validateData = await validateResponse.json();
+      if (!validateResponse.ok || !validateData.valid) {
+        alert("Invalid group or user ID");
+        return;
+      }
+    } catch (error) {
+      console.error("Error validating user:", error);
+      alert("Error validating user");
+    }
+  };
 
   const fetchMediaItems = async (
     groupId,
@@ -37,7 +59,6 @@ export const ViewGroup = ({ groupId, userId }) => {
     options = { append: false, refresh: false }
   ) => {
     if (!groupId) return;
-    setIsLoading(true);
 
     try {
       if (options.refresh) {

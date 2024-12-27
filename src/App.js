@@ -28,6 +28,18 @@ function App() {
   const [userId, setUserId] = useState("");
   const [page, setPage] = useState("");
 
+  const setPageAndTitle = (pageId) => {
+    const currentPageKey = Object.keys(Pages).find(
+      (key) => Pages[key].url === pageId
+    );
+
+    setPage(pageId);
+
+    if (currentPageKey) {
+      setTitle(Pages[currentPageKey].title);
+    }
+  };
+
   useEffect(() => {
     document.title = title;
   }, [title]);
@@ -38,8 +50,12 @@ function App() {
     const urlParts = path.substring(1).split("/");
 
     if (urlParts.length === 2) {
+      // For viewing a specific group
       const [groupId, userId] = urlParts;
       setPage(Pages.ViewGroup.url);
+      setTitle(groupId);
+      setGroupId(groupId);
+      setUserId(userId);
 
       if (!groupId) {
         alert("No group ID");
@@ -50,46 +66,12 @@ function App() {
         alert("No user ID");
         return;
       }
-
-      const init = async () => {
-        await validateUser(groupId, userId);
-      };
-
-      init();
-      return;
-    }
-
-    const currentPageKey = Object.keys(Pages).find(
-      (key) => Pages[key].url === urlParts[0]
-    );
-
-    setPage(urlParts[0]);
-
-    if (currentPageKey) {
-      setTitle(Pages[currentPageKey].title);
+    } else {
+      // For all other known pages
+      const pageId = urlParts[0];
+      setPageAndTitle(pageId);
     }
   }, []);
-
-  const validateUser = async (groupId, userId) => {
-    try {
-      const validateResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${userId}`
-      );
-
-      const validateData = await validateResponse.json();
-      if (!validateResponse.ok || !validateData.valid) {
-        alert("Invalid group or user ID");
-        return;
-      }
-
-      setTitle(groupId);
-      setGroupId(groupId);
-      setUserId(userId);
-    } catch (error) {
-      console.error("Error validating user:", error);
-      alert("Error validating user");
-    }
-  };
 
   return (
     <BrowserRouter basename="/">
