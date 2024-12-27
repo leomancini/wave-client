@@ -98,7 +98,41 @@ const ReactionEmoji = styled.div`
   font-size: 1.125rem;
 `;
 
-export const handleMediaItemClick = async (
+let lastClickTime = 0;
+let lastTouchTime = 0;
+
+export const handleMediaItemClick = (
+  e,
+  filename,
+  setReactions,
+  { groupId, user, reaction }
+) => {
+  const currentTime = new Date().getTime();
+  const isTouch = e.type === "touchend";
+
+  if (isTouch) {
+    e.preventDefault(); // Prevent default touch behavior
+    if (lastTouchTime && currentTime - lastTouchTime < 300) {
+      // Double tap detected
+      addReaction(filename, setReactions, { groupId, user, reaction });
+      lastTouchTime = 0; // Reset after double tap
+    } else {
+      lastTouchTime = currentTime;
+    }
+  } else {
+    // Mouse click
+    if (lastClickTime && currentTime - lastClickTime < 300) {
+      // Double click detected
+      addReaction(filename, setReactions, { groupId, user, reaction });
+      lastClickTime = 0; // Reset after double click
+    } else {
+      lastClickTime = currentTime;
+    }
+  }
+};
+
+// Separate the reaction logic into its own function
+const addReaction = async (
   filename,
   setReactions,
   { groupId, user, reaction }
@@ -232,8 +266,15 @@ export const MediaItem = forwardRef(
           style={{
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
-          onClick={() =>
-            handleMediaItemClick(item.filename, setReactions, {
+          onClick={(e) =>
+            handleMediaItemClick(e, item.filename, setReactions, {
+              groupId,
+              user,
+              reaction: "❤️"
+            })
+          }
+          onTouchEnd={(e) =>
+            handleMediaItemClick(e, item.filename, setReactions, {
               groupId,
               user,
               reaction: "❤️"
