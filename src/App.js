@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
+import { JoinGroup } from "./pages/JoinGroup";
 
 const Container = styled.div`
   display: flex;
@@ -21,6 +22,10 @@ const Pages = {
   ViewGroup: {
     id: "VIEW_GROUP",
     component: ViewGroup
+  },
+  JoinGroup: {
+    id: "JOIN_GROUP",
+    component: JoinGroup
   }
 };
 
@@ -56,10 +61,17 @@ function App() {
     if (urlParts.length === 2) {
       // For viewing a specific group
       const [groupId, userId] = urlParts;
-      setPage(Pages.ViewGroup.id);
-      setTitle(groupId);
-      setGroupId(groupId);
-      setUserId(userId);
+
+      if (userId === "join") {
+        setPage(Pages.JoinGroup.id);
+        setTitle(groupId);
+        setGroupId(groupId);
+      } else {
+        setPage(Pages.ViewGroup.id);
+        setTitle(groupId);
+        setGroupId(groupId);
+        setUserId(userId);
+      }
 
       if (!groupId) {
         alert("No group ID");
@@ -84,6 +96,7 @@ function App() {
         {page === Pages.ViewGroup.id && (
           <ViewGroup groupId={groupId} userId={userId} />
         )}
+        {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
       </Container>
     </BrowserRouter>
   );

@@ -24,6 +24,21 @@ const Input = styled(TextareaAutosize)`
     background-color: rgba(0, 0, 0, 0.075);
     outline: none;
   }
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+      color: rgba(0, 0, 0, 0.25);
+
+      &::selection {
+        background: transparent;
+      }
+        &:active,
+      &:focus {
+        background-color: rgba(0, 0, 0, 0.05);
+        outline: none;
+      }
+    `}
 `;
 
 const Button = styled.button`
@@ -54,13 +69,15 @@ const Button = styled.button`
 `;
 
 export const TextField = ({
+  initialValue = "",
   placeholder,
   onSubmit,
   buttonLabel,
   multiLine = false,
-  handleChange
+  handleChange,
+  disabled = false
 }) => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
 
   return (
     <TextFieldContainer>
@@ -68,6 +85,7 @@ export const TextField = ({
         value={value}
         placeholder={placeholder}
         maxRows={multiLine ? 99999 : 1}
+        onSelect={(e) => e.preventDefault()}
         onChange={(e) => {
           setValue(e.target.value);
 
@@ -85,6 +103,7 @@ export const TextField = ({
             }
           }
         }}
+        disabled={disabled}
       />
       {value && buttonLabel && (
         <Button

@@ -12,8 +12,7 @@ const Form = styled.form`
   gap: 1rem;
 `;
 
-export const CreateGroup = () => {
-  const [groupName, setGroupName] = useState("");
+export const JoinGroup = ({ groupId }) => {
   const [userName, setUserName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -22,14 +21,14 @@ export const CreateGroup = () => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/create-group`,
+        `${process.env.REACT_APP_API_URL}/join-group`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            groupName,
+            groupId,
             userName
           })
         }
@@ -55,9 +54,8 @@ export const CreateGroup = () => {
       <Form>
         <TextField
           placeholder="Group name"
-          value={groupName}
-          handleChange={setGroupName}
-          maxLength={50}
+          initialValue={groupId}
+          disabled={true}
         />
         <TextField
           placeholder="Your name"
@@ -73,7 +71,7 @@ export const CreateGroup = () => {
           $isLoading={isSubmitting}
           $size="small"
           $type="text"
-          $label="Create"
+          $label="Join"
         />
       </Form>
     </Page>
