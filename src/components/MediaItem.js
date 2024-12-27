@@ -101,7 +101,7 @@ const ReactionEmoji = styled.div`
 export const handleMediaItemClick = async (
   filename,
   setReactions,
-  { groupId, userId, reaction }
+  { groupId, user, reaction }
 ) => {
   const img = document.querySelector(`img[alt="${filename}"]`);
   const tempReaction = document.createElement("div");
@@ -145,11 +145,11 @@ export const handleMediaItemClick = async (
   let isRemoving = false;
   setReactions((prevReactions) => {
     isRemoving = prevReactions.some(
-      (r) => r.user.id === userId && r.reaction === reaction
+      (r) => r.user.id === user.id && r.reaction === reaction
     );
 
     const existingReactionIndex = prevReactions.findIndex(
-      (r) => r.user.id === userId && r.reaction === reaction
+      (r) => r.user.id === user.id && r.reaction === reaction
     );
 
     if (existingReactionIndex !== -1) {
@@ -159,7 +159,11 @@ export const handleMediaItemClick = async (
     } else {
       return [
         ...prevReactions,
-        { user: { id: userId }, reaction, isPending: true }
+        {
+          user,
+          reaction,
+          isPending: true
+        }
       ];
     }
   });
@@ -173,7 +177,7 @@ export const handleMediaItemClick = async (
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          userId,
+          userId: user.id,
           reaction
         })
       }
@@ -186,11 +190,11 @@ export const handleMediaItemClick = async (
     setReactions((prevReactions) => {
       if (isRemoving) {
         return prevReactions.filter(
-          (r) => !(r.user.id === userId && r.reaction === reaction)
+          (r) => !(r.user.id === user.id && r.reaction === reaction)
         );
       } else {
         return prevReactions.map((r) =>
-          r.user.id === userId && r.reaction === reaction
+          r.user.id === user.id && r.reaction === reaction
             ? { ...r, isPending: false }
             : r
         );
@@ -200,18 +204,18 @@ export const handleMediaItemClick = async (
     console.error("Error adding reaction:", error);
     setReactions((prevReactions) => {
       const existingReactionIndex = prevReactions.findIndex(
-        (r) => r.user.id === userId && r.reaction === reaction
+        (r) => r.user.id === user.id && r.reaction === reaction
       );
 
       if (existingReactionIndex !== -1) {
         return prevReactions.map((r) =>
-          r.user.id === userId && r.reaction === reaction
+          r.user.id === user.id && r.reaction === reaction
             ? { ...r, isPending: false }
             : r
         );
       } else {
         return prevReactions.filter(
-          (r) => !(r.user.id === userId && r.reaction === reaction)
+          (r) => !(r.user.id === user.id && r.reaction === reaction)
         );
       }
     });
@@ -219,7 +223,7 @@ export const handleMediaItemClick = async (
 };
 
 export const MediaItem = forwardRef(
-  ({ item, imageUrl, thumbnailUrl, fetchMediaItems, groupId, userId }, ref) => {
+  ({ item, imageUrl, thumbnailUrl, groupId, user }, ref) => {
     const [reactions, setReactions] = useState(item.reactions);
 
     return (
@@ -231,7 +235,7 @@ export const MediaItem = forwardRef(
           onClick={() =>
             handleMediaItemClick(item.filename, setReactions, {
               groupId,
-              userId,
+              user,
               reaction: "❤️"
             })
           }
@@ -248,9 +252,7 @@ export const MediaItem = forwardRef(
           />
         </Media>
         <Details>
-          <Name>
-            {item.uploader.id === userId ? "You" : item.uploader.name}
-          </Name>
+          <Name>{item.uploader.name}</Name>
           <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
         </Details>
         <Reactions $isEmpty={Object.keys(reactions).length === 0}>
@@ -262,9 +264,7 @@ export const MediaItem = forwardRef(
                   isPending: reaction.isPending
                 };
               }
-              acc[reaction.reaction].users.push(
-                reaction.user.id === userId ? "You" : reaction.user.name
-              );
+              acc[reaction.reaction].users.push(reaction.user.name);
               acc[reaction.reaction].isPending =
                 acc[reaction.reaction].isPending || reaction.isPending;
               return acc;
@@ -277,7 +277,7 @@ export const MediaItem = forwardRef(
             </Reaction>
           ))}
         </Reactions>
-        <Comments item={item} groupId={groupId} userId={userId} />
+        <Comments item={item} groupId={groupId} user={user} />
       </Container>
     );
   }

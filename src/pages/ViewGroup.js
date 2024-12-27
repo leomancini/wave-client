@@ -22,15 +22,18 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState({});
   const observer = useRef();
 
   useEffect(() => {
     if (groupId && userId) {
       const init = async () => {
-        const isValidUserId = await validateUser(groupId, userId);
-        if (!isValidUserId) {
+        const userData = await validateUser(groupId, userId);
+        if (!userData.valid) {
           setIsLoading(false);
           return;
+        } else {
+          setUser(userData);
         }
 
         setPage(1);
@@ -50,13 +53,14 @@ export const ViewGroup = ({ groupId, userId }) => {
       const validateData = await validateResponse.json();
       if (!validateResponse.ok || !validateData.valid) {
         alert("Invalid group or user ID");
-        return false;
+        return { valid: false };
+      } else {
+        return { valid: true, id: userId, name: validateData.userName };
       }
-      return true;
     } catch (error) {
       console.error("Error validating user:", error);
       alert("Error validating user");
-      return false;
+      return { valid: false };
     }
   };
 
@@ -202,7 +206,7 @@ export const ViewGroup = ({ groupId, userId }) => {
               thumbnailUrl={thumbnailUrl}
               fetchMediaItems={fetchMediaItems}
               groupId={groupId}
-              userId={userId}
+              user={user}
             />
           );
         })}

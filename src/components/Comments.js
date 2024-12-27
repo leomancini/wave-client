@@ -79,7 +79,7 @@ const Comment = ({ name, text, timestamp }) => {
   );
 };
 
-export const Comments = ({ item, groupId, userId }) => {
+export const Comments = ({ item, groupId, user }) => {
   const [newComments, setNewComments] = useState([]);
 
   const onSubmit = async (comment) => {
@@ -95,7 +95,7 @@ export const Comments = ({ item, groupId, userId }) => {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            userId,
+            userId: user.id,
             comment
           })
         }
@@ -108,7 +108,7 @@ export const Comments = ({ item, groupId, userId }) => {
       item.comments.push({
         comment,
         timestamp,
-        user: { id: userId, name: "You" }
+        user: { id: user.id, name: user.name }
       });
 
       setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
@@ -124,7 +124,7 @@ export const Comments = ({ item, groupId, userId }) => {
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
             <Comment
-              name={comment.user.id === userId ? "You" : comment.user.name}
+              name={comment.user.name}
               text={comment.comment}
               timestamp={formatDateTime(comment.timestamp, "short")}
             />
@@ -133,7 +133,7 @@ export const Comments = ({ item, groupId, userId }) => {
         {newComments.map((comment) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
-            <Comment name="You" text={comment.text} timestamp="new" />
+            <Comment name={user.name} text={comment.text} timestamp="new" />
           </ListItem>
         ))}
       </List>
