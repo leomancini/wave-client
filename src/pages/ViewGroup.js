@@ -7,7 +7,6 @@ import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
-import { Banner } from "../components/Banner";
 
 const MediaGrid = styled.div`
   display: flex;
@@ -193,11 +192,6 @@ export const ViewGroup = ({ groupId, userId }) => {
           disabled={isUploading}
         />
       </Button>
-      <Banner
-        label="NEW"
-        date="Dec 27, 2024"
-        messages={["React with a double-tap instead of a single-tap."]}
-      />
       <MediaGrid>
         {mediaItems.map((item, index) => {
           const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
