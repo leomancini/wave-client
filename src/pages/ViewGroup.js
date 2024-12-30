@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { faPlus, faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
+import { useConfig } from "../contexts/ConfigContext";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
-import { useConfig } from "../contexts/ConfigContext";
+import { MoreMenu } from "../components/MoreMenu";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -17,47 +18,6 @@ const ButtonContainer = styled.div`
   gap: 1rem;
   width: 100%;
   box-sizing: border-box;
-`;
-
-const MoreMenu = styled.div`
-  position: absolute;
-  top: 0;
-  margin: 1rem;
-  padding: 1rem;
-  width: calc(100% - 2rem);
-  max-width: 32rem;
-  height: calc(100% + 2rem);
-  background-color: white;
-  z-index: 1000;
-  transform: translateX(calc(-100% - 5rem)) rotateZ(-10deg);
-  opacity: 0;
-
-  ${(props) =>
-    props.$visible &&
-    `
-    transform: translateX(0) rotateZ(0deg);
-    opacity: 1;
-  `}
-
-  transition: opacity 0.25s linear, transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-  box-sizing: border-box;
-  will-change: transform;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 2rem;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 2rem;
-`;
-
-const MoreMenuCloseButton = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 0.5rem;
 `;
 
 const PageContainer = styled.div`
@@ -96,6 +56,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
   const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
+  const [users, setUsers] = useState([]);
   const observer = useRef();
 
   useEffect(() => {
@@ -284,20 +245,32 @@ export const ViewGroup = ({ groupId, userId }) => {
     };
   }, [isMoreMenuVisible]);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/users/${groupId}`
+        );
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    if (groupId) {
+      fetchUsers();
+    }
+  }, [groupId]);
+
   return (
     <Page>
-      <MoreMenu $visible={isMoreMenuVisible}>
-        <MoreMenuCloseButton>
-          <Button
-            $type="icon-small"
-            $size="large"
-            $stretch="fit"
-            $prominence="tertiary"
-            $icon={faXmark}
-            onClick={() => setIsMoreMenuVisible(false)}
-          />
-        </MoreMenuCloseButton>
-      </MoreMenu>
+      <MoreMenu
+        $visible={isMoreMenuVisible}
+        groupId={groupId}
+        users={users}
+        setIsMoreMenuVisible={setIsMoreMenuVisible}
+      />
       <PageContainer $moreMenuVisible={isMoreMenuVisible}>
         <ButtonContainer>
           <Button

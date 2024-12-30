@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { formatDateTime } from "../utilities/formatDateTime";
 import { TextField } from "./TextField";
 import { Spinner } from "./Spinner";
+import { Separator } from "./Separator";
 
 const Container = styled.div`
   display: flex;
@@ -53,17 +54,6 @@ const Time = styled.div`
 `;
 
 const Text = styled.div``;
-
-const Separator = styled.div`
-  &:first-child {
-    display: none;
-  }
-
-  height: 2px;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.04);
-  border-radius: 1rem;
-`;
 
 const Comment = ({ name, text, timestamp }) => {
   return (
