@@ -81,6 +81,8 @@ const ReactionsContainer = styled.div`
   align-items: flex-start;
   padding: 0 0.5rem;
   gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const AddReactionButtons = styled.div`
@@ -89,10 +91,21 @@ const AddReactionButtons = styled.div`
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: 0;
 `;
 
 const AddReactionButton = styled.button`
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc((100% - 1.5rem) / 3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.5rem;
+  text-align: center;
   outline: none;
   border: none;
   background-color: rgba(0, 0, 0, 0.05);
