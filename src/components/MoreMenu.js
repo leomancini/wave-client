@@ -29,11 +29,11 @@ const Container = styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translateX(calc(-100% - 5rem)) rotateZ(-5deg);
+  transform: translateX(calc(-100% - 5rem));
   transition: transform 0.2s ease-in-out 0.15s;
 
   @media (min-width: 32rem) {
-    transform: translateX(-50%) rotateZ(-5deg);
+    transform: translateX(-50%);
     transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
     opacity: 0;
   }
