@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -27,15 +27,32 @@ const Container = styled.div`
   min-height: calc(100vh - 2rem);
   background-color: white;
   z-index: 1000;
+  pointer-events: none;
+
   transform: translateX(calc(-100% - 5rem)) rotateZ(-5deg);
+  transition: transform 0.2s ease-in-out 0.15s;
+
+  @media (min-width: 32rem) {
+    transform: translateX(-50%) rotateZ(-5deg);
+    transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
+    opacity: 0;
+  }
 
   ${(props) =>
     props.$visible &&
     `
+    pointer-events: auto;
     transform: translateX(0) rotateZ(0deg);
+    transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s;
+
+    @media (min-width: 32rem) {
+      transform: translateX(0) rotateZ(0deg);
+      opacity: 1;
+      transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s,
+        opacity 0.25s linear 0.2s;
+    }
   `}
 
-  transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s;
   box-sizing: border-box;
   will-change: transform;
   transform-style: preserve-3d;
@@ -65,6 +82,8 @@ const Header = styled.div`
   position: relative;
   background: white;
   z-index: 1;
+  transform: translateZ(0);
+  will-change: transform;
 `;
 
 const HeaderShadow = styled.div`
@@ -73,14 +92,15 @@ const HeaderShadow = styled.div`
   right: 0;
   bottom: -1rem;
   height: 1rem;
-  opacity: 1;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 1) 0%,
     rgba(255, 255, 255, 0) 100%
   );
-  transition: opacity 0.2s ease-out;
   pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
 `;
 
 const CloseButton = styled.div`
@@ -202,10 +222,21 @@ export const MoreMenu = ({
 }) => {
   const { config } = useConfig();
   const [scrollPosition, setScrollPosition] = useState(0);
+  const contentRef = useRef(null);
 
   const handleScroll = (e) => {
     setScrollPosition(e.target.scrollTop);
   };
+
+  useEffect(() => {
+    if (!$visible && contentRef.current) {
+      setTimeout(() => {
+        if (contentRef.current) {
+          contentRef.current.scrollTop = 0;
+        }
+      }, 200); // Delay to match animation timing
+    }
+  }, [$visible]);
 
   return (
     <Container $visible={$visible}>
@@ -223,7 +254,7 @@ export const MoreMenu = ({
           onClick={() => setIsMoreMenuVisible(false)}
         />
       </CloseButton>
-      <Content onScroll={handleScroll}>
+      <Content onScroll={handleScroll} ref={contentRef}>
         <Section>
           <SectionHeader>
             <SectionLabel>Stats</SectionLabel>
