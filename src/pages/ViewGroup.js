@@ -24,13 +24,13 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
   width: 100%;
   transition: transform 0.5s ease-in-out;
   transform-origin: top center;
   will-change: transform;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+  gap: 2rem;
 
   ${(props) =>
     props.$moreMenuVisible &&

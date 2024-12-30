@@ -6,7 +6,6 @@ import { Spinner } from "./Spinner";
 
 const StyledButton = styled.button`
   position: relative;
-  margin-bottom: 2.5rem;
   line-height: 0.5rem;
   color: rgba(255, 255, 255, 1);
   border: none;
