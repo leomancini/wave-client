@@ -102,7 +102,7 @@ const Content = styled.div`
   @media (hover: none) and (pointer: coarse) {
     padding-bottom: 4rem;
   }
-  padding-top: 1rem;
+  padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -255,7 +255,7 @@ export const MoreMenu = ({
             {"mediaCount" in stats && (
               <ListItem>
                 <ListItemContent>
-                  <ListItemLabel>Total Media</ListItemLabel>
+                  <ListItemLabel>Total Posts</ListItemLabel>
                   <ListItemValue>{stats.mediaCount}</ListItemValue>
                 </ListItemContent>
                 <Separator />
