@@ -183,24 +183,6 @@ export const MoreMenu = ({
       </CloseButton>
       <Content>
         <Section>
-          <SectionLabel>Members</SectionLabel>
-          <List>
-            {users.map((user, index) => (
-              <ListItem key={user.id}>
-                <ListItemContent>
-                  <ListItemValue>
-                    <UserAvatar>
-                      {user.name.substring(0, 1).toUpperCase()}
-                    </UserAvatar>
-                    {user.name}
-                  </ListItemValue>
-                </ListItemContent>
-                {index !== users.length - 1 && <Separator />}
-              </ListItem>
-            ))}
-          </List>
-        </Section>
-        <Section>
           <SectionLabel>Stats</SectionLabel>
           <List>
             <ListItem>
@@ -260,6 +242,24 @@ export const MoreMenu = ({
                 </ListItem>
               </>
             )}
+          </List>
+        </Section>
+        <Section>
+          <SectionLabel>Members</SectionLabel>
+          <List>
+            {users.map((user, index) => (
+              <ListItem key={user.id}>
+                <ListItemContent>
+                  <ListItemValue>
+                    <UserAvatar>
+                      {user.name.substring(0, 1).toUpperCase()}
+                    </UserAvatar>
+                    {user.name}
+                  </ListItemValue>
+                </ListItemContent>
+                {index !== users.length - 1 && <Separator />}
+              </ListItem>
+            ))}
           </List>
         </Section>
       </Content>
