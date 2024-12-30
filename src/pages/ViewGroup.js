@@ -31,12 +31,13 @@ const PageContainer = styled.div`
   will-change: transform;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+  top: 0;
   gap: 2rem;
 
   ${(props) =>
     props.$moreMenuVisible &&
     `
-    transform: scale3d(0.9, 0.9, 1);
+    transform: scale3d(0.9, 0.9, 1) translate3d(0, 2rem, 0);
     `}
 `;
 

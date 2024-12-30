@@ -12,7 +12,7 @@ import { Spinner } from "./Spinner";
 const Container = styled.div`
   position: absolute;
   top: 0;
-  margin: 1rem;
+  margin: 1.25rem 1rem 1rem 1rem;
   padding: 1rem;
   @media (hover: hover) and (pointer: fine) {
     padding-bottom: 1rem;
