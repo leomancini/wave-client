@@ -13,7 +13,7 @@ const BannerContainer = styled.div`
   box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
     0px 2px 4px rgba(0, 122, 255, 0.25);
   gap: 0.75rem;
-  margin-bottom: 2.75rem;
+  margin-bottom: 0.5rem;
 
   p,
   strong {
