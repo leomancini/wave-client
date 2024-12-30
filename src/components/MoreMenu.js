@@ -27,17 +27,15 @@ const Container = styled.div`
   min-height: calc(100vh - 2rem);
   background-color: white;
   z-index: 1000;
-  transform: translateX(calc(-100% - 5rem)) rotateZ(-10deg);
-  opacity: 0;
+  transform: translateX(calc(-100% - 5rem)) rotateZ(-5deg);
 
   ${(props) =>
     props.$visible &&
     `
     transform: translateX(0) rotateZ(0deg);
-    opacity: 1;
   `}
 
-  transition: opacity 0.25s linear, transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s;
   box-sizing: border-box;
   will-change: transform;
   transform-style: preserve-3d;
