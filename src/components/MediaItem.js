@@ -373,6 +373,11 @@ export const MediaItem = forwardRef(
               reaction: "❤️"
             })
           }
+          onTouchStart={(e) => {
+            if (e.touches.length > 1) {
+              e.stopPropagation();
+            }
+          }}
           onTouchEnd={(e) =>
             handleMediaItemClick(e, item.filename, setReactions, {
               groupId,
