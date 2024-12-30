@@ -15,7 +15,7 @@ const Container = styled.div`
   z-index: 1;
 `;
 
-const GradientOverlay = styled.div`
+const StatusBarShadow = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -23,14 +23,14 @@ const GradientOverlay = styled.div`
   height: 0.5rem;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.1) 0%,
-    rgba(0, 0, 0, 0.05) 50%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.1, 0.1)}) 0%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.05, 0.05)}) 50%,
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
-  z-index: 2;
+  z-index: 99999;
   opacity: ${(props) => (props.visible ? 1 : 0)};
-  transition: opacity ${(props) => (props.visible ? "0.2s" : "0s")} ease-in-out;
+  transition: opacity 0.2s ease-in-out;
 `;
 
 const Pages = {
@@ -55,8 +55,8 @@ function App() {
   const [groupId, setGroupId] = useState("");
   const [userId, setUserId] = useState("");
   const [page, setPage] = useState("");
-  const [hasScrolled, setHasScrolled] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [scrollIntensity, setScrollIntensity] = useState(1);
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
@@ -113,21 +113,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!hasScrolled && window.scrollY > 0) {
-        setHasScrolled(true);
-      }
-      setIsAtTop(window.scrollY === 0);
+    let frameId;
+
+    const checkScroll = () => {
+      const scrollY = window.scrollY;
+      setIsAtTop(scrollY < 12);
+      setScrollIntensity(Math.min(scrollY / 100, 1)); // Gradually increase intensity
+      frameId = requestAnimationFrame(checkScroll);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasScrolled]);
+    frameId = requestAnimationFrame(checkScroll);
+
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
     <ConfigProvider>
       <BrowserRouter basename="/">
-        <GradientOverlay visible={hasScrolled && !isAtTop} />
+        <StatusBarShadow visible={!isAtTop} intensity={scrollIntensity} />
         <Container>
           {page === Pages.CreateGroup.id && <CreateGroup />}
           {page === Pages.ViewGroup.id && (
