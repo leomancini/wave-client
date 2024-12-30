@@ -82,6 +82,9 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [groupId, setConfig]);
 
   useEffect(() => {
+    const MENU_ANIMATION_DURATION = 750; // 150ms delay + 600ms animation
+    const ADDITIONAL_BUFFER = 200; // Extra 200ms to ensure animation is complete
+
     const fetchStats = async () => {
       try {
         const response = await fetch(
@@ -91,18 +94,22 @@ export const ViewGroup = ({ groupId, userId }) => {
         setStats(data);
         setStatsIsLoading(false);
       } catch (error) {
-        console.error("Error fetching config:", error);
+        console.error("Error fetching stats:", error);
       }
     };
 
-    if (groupId) {
+    if (groupId && !isMoreMenuVisible) {
       setStatsIsLoading(true);
       fetchStats();
     }
 
     if (isMoreMenuVisible && groupId) {
-      setStatsIsLoading(true);
-      fetchStats();
+      const timer = setTimeout(() => {
+        setStatsIsLoading(true);
+        fetchStats();
+      }, MENU_ANIMATION_DURATION + ADDITIONAL_BUFFER);
+
+      return () => clearTimeout(timer);
     }
   }, [groupId, isMoreMenuVisible]);
 
