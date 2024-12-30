@@ -203,12 +203,10 @@ export const MoreMenu = ({
   statsIsLoading
 }) => {
   const { config } = useConfig();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const handleScroll = (e) => {
     setScrollPosition(e.target.scrollTop);
-    setIsScrolled(e.target.scrollTop > 12);
   };
 
   return (
