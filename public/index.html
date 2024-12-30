@@ -2,7 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="format-detection" content="telephone=no" />
+    <script>
+      document.addEventListener("gesturestart", function (e) {
+        e.preventDefault();
+      });
+      document.addEventListener("gesturechange", function (e) {
+        e.preventDefault();
+      });
+      document.addEventListener("gestureend", function (e) {
+        e.preventDefault();
+      });
+    </script>
     <title>Wave</title>
     <link
       rel="icon"
