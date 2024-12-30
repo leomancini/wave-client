@@ -161,8 +161,9 @@ const AddReactionButton = styled.button`
 const Reactions = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 1rem;
-  height: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  min-height: 1.25rem;
   padding: 0 0.5rem;
 
   ${({ $isEmpty }) =>
