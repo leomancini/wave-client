@@ -7,6 +7,7 @@ import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
+import { useConfig } from "../contexts/ConfigContext";
 
 const MediaGrid = styled.div`
   display: flex;
@@ -16,6 +17,7 @@ const MediaGrid = styled.div`
 `;
 
 export const ViewGroup = ({ groupId, userId }) => {
+  const { setConfig } = useConfig();
   const [, setSelectedFile] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -24,6 +26,24 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
   const observer = useRef();
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/config/${groupId}`
+        );
+        const data = await response.json();
+        setConfig(data);
+      } catch (error) {
+        console.error("Error fetching config:", error);
+      }
+    };
+
+    if (groupId) {
+      fetchConfig();
+    }
+  }, [groupId, setConfig]);
 
   useEffect(() => {
     if (groupId && userId) {

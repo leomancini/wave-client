@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { forwardRef } from "react";
+import { useConfig } from "../contexts/ConfigContext";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { Comments } from "./Comments";
@@ -86,7 +87,7 @@ const AddReactionButtons = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
 `;
 
@@ -331,6 +332,8 @@ const addReaction = async (
 
 export const MediaItem = forwardRef(
   ({ item, imageUrl, thumbnailUrl, groupId, user }, ref) => {
+    const { config } = useConfig();
+
     const [reactions, setReactions] = useState(item.reactions);
 
     const hasUserReaction = (reactionEmoji) => {
@@ -403,71 +406,22 @@ export const MediaItem = forwardRef(
             ))}
           </Reactions>
           <AddReactionButtons>
-            <AddReactionButton
-              className={hasUserReaction("❤️") ? "selected" : ""}
-              onClick={() =>
-                addReaction(item.filename, setReactions, {
-                  groupId,
-                  user,
-                  reaction: "❤️"
-                })
-              }
-              disabled={isPendingAny}
-            >
-              ❤️
-            </AddReactionButton>
-            <AddReactionButton
-              className={hasUserReaction("👍") ? "selected" : ""}
-              onClick={() =>
-                addReaction(item.filename, setReactions, {
-                  groupId,
-                  user,
-                  reaction: "👍"
-                })
-              }
-              disabled={isPendingAny}
-            >
-              👍
-            </AddReactionButton>
-            <AddReactionButton
-              className={hasUserReaction("👎") ? "selected" : ""}
-              onClick={() =>
-                addReaction(item.filename, setReactions, {
-                  groupId,
-                  user,
-                  reaction: "👎"
-                })
-              }
-              disabled={isPendingAny}
-            >
-              👎
-            </AddReactionButton>
-            <AddReactionButton
-              className={hasUserReaction("🤣") ? "selected" : ""}
-              onClick={() =>
-                addReaction(item.filename, setReactions, {
-                  groupId,
-                  user,
-                  reaction: "🤣"
-                })
-              }
-              disabled={isPendingAny}
-            >
-              🤣
-            </AddReactionButton>
-            <AddReactionButton
-              className={hasUserReaction("🎉") ? "selected" : ""}
-              onClick={() =>
-                addReaction(item.filename, setReactions, {
-                  groupId,
-                  user,
-                  reaction: "🎉"
-                })
-              }
-              disabled={isPendingAny}
-            >
-              🎉
-            </AddReactionButton>
+            {config.reactions?.map((reaction) => (
+              <AddReactionButton
+                key={reaction}
+                className={hasUserReaction(reaction) ? "selected" : ""}
+                onClick={() =>
+                  addReaction(item.filename, setReactions, {
+                    groupId,
+                    user,
+                    reaction
+                  })
+                }
+                disabled={isPendingAny}
+              >
+                {reaction}
+              </AddReactionButton>
+            ))}
           </AddReactionButtons>
         </ReactionsContainer>
         <Comments item={item} groupId={groupId} user={user} />

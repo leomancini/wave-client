@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
+import { ConfigProvider } from "./contexts/ConfigContext";
 
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
@@ -90,15 +91,17 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter basename="/">
-      <Container>
-        {page === Pages.CreateGroup.id && <CreateGroup />}
-        {page === Pages.ViewGroup.id && (
-          <ViewGroup groupId={groupId} userId={userId} />
-        )}
-        {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
-      </Container>
-    </BrowserRouter>
+    <ConfigProvider>
+      <BrowserRouter basename="/">
+        <Container>
+          {page === Pages.CreateGroup.id && <CreateGroup />}
+          {page === Pages.ViewGroup.id && (
+            <ViewGroup groupId={groupId} userId={userId} />
+          )}
+          {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+        </Container>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 }
 
