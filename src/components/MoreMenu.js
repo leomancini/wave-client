@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useState } from "react";
 
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -13,9 +14,17 @@ const Container = styled.div`
   top: 0;
   margin: 1rem;
   padding: 1rem;
+  @media (hover: hover) and (pointer: fine) {
+    padding-bottom: 1rem;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+  }
   width: calc(100% - 2rem);
   max-width: 32rem;
-  height: calc(100% + 2rem);
+  max-height: calc(100vh - 2rem);
+  height: fit-content;
+  min-height: calc(100vh - 2rem);
   background-color: white;
   z-index: 1000;
   transform: translateX(calc(-100% - 5rem)) rotateZ(-10deg);
@@ -48,13 +57,32 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem 1rem 0.5rem;
   font-size: 1.5rem;
   font-weight: 600;
-  height: 2rem;
+  height: 2.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
+  background: white;
+  z-index: 1;
+`;
+
+const HeaderShadow = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1rem;
+  height: 1rem;
+  opacity: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: opacity 0.2s ease-out;
+  pointer-events: none;
 `;
 
 const CloseButton = styled.div`
@@ -62,25 +90,28 @@ const CloseButton = styled.div`
   top: 0;
   right: 0;
   padding: 0.5rem;
+  z-index: 2;
 `;
 
 const Content = styled.div`
-  padding: 0.5rem;
-  padding-bottom: 6rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  @media (hover: hover) and (pointer: fine) {
+    padding-bottom: 1rem;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    padding-bottom: 4rem;
+  }
+  padding-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-top: 1.5rem;
-  overflow-y: auto;
+  overflow-y: scroll;
   flex: 1;
   min-height: 0;
-
-  overscroll-behavior: contain;
+  transform: translateZ(0);
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-
-  -webkit-momentum-scrolling: touch;
-
   &::-webkit-scrollbar {
     display: none;
   }
@@ -172,10 +203,20 @@ export const MoreMenu = ({
   statsIsLoading
 }) => {
   const { config } = useConfig();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+
+  const handleScroll = (e) => {
+    setScrollPosition(e.target.scrollTop);
+    setIsScrolled(e.target.scrollTop > 12);
+  };
 
   return (
     <Container $visible={$visible}>
-      <Header>{groupId}</Header>
+      <Header>
+        {groupId}
+        <HeaderShadow scrollPosition={scrollPosition} />
+      </Header>
       <CloseButton>
         <Button
           $type="icon-small"
@@ -186,7 +227,7 @@ export const MoreMenu = ({
           onClick={() => setIsMoreMenuVisible(false)}
         />
       </CloseButton>
-      <Content>
+      <Content onScroll={handleScroll}>
         <Section>
           <SectionHeader>
             <SectionLabel>Stats</SectionLabel>
