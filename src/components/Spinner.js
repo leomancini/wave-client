@@ -8,35 +8,30 @@ export const Spinner = styled.div`
           width: 3rem;
           height: 3rem;
           border-width: 4px;
-          border-top-width: 4px;
         `;
       case "large":
         return `
           width: 2rem;
           height: 2rem;
           border-width: 3px;
-          border-top-width: 3px;
         `;
       case "medium":
         return `
           width: 1.5rem;
           height: 1.5rem;
           border-width: 2px;
-          border-top-width: 2px;
         `;
       case "small":
         return `
           width: 1rem;
           height: 1rem;
           border-width: 2px;
-          border-top-width: 2px;
         `;
       default:
         return `
           width: 3rem;
           height: 3rem;
           border-width: 4px;
-          border-top-width: 4px;
         `;
     }
   }}
@@ -49,7 +44,7 @@ export const Spinner = styled.div`
     $theme === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"};
 
   border-radius: 50%;
-  animation: spin 0.5s ease-in infinite;
+  animation: spin 0.5s linear infinite;
   box-sizing: border-box;
 
   @keyframes spin {
