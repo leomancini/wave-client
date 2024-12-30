@@ -11,6 +11,24 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 1;
+`;
+
+const GradientOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.8) 20%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
 `;
 
 const Pages = {
@@ -93,6 +111,7 @@ function App() {
   return (
     <ConfigProvider>
       <BrowserRouter basename="/">
+        <GradientOverlay />
         <Container>
           {page === Pages.CreateGroup.id && <CreateGroup />}
           {page === Pages.ViewGroup.id && (
