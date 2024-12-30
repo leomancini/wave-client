@@ -40,6 +40,11 @@ const Container = styled.div`
   border-top-left-radius: 2rem;
   border-bottom-right-radius: 0;
   border-top-right-radius: 2rem;
+
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
 `;
 
 const Header = styled.div`
@@ -61,22 +66,26 @@ const CloseButton = styled.div`
 
 const Content = styled.div`
   padding: 0.5rem;
+  padding-bottom: 6rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 1.5rem;
   overflow-y: auto;
-  height: calc(100% - 7.5rem);
+  flex: 1;
+  min-height: 0;
+
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  -webkit-momentum-scrolling: touch;
 
   &::-webkit-scrollbar {
     display: none;
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
-
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
 `;
 
 const Section = styled.div`
