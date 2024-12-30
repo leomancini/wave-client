@@ -57,6 +57,8 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [user, setUser] = useState({});
   const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
   const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState({});
+  const [statsIsLoading, setStatsIsLoading] = useState(true);
   const observer = useRef();
 
   useEffect(() => {
@@ -76,6 +78,31 @@ export const ViewGroup = ({ groupId, userId }) => {
       fetchConfig();
     }
   }, [groupId, setConfig]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/stats/${groupId}`
+        );
+        const data = await response.json();
+        setStats(data);
+        setStatsIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching config:", error);
+      }
+    };
+
+    if (groupId) {
+      setStatsIsLoading(true);
+      fetchStats();
+    }
+
+    if (isMoreMenuVisible && groupId) {
+      setStatsIsLoading(true);
+      fetchStats();
+    }
+  }, [groupId, isMoreMenuVisible]);
 
   useEffect(() => {
     if (groupId && userId) {
@@ -269,6 +296,8 @@ export const ViewGroup = ({ groupId, userId }) => {
         $visible={isMoreMenuVisible}
         groupId={groupId}
         users={users}
+        stats={stats}
+        statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={setIsMoreMenuVisible}
       />
       <PageContainer $moreMenuVisible={isMoreMenuVisible}>

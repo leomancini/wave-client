@@ -86,12 +86,20 @@ const Section = styled.div`
   gap: 0.5rem;
 `;
 
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
 const SectionLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.5);
   letter-spacing: 0.05rem;
+  flex: 1;
 `;
 
 const List = styled.div`
@@ -136,37 +144,26 @@ const UserAvatar = styled.div`
   font-weight: normal;
 `;
 
+const Reaction = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const ReactionEmoji = styled.div`
+  font-size: 1.25rem;
+`;
+
 export const MoreMenu = ({
   $visible,
   setIsMoreMenuVisible,
   groupId,
-  users
+  users,
+  stats,
+  statsIsLoading
 }) => {
   const { config } = useConfig();
-  const [stats, setStats] = useState({});
-  const [statsIsLoading, setStatsIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/stats/${groupId}`
-        );
-        const data = await response.json();
-        setStats(data);
-        setStatsIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching config:", error);
-      }
-    };
-
-    if (!$visible) {
-      setStats({});
-      setStatsIsLoading(true);
-    } else if (groupId) {
-      fetchStats();
-    }
-  }, [groupId, setStats, $visible]);
 
   return (
     <Container $visible={$visible}>
@@ -183,70 +180,78 @@ export const MoreMenu = ({
       </CloseButton>
       <Content>
         <Section>
-          <SectionLabel>Stats</SectionLabel>
+          <SectionHeader>
+            <SectionLabel>Stats</SectionLabel>
+            {statsIsLoading && <Spinner $size="small" />}
+          </SectionHeader>
           <List>
-            <ListItem>
-              <ListItemContent>
-                <ListItemLabel>Created</ListItemLabel>
-                <ListItemValue>
-                  {formatDateTime(config.createdAt)}
-                </ListItemValue>
-              </ListItemContent>
-              <Separator />
-            </ListItem>
-            {statsIsLoading ? (
-              <Spinner $size="large" style={{ marginTop: "1.5rem" }} />
-            ) : (
-              <>
-                <ListItem>
-                  <ListItemContent>
-                    <ListItemLabel>Members</ListItemLabel>
-                    <ListItemValue>{stats.userCount}</ListItemValue>
-                  </ListItemContent>
-                  <Separator />
-                </ListItem>
-                <ListItem>
-                  <ListItemContent>
-                    <ListItemLabel>Total Media</ListItemLabel>
-                    <ListItemValue>{stats.mediaCount}</ListItemValue>
-                  </ListItemContent>
-                  <Separator />
-                </ListItem>
-                <ListItem>
-                  <ListItemContent>
-                    <ListItemLabel>Total Reactions</ListItemLabel>
-                    <ListItemValue>{stats.totalReactions}</ListItemValue>
-                  </ListItemContent>
-                  <Separator />
-                </ListItem>
-                {stats.topReactions && stats.topReactions.length > 0 && (
-                  <ListItem>
-                    <ListItemContent>
-                      <ListItemLabel>Top Reactions</ListItemLabel>
-                      <ListItemValue>
-                        {stats.topReactions.map((reaction) => (
-                          <div key={reaction.reaction}>
-                            {reaction.reaction} {reaction.count}
-                          </div>
-                        ))}
-                      </ListItemValue>
-                    </ListItemContent>
-                    <Separator />
-                  </ListItem>
-                )}
-                <ListItem>
-                  <ListItemContent>
-                    <ListItemLabel>Total Comments</ListItemLabel>
-                    <ListItemValue>{stats.totalComments}</ListItemValue>
-                  </ListItemContent>
-                </ListItem>
-              </>
+            {config.createdAt && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Created</ListItemLabel>
+                  <ListItemValue>
+                    {formatDateTime(config.createdAt)}
+                  </ListItemValue>
+                </ListItemContent>
+                <Separator />
+              </ListItem>
+            )}
+            {"userCount" in stats && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Members</ListItemLabel>
+                  <ListItemValue>{stats.userCount}</ListItemValue>
+                </ListItemContent>
+                <Separator />
+              </ListItem>
+            )}
+            {"mediaCount" in stats && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Media</ListItemLabel>
+                  <ListItemValue>{stats.mediaCount}</ListItemValue>
+                </ListItemContent>
+                <Separator />
+              </ListItem>
+            )}
+            {"totalReactions" in stats && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Reactions</ListItemLabel>
+                  <ListItemValue>{stats.totalReactions}</ListItemValue>
+                </ListItemContent>
+                <Separator />
+              </ListItem>
+            )}
+            {"topReactions" in stats && stats.topReactions.length > 0 && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Top Reactions</ListItemLabel>
+                  <ListItemValue>
+                    {stats.topReactions.map((reaction) => (
+                      <Reaction key={reaction.reaction}>
+                        <ReactionEmoji>{reaction.reaction}</ReactionEmoji>
+                        {reaction.count}
+                      </Reaction>
+                    ))}
+                  </ListItemValue>
+                </ListItemContent>
+                <Separator />
+              </ListItem>
+            )}
+            {"totalComments" in stats && (
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Comments</ListItemLabel>
+                  <ListItemValue>{stats.totalComments}</ListItemValue>
+                </ListItemContent>
+              </ListItem>
             )}
           </List>
         </Section>
         <Section>
           <SectionLabel>Members</SectionLabel>
-          <List>
+          <List style={{ paddingTop: "0.5rem" }}>
             {users.map((user, index) => (
               <ListItem key={user.id}>
                 <ListItemContent>
