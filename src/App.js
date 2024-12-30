@@ -20,15 +20,17 @@ const GradientOverlay = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  height: 1rem;
+  height: 0.5rem;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.8) 20%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.05) 50%,
+    rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
   z-index: 2;
+  opacity: ${(props) => (props.visible ? 1 : 0)};
+  transition: opacity ${(props) => (props.visible ? "0.2s" : "0s")} ease-in-out;
 `;
 
 const Pages = {
@@ -53,6 +55,8 @@ function App() {
   const [groupId, setGroupId] = useState("");
   const [userId, setUserId] = useState("");
   const [page, setPage] = useState("");
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(true);
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
@@ -108,10 +112,22 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!hasScrolled && window.scrollY > 0) {
+        setHasScrolled(true);
+      }
+      setIsAtTop(window.scrollY === 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasScrolled]);
+
   return (
     <ConfigProvider>
       <BrowserRouter basename="/">
-        <GradientOverlay />
+        <GradientOverlay visible={hasScrolled && !isAtTop} />
         <Container>
           {page === Pages.CreateGroup.id && <CreateGroup />}
           {page === Pages.ViewGroup.id && (
