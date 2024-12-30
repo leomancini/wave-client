@@ -2,12 +2,82 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
+import { faPlus, faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { useConfig } from "../contexts/ConfigContext";
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const MoreMenu = styled.div`
+  position: absolute;
+  top: 0;
+  margin: 1rem;
+  padding: 1rem;
+  width: calc(100% - 2rem);
+  max-width: 32rem;
+  height: calc(100% + 2rem);
+  background-color: white;
+  z-index: 1000;
+  transform: translateX(calc(-100% - 5rem)) rotateZ(-10deg);
+  opacity: 0;
+
+  ${(props) =>
+    props.$visible &&
+    `
+    transform: translateX(0) rotateZ(0deg);
+    opacity: 1;
+  `}
+
+  transition: opacity 0.25s linear, transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+  box-sizing: border-box;
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 2rem;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 2rem;
+`;
+
+const MoreMenuCloseButton = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.5rem;
+`;
+
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+  transition: transform 0.5s ease-in-out;
+  transform-origin: top center;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+
+  ${(props) =>
+    props.$moreMenuVisible &&
+    `
+    transform: scale3d(0.9, 0.9, 1);
+    `}
+`;
 
 const MediaGrid = styled.div`
   display: flex;
@@ -25,6 +95,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
+  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
   const observer = useRef();
 
   useEffect(() => {
@@ -201,37 +272,82 @@ export const ViewGroup = ({ groupId, userId }) => {
     [isLoading, hasMore, groupId, page]
   );
 
+  useEffect(() => {
+    if (isMoreMenuVisible) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMoreMenuVisible]);
+
   return (
     <Page>
-      <Button $isLoading={isUploading} $type="icon" $size="large" $label="+">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileUpload}
-          multiple
-          disabled={isUploading}
-        />
-      </Button>
-      <MediaGrid>
-        {mediaItems.map((item, index) => {
-          const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
-          const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/thumbnail`;
-
-          return (
-            <MediaItem
-              ref={index === mediaItems.length - 1 ? lastMediaElementRef : null}
-              key={item.filename}
-              item={item}
-              imageUrl={imageUrl}
-              thumbnailUrl={thumbnailUrl}
-              fetchMediaItems={fetchMediaItems}
-              groupId={groupId}
-              user={user}
+      <MoreMenu $visible={isMoreMenuVisible}>
+        <MoreMenuCloseButton>
+          <Button
+            $type="icon-small"
+            $size="large"
+            $stretch="fit"
+            $prominence="tertiary"
+            $icon={faXmark}
+            onClick={() => setIsMoreMenuVisible(false)}
+          />
+        </MoreMenuCloseButton>
+      </MoreMenu>
+      <PageContainer $moreMenuVisible={isMoreMenuVisible}>
+        <ButtonContainer>
+          <Button
+            $type="icon-small"
+            $size="large"
+            $stretch="fit"
+            $prominence="secondary"
+            $icon={faBars}
+            onClick={() => setIsMoreMenuVisible(true)}
+          />
+          <Button
+            $isLoading={isUploading}
+            $type="icon"
+            $size="large"
+            $stretch="fill"
+            $prominence="primary"
+            $icon={faPlus}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              multiple
+              disabled={isUploading}
             />
-          );
-        })}
-        {isLoading && <Spinner $size="x-large" />}
-      </MediaGrid>
+          </Button>
+        </ButtonContainer>
+        <MediaGrid>
+          {mediaItems.map((item, index) => {
+            const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
+            const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/thumbnail`;
+
+            return (
+              <MediaItem
+                ref={
+                  index === mediaItems.length - 1 ? lastMediaElementRef : null
+                }
+                key={item.filename}
+                item={item}
+                imageUrl={imageUrl}
+                thumbnailUrl={thumbnailUrl}
+                fetchMediaItems={fetchMediaItems}
+                groupId={groupId}
+                user={user}
+              />
+            );
+          })}
+          {isLoading && <Spinner $size="x-large" />}
+        </MediaGrid>
+      </PageContainer>
     </Page>
   );
 };
