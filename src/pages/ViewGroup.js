@@ -27,16 +27,18 @@ const PageContainer = styled.div`
   width: 100%;
   transition: transform 0.5s ease-in-out;
   transform-origin: top center;
-  will-change: transform;
+  will-change: transform, scale;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
   top: 0;
   gap: 2rem;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
 
   ${(props) =>
     props.$moreMenuVisible &&
     `
-    transform: scale3d(0.9, 0.9, 1) translate3d(0, 2rem, 0);
+    transform: translate3d(0, 2rem, 0) scale3d(0.9, 0.9, 1);
     `}
 `;
 

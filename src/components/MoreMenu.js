@@ -29,11 +29,13 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translateX(calc(-100% - 5rem));
+  transform: translate3d(calc(-100% - 5rem), 0, 0);
   transition: transform 0.2s ease-in-out 0.15s;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
 
   @media (min-width: 32rem) {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
     transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
     opacity: 0;
   }
@@ -42,11 +44,11 @@ const Container = memo(styled.div`
     props.$visible &&
     `
     pointer-events: auto;
-    transform: translateX(0) rotateZ(0deg);
+    transform: translate3d(0, 0, 0);
     transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s;
 
     @media (min-width: 32rem) {
-      transform: translateX(0) rotateZ(0deg);
+      transform: translate3d(0, 0, 0);
       opacity: 1;
       transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1) 0.15s,
         opacity 0.25s linear 0.2s;
@@ -54,7 +56,7 @@ const Container = memo(styled.div`
   `}
 
   box-sizing: border-box;
-  will-change: transform;
+  will-change: transform, opacity;
   transform-style: preserve-3d;
   backface-visibility: hidden;
 
