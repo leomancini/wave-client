@@ -35,13 +35,20 @@ const Container = styled.div`
   flex-direction: column;
 
   transform: translate3d(calc(-100% - 2rem), 0, 0);
-  transition: transform 0.4s ease-in-out;
+  transition: ${(props) =>
+    props.$isResizing ? "none" : "transform 0.4s ease-in-out"};
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 1;
+  visibility: visible;
 
   @media (min-width: 32rem) {
     opacity: 0;
+    visibility: hidden;
     transform: translate3d(-4rem, 0, 0);
-    transition: transform 0.4s ease-in-out, opacity 0.3s ease-out;
+    transition: ${(props) =>
+      props.$isResizing
+        ? "none"
+        : "transform 0.4s ease-in-out, opacity 0.3s ease-out, visibility 0s linear 0.4s"};
     box-shadow: unset;
     padding-left: 3rem;
     padding-right: 3rem;
@@ -55,13 +62,17 @@ const Container = styled.div`
     `
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-    transition: transform 0.4s ease-in-out;
+    transition: ${props.$isResizing ? "none" : "transform 0.4s ease-in-out"};
 
     @media (min-width: 32rem) {
       transform: translate3d(0, 0, 0);
       opacity: 1;
-      transition: transform 0.4s ease-in-out,
-        opacity 0.3s ease-out;
+      visibility: visible;
+      transition: ${
+        props.$isResizing
+          ? "none"
+          : "transform 0.4s ease-in-out, opacity 0.3s ease-out, visibility 0s linear"
+      };
     }
   `}
 `;
@@ -240,6 +251,8 @@ export const MoreMenu = ({
   const { config } = useConfig();
   const [scrollPosition, setScrollPosition] = useState(0);
   const contentRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
+  let resizeTimer;
 
   const handleScroll = (e) => {
     setScrollPosition(e.target.scrollTop);
@@ -264,8 +277,24 @@ export const MoreMenu = ({
     }
   }, [$visible]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsResizing(true);
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        setIsResizing(false);
+      }, 100);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, []);
+
   return (
-    <Container $visible={$visible}>
+    <Container $visible={$visible} $isResizing={isResizing}>
       <Header>
         <HeaderContent>
           <GroupTitle>{groupId}</GroupTitle>
