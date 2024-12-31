@@ -193,6 +193,11 @@ export const handleMediaItemClick = (
   setReactions,
   { groupId, user, reaction }
 ) => {
+  if (e.touches && e.touches.length > 1) {
+    e.preventDefault();
+    return;
+  }
+
   const currentTime = new Date().getTime();
   const isTouch = e.type === "touchend";
 
