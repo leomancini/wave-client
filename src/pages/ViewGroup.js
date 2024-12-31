@@ -55,7 +55,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState({});
   const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
   const [users, setUsers] = useState([]);
@@ -155,48 +155,24 @@ export const ViewGroup = ({ groupId, userId }) => {
   const fetchMediaItems = async (
     groupId,
     pageNum = 1,
-    options = { append: false, refresh: false }
+    options = { append: false }
   ) => {
     if (!groupId) return;
 
     try {
-      if (options.refresh) {
-        let allMedia = [];
-        let currentPage = 1;
-        let hasMoreItems = true;
-
-        while (hasMoreItems && currentPage <= page) {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${currentPage}`
-          );
-          const data = await response.json();
-          const mediaArray = Array.isArray(data.media) ? data.media : data;
-          allMedia = [...allMedia, ...mediaArray];
-          hasMoreItems = data.hasMore;
-          currentPage++;
-        }
-
-        setMediaItems(allMedia);
-        setHasMore(hasMoreItems);
-        if (currentPage <= page) {
-          setPage(currentPage - 1);
-        }
-      } else {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const mediaArray = Array.isArray(data.media) ? data.media : data;
+        setHasMore(data.hasMore);
+        setMediaItems((prev) =>
+          options.append ? [...prev, ...mediaArray] : mediaArray
         );
-        if (response.ok) {
-          const data = await response.json();
-          const mediaArray = Array.isArray(data.media) ? data.media : data;
-          setHasMore(data.hasMore);
-          setMediaItems((prev) =>
-            options.append ? [...prev, ...mediaArray] : mediaArray
-          );
-        }
       }
     } catch (error) {
       console.error("Error fetching media items:", error);
-      setMediaItems([]);
     } finally {
       setIsLoading(false);
     }
@@ -252,6 +228,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       observer.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
+            setIsLoading(true);
             const nextPage = page + 1;
             setPage(nextPage);
             fetchMediaItems(groupId, nextPage, { append: true });
