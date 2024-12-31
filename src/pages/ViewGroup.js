@@ -57,7 +57,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
   const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
   const [users, setUsers] = useState([]);
