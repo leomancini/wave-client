@@ -38,9 +38,9 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translate3d(0, 10rem, 0);
+  transform: translate3d(calc(-100% - 2rem), 0, 0);
   opacity: 1;
-  transition: transform 1s ease-out, opacity 0.3s ease-out;
+  transition: transform 1s ease-out, opacity 1s ease-out;
 
   @media (min-width: 32rem) {
     transform: translate3d(-50%, 0, 0);
