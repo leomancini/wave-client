@@ -5,7 +5,6 @@ import React, {
   useState,
   useCallback,
   useRef,
-  startTransition,
   useTransition
 } from "react";
 import styled from "styled-components";
@@ -70,7 +69,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
   const observer = useRef();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchConfig = async () => {

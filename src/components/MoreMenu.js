@@ -250,6 +250,9 @@ export const MoreMenu = memo(
     const [scrollPosition, setScrollPosition] = useState(0);
     const contentRef = useRef(null);
 
+    const deferredUsers = useDeferredValue(users);
+    const deferredStats = useDeferredValue(stats);
+
     const handleScroll = useCallback((e) => {
       setScrollPosition(e.target.scrollTop);
     }, []);
@@ -319,72 +322,73 @@ export const MoreMenu = memo(
                     <Separator />
                   </staticStyledComponents.ListItem>
                 )}
-                {"userCount" in stats && (
+                {"userCount" in deferredStats && (
                   <staticStyledComponents.ListItem>
                     <staticStyledComponents.ListItemContent>
                       <staticStyledComponents.ListItemLabel>
                         Members
                       </staticStyledComponents.ListItemLabel>
                       <staticStyledComponents.ListItemValue>
-                        {stats.userCount}
+                        {deferredStats.userCount}
                       </staticStyledComponents.ListItemValue>
                     </staticStyledComponents.ListItemContent>
                     <Separator />
                   </staticStyledComponents.ListItem>
                 )}
-                {"mediaCount" in stats && (
+                {"mediaCount" in deferredStats && (
                   <staticStyledComponents.ListItem>
                     <staticStyledComponents.ListItemContent>
                       <staticStyledComponents.ListItemLabel>
                         Total Posts
                       </staticStyledComponents.ListItemLabel>
                       <staticStyledComponents.ListItemValue>
-                        {stats.mediaCount}
+                        {deferredStats.mediaCount}
                       </staticStyledComponents.ListItemValue>
                     </staticStyledComponents.ListItemContent>
                     <Separator />
                   </staticStyledComponents.ListItem>
                 )}
-                {"totalReactions" in stats && (
+                {"totalReactions" in deferredStats && (
                   <staticStyledComponents.ListItem>
                     <staticStyledComponents.ListItemContent>
                       <staticStyledComponents.ListItemLabel>
                         Total Reactions
                       </staticStyledComponents.ListItemLabel>
                       <staticStyledComponents.ListItemValue>
-                        {stats.totalReactions}
+                        {deferredStats.totalReactions}
                       </staticStyledComponents.ListItemValue>
                     </staticStyledComponents.ListItemContent>
                     <Separator />
                   </staticStyledComponents.ListItem>
                 )}
-                {"topReactions" in stats && stats.topReactions.length > 0 && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Top Reactions
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {stats.topReactions.map((reaction) => (
-                          <MemoizedReaction
-                            key={reaction.reaction}
-                            reaction={reaction.reaction}
-                            count={reaction.count}
-                          />
-                        ))}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                    <Separator />
-                  </staticStyledComponents.ListItem>
-                )}
-                {"totalComments" in stats && (
+                {"topReactions" in deferredStats &&
+                  deferredStats.topReactions.length > 0 && (
+                    <staticStyledComponents.ListItem>
+                      <staticStyledComponents.ListItemContent>
+                        <staticStyledComponents.ListItemLabel>
+                          Top Reactions
+                        </staticStyledComponents.ListItemLabel>
+                        <staticStyledComponents.ListItemValue>
+                          {deferredStats.topReactions.map((reaction) => (
+                            <MemoizedReaction
+                              key={reaction.reaction}
+                              reaction={reaction.reaction}
+                              count={reaction.count}
+                            />
+                          ))}
+                        </staticStyledComponents.ListItemValue>
+                      </staticStyledComponents.ListItemContent>
+                      <Separator />
+                    </staticStyledComponents.ListItem>
+                  )}
+                {"totalComments" in deferredStats && (
                   <staticStyledComponents.ListItem>
                     <staticStyledComponents.ListItemContent>
                       <staticStyledComponents.ListItemLabel>
                         Total Comments
                       </staticStyledComponents.ListItemLabel>
                       <staticStyledComponents.ListItemValue>
-                        {stats.totalComments}
+                        {deferredStats.totalComments}
                       </staticStyledComponents.ListItemValue>
                     </staticStyledComponents.ListItemContent>
                   </staticStyledComponents.ListItem>
@@ -396,11 +400,11 @@ export const MoreMenu = memo(
                 Members
               </staticStyledComponents.SectionLabel>
               <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
-                {users.map((user, index) => (
+                {deferredUsers.map((user, index) => (
                   <MemoizedUserListItem
                     key={user.id}
                     user={user}
-                    showSeparator={index !== users.length - 1}
+                    showSeparator={index !== deferredUsers.length - 1}
                   />
                 ))}
               </staticStyledComponents.List>
