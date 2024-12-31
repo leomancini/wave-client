@@ -81,6 +81,18 @@ const Header = styled.div`
   will-change: transform;
 `;
 
+const HeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const GroupTitle = styled.div`
+  font-size: 1.5rem;
+  font-weight: 600;
+`;
+
 const HeaderShadow = styled.div`
   position: absolute;
   left: 0;
@@ -96,17 +108,6 @@ const HeaderShadow = styled.div`
   transform: translateZ(0);
   will-change: transform;
   -webkit-backface-visibility: hidden;
-`;
-
-const CloseButton = styled.div`
-  position: absolute;
-  top: 0.375rem;
-  right: 0;
-  z-index: 2;
-
-  @media (min-width: 32rem) {
-    right: 2rem;
-  }
 `;
 
 const Content = styled.div`
@@ -266,19 +267,20 @@ export const MoreMenu = ({
   return (
     <Container $visible={$visible}>
       <Header>
-        {groupId}
+        <HeaderContent>
+          <GroupTitle>{groupId}</GroupTitle>
+          <Button
+            $type="icon-small"
+            $size="large"
+            $stretch="fit"
+            $prominence="tertiary"
+            $icon={faXmark}
+            onClick={() => setIsMoreMenuVisible(false)}
+            style={{ marginRight: "-1.25rem" }}
+          />
+        </HeaderContent>
         <HeaderShadow scrollPosition={scrollPosition} />
       </Header>
-      <CloseButton>
-        <Button
-          $type="icon-small"
-          $size="large"
-          $stretch="fit"
-          $prominence="tertiary"
-          $icon={faXmark}
-          onClick={() => setIsMoreMenuVisible(false)}
-        />
-      </CloseButton>
       <Content onScroll={handleScroll} ref={contentRef}>
         <Section>
           <SectionHeader>
