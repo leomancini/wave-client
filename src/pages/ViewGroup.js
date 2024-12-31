@@ -31,21 +31,8 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  will-change: transform, scale;
-  backface-visibility: hidden;
   top: 0;
   gap: 2rem;
-  perspective: 1000px;
-  -webkit-font-smoothing: antialiased;
-  transition: transform 0.5s linear;
-  transform: scale(1);
-  transform-origin: top center;
-
-  ${(props) =>
-    props.$moreMenuVisible &&
-    `
-    transform: scale(0.5);
-    `}
 `;
 
 const MediaGrid = styled.div`
@@ -300,7 +287,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={setIsMoreMenuVisible}
       />
-      <PageContainer $moreMenuVisible={isMoreMenuVisible}>
+      <PageContainer>
         <ButtonContainer>
           <Button
             $type="icon-small"
