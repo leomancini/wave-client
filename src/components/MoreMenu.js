@@ -22,12 +22,7 @@ const Container = memo(styled.div`
   position: fixed;
   top: 0;
   padding: 1rem;
-  @media (hover: hover) and (pointer: fine) {
-    padding-bottom: 1rem;
-  }
-  @media (hover: none) and (pointer: coarse) {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
-  }
+  padding-bottom: 0;
   width: 100%;
   max-width: 32rem;
   max-height: 100vh;
@@ -73,7 +68,6 @@ const Container = memo(styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 100vh;
 `);
 
 const staticStyledComponents = {
@@ -117,12 +111,7 @@ const staticStyledComponents = {
   Content: styled.div`
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    @media (hover: hover) and (pointer: fine) {
-      padding-bottom: 1rem;
-    }
-    @media (hover: none) and (pointer: coarse) {
-      padding-bottom: 4rem;
-    }
+    padding-bottom: 1rem;
     padding-top: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -138,6 +127,10 @@ const staticStyledComponents = {
     }
     -ms-overflow-style: none;
     scrollbar-width: none;
+
+    @supports (-webkit-touch-callout: none) {
+      padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    }
   `,
   Section: styled.div`
     display: flex;
