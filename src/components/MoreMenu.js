@@ -252,7 +252,7 @@ export const MoreMenu = ({
   const [scrollPosition, setScrollPosition] = useState(0);
   const contentRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
-  let resizeTimer;
+  const resizeTimerRef = useRef(null);
 
   const handleScroll = (e) => {
     setScrollPosition(e.target.scrollTop);
@@ -280,8 +280,8 @@ export const MoreMenu = ({
   useEffect(() => {
     const handleResize = () => {
       setIsResizing(true);
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
+      clearTimeout(resizeTimerRef.current);
+      resizeTimerRef.current = setTimeout(() => {
         setIsResizing(false);
       }, 100);
     };
@@ -289,7 +289,7 @@ export const MoreMenu = ({
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
-      clearTimeout(resizeTimer);
+      clearTimeout(resizeTimerRef.current);
     };
   }, []);
 
