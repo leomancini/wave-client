@@ -22,6 +22,17 @@ const Container = styled.div`
   background-color: white;
   z-index: 1000;
   pointer-events: none;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  box-sizing: border-box;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
 
   transform: translate3d(calc(-100% - 2rem), 0, 0);
   transition: transform 0.4s ease-in-out;
@@ -53,16 +64,6 @@ const Container = styled.div`
         opacity 0.3s ease-out;
     }
   `}
-
-  box-sizing: border-box;
-  will-change: transform, opacity;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 `;
 
 const staticStyledComponents = {
