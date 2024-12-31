@@ -300,7 +300,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={setIsMoreMenuVisible}
       />
-      <PageContainer $moreMenuVisible={isMoreMenuVisible}>
+      <PageContainer>
         <ButtonContainer>
           <Button
             $type="icon-small"
