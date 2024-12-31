@@ -1,5 +1,14 @@
 import styled from "styled-components";
-import { useState, useRef, useEffect, memo, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  memo,
+  useCallback,
+  Suspense,
+  useDeferredValue
+} from "react";
+import { startTransition } from "react";
 
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -256,9 +265,15 @@ export const MoreMenu = memo(
       }
     }, [$visible]);
 
-    const handleClose = useCallback(() => {
-      setIsMoreMenuVisible(false);
-    }, [setIsMoreMenuVisible]);
+    useEffect(() => {
+      if ($visible) {
+        startTransition(() => {
+          document.body.style.overflow = "hidden";
+        });
+      } else {
+        document.body.style.overflow = "unset";
+      }
+    }, [$visible]);
 
     return (
       <Container $visible={$visible}>
@@ -275,121 +290,123 @@ export const MoreMenu = memo(
             $stretch="fit"
             $prominence="tertiary"
             $icon={faXmark}
-            onClick={handleClose}
+            onClick={() => setIsMoreMenuVisible(false)}
           />
         </staticStyledComponents.CloseButton>
-        <staticStyledComponents.Content
-          onScroll={handleScroll}
-          ref={contentRef}
-        >
-          <staticStyledComponents.Section>
-            <staticStyledComponents.SectionHeader>
+        <Suspense fallback={null}>
+          <staticStyledComponents.Content
+            onScroll={handleScroll}
+            ref={contentRef}
+          >
+            <staticStyledComponents.Section>
+              <staticStyledComponents.SectionHeader>
+                <staticStyledComponents.SectionLabel>
+                  Stats
+                </staticStyledComponents.SectionLabel>
+                {statsIsLoading && <Spinner $size="small" />}
+              </staticStyledComponents.SectionHeader>
+              <staticStyledComponents.List>
+                {config.createdAt && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Created
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {formatDateTime(config.createdAt)}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                    <Separator />
+                  </staticStyledComponents.ListItem>
+                )}
+                {"userCount" in stats && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Members
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {stats.userCount}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                    <Separator />
+                  </staticStyledComponents.ListItem>
+                )}
+                {"mediaCount" in stats && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Total Posts
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {stats.mediaCount}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                    <Separator />
+                  </staticStyledComponents.ListItem>
+                )}
+                {"totalReactions" in stats && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Total Reactions
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {stats.totalReactions}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                    <Separator />
+                  </staticStyledComponents.ListItem>
+                )}
+                {"topReactions" in stats && stats.topReactions.length > 0 && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Top Reactions
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {stats.topReactions.map((reaction) => (
+                          <MemoizedReaction
+                            key={reaction.reaction}
+                            reaction={reaction.reaction}
+                            count={reaction.count}
+                          />
+                        ))}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                    <Separator />
+                  </staticStyledComponents.ListItem>
+                )}
+                {"totalComments" in stats && (
+                  <staticStyledComponents.ListItem>
+                    <staticStyledComponents.ListItemContent>
+                      <staticStyledComponents.ListItemLabel>
+                        Total Comments
+                      </staticStyledComponents.ListItemLabel>
+                      <staticStyledComponents.ListItemValue>
+                        {stats.totalComments}
+                      </staticStyledComponents.ListItemValue>
+                    </staticStyledComponents.ListItemContent>
+                  </staticStyledComponents.ListItem>
+                )}
+              </staticStyledComponents.List>
+            </staticStyledComponents.Section>
+            <staticStyledComponents.Section>
               <staticStyledComponents.SectionLabel>
-                Stats
+                Members
               </staticStyledComponents.SectionLabel>
-              {statsIsLoading && <Spinner $size="small" />}
-            </staticStyledComponents.SectionHeader>
-            <staticStyledComponents.List>
-              {config.createdAt && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Created
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {formatDateTime(config.createdAt)}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                  <Separator />
-                </staticStyledComponents.ListItem>
-              )}
-              {"userCount" in stats && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Members
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {stats.userCount}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                  <Separator />
-                </staticStyledComponents.ListItem>
-              )}
-              {"mediaCount" in stats && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Total Posts
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {stats.mediaCount}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                  <Separator />
-                </staticStyledComponents.ListItem>
-              )}
-              {"totalReactions" in stats && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Total Reactions
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {stats.totalReactions}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                  <Separator />
-                </staticStyledComponents.ListItem>
-              )}
-              {"topReactions" in stats && stats.topReactions.length > 0 && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Top Reactions
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {stats.topReactions.map((reaction) => (
-                        <MemoizedReaction
-                          key={reaction.reaction}
-                          reaction={reaction.reaction}
-                          count={reaction.count}
-                        />
-                      ))}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                  <Separator />
-                </staticStyledComponents.ListItem>
-              )}
-              {"totalComments" in stats && (
-                <staticStyledComponents.ListItem>
-                  <staticStyledComponents.ListItemContent>
-                    <staticStyledComponents.ListItemLabel>
-                      Total Comments
-                    </staticStyledComponents.ListItemLabel>
-                    <staticStyledComponents.ListItemValue>
-                      {stats.totalComments}
-                    </staticStyledComponents.ListItemValue>
-                  </staticStyledComponents.ListItemContent>
-                </staticStyledComponents.ListItem>
-              )}
-            </staticStyledComponents.List>
-          </staticStyledComponents.Section>
-          <staticStyledComponents.Section>
-            <staticStyledComponents.SectionLabel>
-              Members
-            </staticStyledComponents.SectionLabel>
-            <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
-              {users.map((user, index) => (
-                <MemoizedUserListItem
-                  key={user.id}
-                  user={user}
-                  showSeparator={index !== users.length - 1}
-                />
-              ))}
-            </staticStyledComponents.List>
-          </staticStyledComponents.Section>
-        </staticStyledComponents.Content>
+              <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
+                {users.map((user, index) => (
+                  <MemoizedUserListItem
+                    key={user.id}
+                    user={user}
+                    showSeparator={index !== users.length - 1}
+                  />
+                ))}
+              </staticStyledComponents.List>
+            </staticStyledComponents.Section>
+          </staticStyledComponents.Content>
+        </Suspense>
       </Container>
     );
   }

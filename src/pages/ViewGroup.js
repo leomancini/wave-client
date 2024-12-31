@@ -1,6 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  startTransition,
+  useTransition
+} from "react";
 import styled from "styled-components";
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -63,6 +70,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
   const observer = useRef();
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -277,6 +285,12 @@ export const ViewGroup = ({ groupId, userId }) => {
     }
   }, [groupId]);
 
+  const handleMenuToggle = () => {
+    startTransition(() => {
+      setIsMoreMenuVisible((prev) => !prev);
+    });
+  };
+
   return (
     <Page>
       <MoreMenu
@@ -295,7 +309,7 @@ export const ViewGroup = ({ groupId, userId }) => {
             $stretch="fit"
             $prominence="secondary"
             $icon={faBars}
-            onClick={() => setIsMoreMenuVisible(true)}
+            onClick={handleMenuToggle}
           />
           <Button
             $isLoading={isUploading}
