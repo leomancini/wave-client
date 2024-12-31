@@ -85,31 +85,31 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [groupId, setConfig]);
 
   useEffect(() => {
-    const MENU_ANIMATION_DURATION = 750; // 150ms delay + 600ms animation
-    const ADDITIONAL_BUFFER = 200; // Extra 200ms to ensure animation is complete
+    const MENU_ANIMATION_DURATION = 400;
+    const ADDITIONAL_BUFFER = 200;
 
     const fetchStats = async () => {
-      // try {
-      //   const response = await fetch(
-      //     `${process.env.REACT_APP_API_URL}/stats/${groupId}`
-      //   );
-      //   const data = await response.json();
-      //   setStats(data);
-      //   setStatsIsLoading(false);
-      // } catch (error) {
-      //   console.error("Error fetching stats:", error);
-      // }
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/stats/${groupId}`
+        );
+        const data = await response.json();
+        setStats(data);
+        setStatsIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
     };
 
     if (groupId && !isMoreMenuVisible) {
       setStatsIsLoading(true);
-      // fetchStats();
+      fetchStats();
     }
 
     if (isMoreMenuVisible && groupId) {
       const timer = setTimeout(() => {
         setStatsIsLoading(true);
-        // fetchStats();
+        fetchStats();
       }, MENU_ANIMATION_DURATION + ADDITIONAL_BUFFER);
 
       return () => clearTimeout(timer);
