@@ -19,9 +19,8 @@ import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
 
 const Container = memo(styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
-  // margin: 1rem 1rem 1rem 1rem;
   padding: 1rem;
   @media (hover: hover) and (pointer: fine) {
     padding-bottom: 1rem;
@@ -38,15 +37,13 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translate3d(calc(-100% - 10rem), 0, 0);
-  transition: transform 0.75s cubic-bezier(0.64, 1, 0.34, 1.05),
-    opacity 0.3s ease-out;
+  transform: translate3d(calc(-100% - 2rem), 0, 0);
+  transition: transform 0.4s ease-in-out;
 
   @media (min-width: 32rem) {
     opacity: 0;
     transform: translate3d(-50%, 0, 0);
-    transition: transform 0.75s cubic-bezier(0.3, 1, 0.16, 1.05),
-      opacity 0.3s ease-out;
+    transition: transform 0.4s ease-in-out, opacity 0.3s ease-out;
   }
 
   ${(props) =>
@@ -54,13 +51,12 @@ const Container = memo(styled.div`
     `
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-    transition: transform 0.75s cubic-bezier(0.34, 1.05, 0.64, 1),
-      opacity 0.3s ease-out;
+    transition: transform 0.4s ease-in-out;
 
     @media (min-width: 32rem) {
       transform: translate3d(0, 0, 0);
       opacity: 1;
-      transition: transform 0.75s cubic-bezier(0.16, 1.05, 0.3, 1),
+      transition: transform 0.4s ease-in-out,
         opacity 0.3s ease-out;
     }
   `}
