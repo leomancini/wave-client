@@ -38,14 +38,14 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translate3d(calc(-100% - 2rem), 0, 0);
-  opacity: 1;
-  transition: transform 0.75s cubic-bezier(0.16, 1.05, 0.3, 1);
+  transform: translate3d(calc(-100% - 10rem), 0, 0);
+  transition: transform 0.75s cubic-bezier(0.64, 1, 0.34, 1.05),
+    opacity 0.3s ease-out;
 
   @media (min-width: 32rem) {
+    opacity: 0;
     transform: translate3d(-50%, 0, 0);
-    opacity: 1;
-    transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
+    transition: transform 0.75s cubic-bezier(0.3, 1, 0.16, 1.05),
       opacity 0.3s ease-out;
   }
 
@@ -54,12 +54,13 @@ const Container = memo(styled.div`
     `
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-    opacity: 1;
+    transition: transform 0.75s cubic-bezier(0.34, 1.05, 0.64, 1),
+      opacity 0.3s ease-out;
 
     @media (min-width: 32rem) {
       transform: translate3d(0, 0, 0);
       opacity: 1;
-      transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
+      transition: transform 0.75s cubic-bezier(0.16, 1.05, 0.3, 1),
         opacity 0.3s ease-out;
     }
   `}
