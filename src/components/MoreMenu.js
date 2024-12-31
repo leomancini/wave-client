@@ -21,7 +21,7 @@ import { Spinner } from "./Spinner";
 const Container = memo(styled.div`
   position: absolute;
   top: 0;
-  margin: 1.25rem 1rem 1rem 1rem;
+  margin: 1rem 1rem 1rem 1rem;
   padding: 1rem;
   @media (hover: hover) and (pointer: fine) {
     padding-bottom: 1rem;
@@ -40,7 +40,7 @@ const Container = memo(styled.div`
 
   transform: translate3d(calc(-100% - 2rem), 0, 0);
   opacity: 1;
-  transition: transform 1s ease-out, opacity 1s ease-out;
+  transition: transform 0.75s cubic-bezier(0.16, 1.05, 0.3, 1);
 
   @media (min-width: 32rem) {
     transform: translate3d(-50%, 0, 0);
