@@ -34,11 +34,18 @@ const Container = memo(styled.div`
 
   transform: translate3d(calc(-100% - 2rem), 0, 0);
   transition: transform 0.4s ease-in-out;
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
 
   @media (min-width: 32rem) {
     opacity: 0;
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-4rem, 0, 0);
     transition: transform 0.4s ease-in-out, opacity 0.3s ease-out;
+    box-shadow: unset;
+    padding-left: 3rem;
+    padding-right: 3rem;
+
+    width: calc(100% + 6rem);
+    max-width: calc(32rem + 6rem);
   }
 
   ${(props) =>
@@ -62,9 +69,6 @@ const Container = memo(styled.div`
   backface-visibility: hidden;
   perspective: 1000px;
   -webkit-font-smoothing: antialiased;
-
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -103,10 +107,13 @@ const staticStyledComponents = {
   `,
   CloseButton: styled.div`
     position: absolute;
-    top: 0;
+    top: 0.5rem;
     right: 0;
-    padding: 0.5rem;
     z-index: 2;
+
+    @media (min-width: 32rem) {
+      right: 2rem;
+    }
   `,
   Content: styled.div`
     padding-left: 0.5rem;
