@@ -21,7 +21,7 @@ import { Spinner } from "./Spinner";
 const Container = memo(styled.div`
   position: absolute;
   top: 0;
-  margin: 1rem 1rem 1rem 1rem;
+  // margin: 1rem 1rem 1rem 1rem;
   padding: 1rem;
   @media (hover: hover) and (pointer: fine) {
     padding-bottom: 1rem;
@@ -29,11 +29,11 @@ const Container = memo(styled.div`
   @media (hover: none) and (pointer: coarse) {
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
   }
-  width: calc(100% - 2rem);
+  width: 100%;
   max-width: 32rem;
-  max-height: calc(100vh - 2rem);
+  max-height: 100vh;
   height: fit-content;
-  min-height: calc(100vh - 2rem);
+  min-height: 100vh;
   background-color: white;
   z-index: 1000;
   pointer-events: none;
@@ -73,11 +73,6 @@ const Container = memo(styled.div`
   -webkit-font-smoothing: antialiased;
 
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 2rem;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 2rem;
 
   overflow: hidden;
   display: flex;

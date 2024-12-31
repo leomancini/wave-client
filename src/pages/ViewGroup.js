@@ -33,6 +33,14 @@ const PageContainer = styled.div`
   width: 100%;
   top: 0;
   gap: 2rem;
+  opacity: 1;
+  transition: opacity 0.3s linear;
+
+  ${(props) =>
+    props.$moreMenuVisible &&
+    `
+    // opacity: 0;
+    `}
 `;
 
 const MediaGrid = styled.div`
