@@ -186,6 +186,7 @@ const ReactionEmoji = styled.div`
 
 let lastClickTime = 0;
 let lastTouchTime = 0;
+let isPinching = false;
 
 export const handleMediaItemClick = (
   e,
@@ -193,8 +194,14 @@ export const handleMediaItemClick = (
   setReactions,
   { groupId, user, reaction }
 ) => {
+  if (isPinching) {
+    e.preventDefault();
+    return;
+  }
+
   if (e.touches && e.touches.length > 1) {
     e.preventDefault();
+    isPinching = true;
     return;
   }
 
@@ -203,7 +210,7 @@ export const handleMediaItemClick = (
 
   if (isTouch) {
     e.preventDefault();
-    if (lastTouchTime && currentTime - lastTouchTime < 300) {
+    if (!isPinching && lastTouchTime && currentTime - lastTouchTime < 300) {
       addReaction(filename, setReactions, { groupId, user, reaction });
       lastTouchTime = 0;
     } else {
@@ -380,16 +387,31 @@ export const MediaItem = forwardRef(
           }
           onTouchStart={(e) => {
             if (e.touches.length > 1) {
-              e.stopPropagation();
+              e.preventDefault();
+              isPinching = true;
             }
           }}
-          onTouchEnd={(e) =>
+          onTouchMove={(e) => {
+            if (e.touches.length > 1) {
+              e.preventDefault();
+              isPinching = true;
+            }
+          }}
+          onTouchEnd={(e) => {
+            const wasPinching = isPinching;
+            isPinching = false;
+
+            if (wasPinching) {
+              e.preventDefault();
+              return;
+            }
+
             handleMediaItemClick(e, item.filename, setReactions, {
               groupId,
               user,
               reaction: "❤️"
-            })
-          }
+            });
+          }}
         >
           <Image
             src={imageUrl}
