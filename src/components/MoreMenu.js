@@ -66,158 +66,166 @@ const Container = styled.div`
   `}
 `;
 
-const staticStyledComponents = {
-  Header: styled.div`
-    padding: 0.5rem 0.5rem 1rem 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    height: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    background: white;
-    z-index: 1;
-    transform: translateZ(0);
-    will-change: transform;
-  `,
-  HeaderShadow: styled.div`
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1rem;
-    height: 1rem;
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 255, 255, 0) 100%
-    );
-    pointer-events: none;
-    transform: translateZ(0);
-    will-change: transform;
-    -webkit-backface-visibility: hidden;
-  `,
-  CloseButton: styled.div`
-    position: absolute;
-    top: 0.375rem;
-    right: 0;
-    z-index: 2;
+const Header = styled.div`
+  padding: 0.5rem 0.5rem 1rem 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  height: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: white;
+  z-index: 1;
+  transform: translateZ(0);
+  will-change: transform;
+`;
 
-    @media (min-width: 32rem) {
-      right: 2rem;
-    }
-  `,
-  Content: styled.div`
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-bottom: 1rem;
-    padding-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    overflow-y: scroll;
-    flex: 1;
-    min-height: 0;
-    transform: translateZ(0);
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+const HeaderShadow = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1rem;
+  height: 1rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+`;
 
-    @supports (-webkit-touch-callout: none) {
-      padding-bottom: calc(6rem + env(safe-area-inset-bottom));
-    }
-  `,
-  Section: styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  `,
-  SectionHeader: styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  `,
-  SectionLabel: styled.div`
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.5);
-    letter-spacing: 0.05rem;
-    flex: 1;
-  `,
-  List: styled.div`
-    display: flex;
-    flex-direction: column;
-  `,
-  ListItem: styled.div`
-    width: 100%;
-  `,
-  ListItemContent: styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 3rem;
-    padding: 0.5rem 0;
-  `,
-  ListItemLabel: styled.div`
-    font-size: 1rem;
-  `,
-  ListItemValue: styled.div`
-    font-size: 1rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  `,
-  UserAvatar: styled.div`
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.15);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    font-weight: normal;
-  `,
-  Reaction: styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
-  `,
-  ReactionEmoji: styled.div`
-    font-size: 1.25rem;
-  `
-};
+const CloseButton = styled.div`
+  position: absolute;
+  top: 0.375rem;
+  right: 0;
+  z-index: 2;
+
+  @media (min-width: 32rem) {
+    right: 2rem;
+  }
+`;
+
+const Content = styled.div`
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 1rem;
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: scroll;
+  flex: 1;
+  min-height: 0;
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  @supports (-webkit-touch-callout: none) {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+`;
+
+const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const SectionLabel = styled.div`
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.05rem;
+  flex: 1;
+`;
+
+const List = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ListItem = styled.div`
+  width: 100%;
+`;
+
+const ListItemContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+  padding: 0.5rem 0;
+`;
+
+const ListItemLabel = styled.div`
+  font-size: 1rem;
+`;
+
+const ListItemValue = styled.div`
+  font-size: 1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const UserAvatar = styled.div`
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.15);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: normal;
+`;
+
+const StyledReaction = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const ReactionEmoji = styled.div`
+  font-size: 1.25rem;
+`;
 
 const Reaction = ({ reaction, count }) => (
-  <staticStyledComponents.Reaction key={reaction}>
-    <staticStyledComponents.ReactionEmoji>
-      {reaction}
-    </staticStyledComponents.ReactionEmoji>
+  <StyledReaction key={reaction}>
+    <ReactionEmoji>{reaction}</ReactionEmoji>
     {count}
-  </staticStyledComponents.Reaction>
+  </StyledReaction>
 );
 
 const UserListItem = ({ user, showSeparator }) => (
-  <staticStyledComponents.ListItem>
-    <staticStyledComponents.ListItemContent>
-      <staticStyledComponents.ListItemValue>
-        <staticStyledComponents.UserAvatar>
-          {user.name.substring(0, 1).toUpperCase()}
-        </staticStyledComponents.UserAvatar>
+  <ListItem>
+    <ListItemContent>
+      <ListItemValue>
+        <UserAvatar>{user.name.substring(0, 1).toUpperCase()}</UserAvatar>
         {user.name}
-      </staticStyledComponents.ListItemValue>
-    </staticStyledComponents.ListItemContent>
+      </ListItemValue>
+    </ListItemContent>
     {showSeparator && <Separator />}
-  </staticStyledComponents.ListItem>
+  </ListItem>
 );
 
 export const MoreMenu = ({
@@ -257,11 +265,11 @@ export const MoreMenu = ({
 
   return (
     <Container $visible={$visible}>
-      <staticStyledComponents.Header>
+      <Header>
         {groupId}
-        <staticStyledComponents.HeaderShadow scrollPosition={scrollPosition} />
-      </staticStyledComponents.Header>
-      <staticStyledComponents.CloseButton>
+        <HeaderShadow scrollPosition={scrollPosition} />
+      </Header>
+      <CloseButton>
         <Button
           $type="icon-small"
           $size="large"
@@ -270,75 +278,57 @@ export const MoreMenu = ({
           $icon={faXmark}
           onClick={() => setIsMoreMenuVisible(false)}
         />
-      </staticStyledComponents.CloseButton>
-      <staticStyledComponents.Content onScroll={handleScroll} ref={contentRef}>
-        <staticStyledComponents.Section>
-          <staticStyledComponents.SectionHeader>
-            <staticStyledComponents.SectionLabel>
-              Stats
-            </staticStyledComponents.SectionLabel>
+      </CloseButton>
+      <Content onScroll={handleScroll} ref={contentRef}>
+        <Section>
+          <SectionHeader>
+            <SectionLabel>Stats</SectionLabel>
             {statsIsLoading && <Spinner $size="small" />}
-          </staticStyledComponents.SectionHeader>
-          <staticStyledComponents.List>
+          </SectionHeader>
+          <List>
             {config.createdAt && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Created
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Created</ListItemLabel>
+                  <ListItemValue>
                     {formatDateTime(config.createdAt)}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
+                  </ListItemValue>
+                </ListItemContent>
                 <Separator />
-              </staticStyledComponents.ListItem>
+              </ListItem>
             )}
             {"userCount" in stats && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Members
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
-                    {stats.userCount}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Members</ListItemLabel>
+                  <ListItemValue>{stats.userCount}</ListItemValue>
+                </ListItemContent>
                 <Separator />
-              </staticStyledComponents.ListItem>
+              </ListItem>
             )}
             {"mediaCount" in stats && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Total Posts
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
-                    {stats.mediaCount}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Posts</ListItemLabel>
+                  <ListItemValue>{stats.mediaCount}</ListItemValue>
+                </ListItemContent>
                 <Separator />
-              </staticStyledComponents.ListItem>
+              </ListItem>
             )}
             {"totalReactions" in stats && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Total Reactions
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
-                    {stats.totalReactions}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Reactions</ListItemLabel>
+                  <ListItemValue>{stats.totalReactions}</ListItemValue>
+                </ListItemContent>
                 <Separator />
-              </staticStyledComponents.ListItem>
+              </ListItem>
             )}
             {"topReactions" in stats && stats.topReactions.length > 0 && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Top Reactions
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Top Reactions</ListItemLabel>
+                  <ListItemValue>
                     {stats.topReactions.map((reaction) => (
                       <Reaction
                         key={reaction.reaction}
@@ -346,30 +336,24 @@ export const MoreMenu = ({
                         count={reaction.count}
                       />
                     ))}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
+                  </ListItemValue>
+                </ListItemContent>
                 <Separator />
-              </staticStyledComponents.ListItem>
+              </ListItem>
             )}
             {"totalComments" in stats && (
-              <staticStyledComponents.ListItem>
-                <staticStyledComponents.ListItemContent>
-                  <staticStyledComponents.ListItemLabel>
-                    Total Comments
-                  </staticStyledComponents.ListItemLabel>
-                  <staticStyledComponents.ListItemValue>
-                    {stats.totalComments}
-                  </staticStyledComponents.ListItemValue>
-                </staticStyledComponents.ListItemContent>
-              </staticStyledComponents.ListItem>
+              <ListItem>
+                <ListItemContent>
+                  <ListItemLabel>Total Comments</ListItemLabel>
+                  <ListItemValue>{stats.totalComments}</ListItemValue>
+                </ListItemContent>
+              </ListItem>
             )}
-          </staticStyledComponents.List>
-        </staticStyledComponents.Section>
-        <staticStyledComponents.Section>
-          <staticStyledComponents.SectionLabel>
-            Members
-          </staticStyledComponents.SectionLabel>
-          <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
+          </List>
+        </Section>
+        <Section>
+          <SectionLabel>Members</SectionLabel>
+          <List style={{ paddingTop: "0.5rem" }}>
             {users.map((user, index) => (
               <UserListItem
                 key={user.id}
@@ -377,9 +361,9 @@ export const MoreMenu = ({
                 showSeparator={index !== users.length - 1}
               />
             ))}
-          </staticStyledComponents.List>
-        </staticStyledComponents.Section>
-      </staticStyledComponents.Content>
+          </List>
+        </Section>
+      </Content>
     </Container>
   );
 };
