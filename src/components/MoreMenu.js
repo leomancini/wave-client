@@ -1,14 +1,5 @@
 import styled from "styled-components";
-import {
-  useState,
-  useRef,
-  useEffect,
-  memo,
-  useCallback,
-  Suspense,
-  useDeferredValue
-} from "react";
-import { startTransition } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -18,7 +9,7 @@ import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
 
-const Container = memo(styled.div`
+const Container = styled.div`
   position: fixed;
   top: 0;
   padding: 1rem;
@@ -72,7 +63,7 @@ const Container = memo(styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-`);
+`;
 
 const staticStyledComponents = {
   Header: styled.div`
@@ -205,16 +196,16 @@ const staticStyledComponents = {
   `
 };
 
-const MemoizedReaction = memo(({ reaction, count }) => (
+const Reaction = ({ reaction, count }) => (
   <staticStyledComponents.Reaction key={reaction}>
     <staticStyledComponents.ReactionEmoji>
       {reaction}
     </staticStyledComponents.ReactionEmoji>
     {count}
   </staticStyledComponents.Reaction>
-));
+);
 
-const MemoizedUserListItem = memo(({ user, showSeparator }) => (
+const UserListItem = ({ user, showSeparator }) => (
   <staticStyledComponents.ListItem>
     <staticStyledComponents.ListItemContent>
       <staticStyledComponents.ListItemValue>
@@ -226,183 +217,168 @@ const MemoizedUserListItem = memo(({ user, showSeparator }) => (
     </staticStyledComponents.ListItemContent>
     {showSeparator && <Separator />}
   </staticStyledComponents.ListItem>
-));
-
-export const MoreMenu = memo(
-  ({
-    $visible,
-    setIsMoreMenuVisible,
-    groupId,
-    users,
-    stats,
-    statsIsLoading
-  }) => {
-    const { config } = useConfig();
-    const [scrollPosition, setScrollPosition] = useState(0);
-    const contentRef = useRef(null);
-
-    const deferredUsers = useDeferredValue(users);
-    const deferredStats = useDeferredValue(stats);
-
-    const handleScroll = useCallback((e) => {
-      setScrollPosition(e.target.scrollTop);
-    }, []);
-
-    useEffect(() => {
-      if (!$visible && contentRef.current) {
-        const timeoutId = setTimeout(() => {
-          if (contentRef.current) {
-            contentRef.current.scrollTop = 0;
-          }
-        }, 200);
-        return () => clearTimeout(timeoutId);
-      }
-    }, [$visible]);
-
-    useEffect(() => {
-      if ($visible) {
-        startTransition(() => {
-          document.body.style.overflow = "hidden";
-        });
-      } else {
-        document.body.style.overflow = "unset";
-      }
-    }, [$visible]);
-
-    return (
-      <Container $visible={$visible}>
-        <staticStyledComponents.Header>
-          {groupId}
-          <staticStyledComponents.HeaderShadow
-            scrollPosition={scrollPosition}
-          />
-        </staticStyledComponents.Header>
-        <staticStyledComponents.CloseButton>
-          <Button
-            $type="icon-small"
-            $size="large"
-            $stretch="fit"
-            $prominence="tertiary"
-            $icon={faXmark}
-            onClick={() => setIsMoreMenuVisible(false)}
-          />
-        </staticStyledComponents.CloseButton>
-        <Suspense fallback={null}>
-          <staticStyledComponents.Content
-            onScroll={handleScroll}
-            ref={contentRef}
-          >
-            <staticStyledComponents.Section>
-              <staticStyledComponents.SectionHeader>
-                <staticStyledComponents.SectionLabel>
-                  Stats
-                </staticStyledComponents.SectionLabel>
-                {statsIsLoading && <Spinner $size="small" />}
-              </staticStyledComponents.SectionHeader>
-              <staticStyledComponents.List>
-                {config.createdAt && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Created
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {formatDateTime(config.createdAt)}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                    <Separator />
-                  </staticStyledComponents.ListItem>
-                )}
-                {"userCount" in deferredStats && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Members
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {deferredStats.userCount}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                    <Separator />
-                  </staticStyledComponents.ListItem>
-                )}
-                {"mediaCount" in deferredStats && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Total Posts
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {deferredStats.mediaCount}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                    <Separator />
-                  </staticStyledComponents.ListItem>
-                )}
-                {"totalReactions" in deferredStats && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Total Reactions
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {deferredStats.totalReactions}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                    <Separator />
-                  </staticStyledComponents.ListItem>
-                )}
-                {"topReactions" in deferredStats &&
-                  deferredStats.topReactions.length > 0 && (
-                    <staticStyledComponents.ListItem>
-                      <staticStyledComponents.ListItemContent>
-                        <staticStyledComponents.ListItemLabel>
-                          Top Reactions
-                        </staticStyledComponents.ListItemLabel>
-                        <staticStyledComponents.ListItemValue>
-                          {deferredStats.topReactions.map((reaction) => (
-                            <MemoizedReaction
-                              key={reaction.reaction}
-                              reaction={reaction.reaction}
-                              count={reaction.count}
-                            />
-                          ))}
-                        </staticStyledComponents.ListItemValue>
-                      </staticStyledComponents.ListItemContent>
-                      <Separator />
-                    </staticStyledComponents.ListItem>
-                  )}
-                {"totalComments" in deferredStats && (
-                  <staticStyledComponents.ListItem>
-                    <staticStyledComponents.ListItemContent>
-                      <staticStyledComponents.ListItemLabel>
-                        Total Comments
-                      </staticStyledComponents.ListItemLabel>
-                      <staticStyledComponents.ListItemValue>
-                        {deferredStats.totalComments}
-                      </staticStyledComponents.ListItemValue>
-                    </staticStyledComponents.ListItemContent>
-                  </staticStyledComponents.ListItem>
-                )}
-              </staticStyledComponents.List>
-            </staticStyledComponents.Section>
-            <staticStyledComponents.Section>
-              <staticStyledComponents.SectionLabel>
-                Members
-              </staticStyledComponents.SectionLabel>
-              <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
-                {deferredUsers.map((user, index) => (
-                  <MemoizedUserListItem
-                    key={user.id}
-                    user={user}
-                    showSeparator={index !== deferredUsers.length - 1}
-                  />
-                ))}
-              </staticStyledComponents.List>
-            </staticStyledComponents.Section>
-          </staticStyledComponents.Content>
-        </Suspense>
-      </Container>
-    );
-  }
 );
+
+export const MoreMenu = ({
+  $visible,
+  setIsMoreMenuVisible,
+  groupId,
+  users,
+  stats,
+  statsIsLoading
+}) => {
+  const { config } = useConfig();
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const contentRef = useRef(null);
+
+  const handleScroll = (e) => {
+    setScrollPosition(e.target.scrollTop);
+  };
+
+  useEffect(() => {
+    if (!$visible && contentRef.current) {
+      const timeoutId = setTimeout(() => {
+        if (contentRef.current) {
+          contentRef.current.scrollTop = 0;
+        }
+      }, 200);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [$visible]);
+
+  useEffect(() => {
+    if ($visible) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [$visible]);
+
+  return (
+    <Container $visible={$visible}>
+      <staticStyledComponents.Header>
+        {groupId}
+        <staticStyledComponents.HeaderShadow scrollPosition={scrollPosition} />
+      </staticStyledComponents.Header>
+      <staticStyledComponents.CloseButton>
+        <Button
+          $type="icon-small"
+          $size="large"
+          $stretch="fit"
+          $prominence="tertiary"
+          $icon={faXmark}
+          onClick={() => setIsMoreMenuVisible(false)}
+        />
+      </staticStyledComponents.CloseButton>
+      <staticStyledComponents.Content onScroll={handleScroll} ref={contentRef}>
+        <staticStyledComponents.Section>
+          <staticStyledComponents.SectionHeader>
+            <staticStyledComponents.SectionLabel>
+              Stats
+            </staticStyledComponents.SectionLabel>
+            {statsIsLoading && <Spinner $size="small" />}
+          </staticStyledComponents.SectionHeader>
+          <staticStyledComponents.List>
+            {config.createdAt && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Created
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {formatDateTime(config.createdAt)}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+                <Separator />
+              </staticStyledComponents.ListItem>
+            )}
+            {"userCount" in stats && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Members
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {stats.userCount}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+                <Separator />
+              </staticStyledComponents.ListItem>
+            )}
+            {"mediaCount" in stats && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Total Posts
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {stats.mediaCount}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+                <Separator />
+              </staticStyledComponents.ListItem>
+            )}
+            {"totalReactions" in stats && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Total Reactions
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {stats.totalReactions}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+                <Separator />
+              </staticStyledComponents.ListItem>
+            )}
+            {"topReactions" in stats && stats.topReactions.length > 0 && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Top Reactions
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {stats.topReactions.map((reaction) => (
+                      <Reaction
+                        key={reaction.reaction}
+                        reaction={reaction.reaction}
+                        count={reaction.count}
+                      />
+                    ))}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+                <Separator />
+              </staticStyledComponents.ListItem>
+            )}
+            {"totalComments" in stats && (
+              <staticStyledComponents.ListItem>
+                <staticStyledComponents.ListItemContent>
+                  <staticStyledComponents.ListItemLabel>
+                    Total Comments
+                  </staticStyledComponents.ListItemLabel>
+                  <staticStyledComponents.ListItemValue>
+                    {stats.totalComments}
+                  </staticStyledComponents.ListItemValue>
+                </staticStyledComponents.ListItemContent>
+              </staticStyledComponents.ListItem>
+            )}
+          </staticStyledComponents.List>
+        </staticStyledComponents.Section>
+        <staticStyledComponents.Section>
+          <staticStyledComponents.SectionLabel>
+            Members
+          </staticStyledComponents.SectionLabel>
+          <staticStyledComponents.List style={{ paddingTop: "0.5rem" }}>
+            {users.map((user, index) => (
+              <UserListItem
+                key={user.id}
+                user={user}
+                showSeparator={index !== users.length - 1}
+              />
+            ))}
+          </staticStyledComponents.List>
+        </staticStyledComponents.Section>
+      </staticStyledComponents.Content>
+    </Container>
+  );
+};
