@@ -38,14 +38,14 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translate3d(calc(-100% - 2rem), 0, 0);
-  opacity: 0;
+  transform: translate3d(0, 10rem, 0);
+  opacity: 1;
   transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
     opacity 0.3s ease-out;
 
   @media (min-width: 32rem) {
     transform: translate3d(-50%, 0, 0);
-    opacity: 0;
+    opacity: 1;
     transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
       opacity 0.3s ease-out;
   }
