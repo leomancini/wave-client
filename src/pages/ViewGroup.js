@@ -10,7 +10,6 @@ import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
-import { Banner } from "../components/Banner";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -313,15 +312,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
-        <Banner
-          label="New"
-          date="Dec 30, 2024"
-          messages={[
-            "More emojis for reactions!",
-            "Menu to view group stats and members."
-          ]}
-          footer="Enjoy!"
-        />
         <MediaGrid>
           {mediaItems.map((item, index) => {
             const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
