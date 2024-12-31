@@ -29,7 +29,7 @@ const Container = memo(styled.div`
   z-index: 1000;
   pointer-events: none;
 
-  transform: translate3d(-100%, 0, 0);
+  transform: translate3d(calc(-100% - 2rem), 0, 0);
   opacity: 0;
   transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
     opacity 0.3s ease-out;
@@ -37,6 +37,8 @@ const Container = memo(styled.div`
   @media (min-width: 32rem) {
     transform: translate3d(-50%, 0, 0);
     opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
+      opacity 0.3s ease-out;
   }
 
   ${(props) =>
@@ -49,6 +51,8 @@ const Container = memo(styled.div`
     @media (min-width: 32rem) {
       transform: translate3d(0, 0, 0);
       opacity: 1;
+      transition: transform 0.6s cubic-bezier(0.16, 1.25, 0.3, 1),
+        opacity 0.3s ease-out;
     }
   `}
 
@@ -56,6 +60,8 @@ const Container = memo(styled.div`
   will-change: transform, opacity;
   transform-style: preserve-3d;
   backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
 
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
 
@@ -234,7 +240,6 @@ export const MoreMenu = memo(
     const { config } = useConfig();
     const [scrollPosition, setScrollPosition] = useState(0);
     const contentRef = useRef(null);
-    const [isRendered, setIsRendered] = useState(false);
 
     const handleScroll = useCallback((e) => {
       setScrollPosition(e.target.scrollTop);
@@ -251,21 +256,9 @@ export const MoreMenu = memo(
       }
     }, [$visible]);
 
-    useEffect(() => {
-      if ($visible) {
-        requestAnimationFrame(() => {
-          setIsRendered(true);
-        });
-      } else {
-        setIsRendered(false);
-      }
-    }, [$visible]);
-
     const handleClose = useCallback(() => {
       setIsMoreMenuVisible(false);
     }, [setIsMoreMenuVisible]);
-
-    if (!$visible && !isRendered) return null;
 
     return (
       <Container $visible={$visible}>
