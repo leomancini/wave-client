@@ -107,7 +107,7 @@ const staticStyledComponents = {
   `,
   CloseButton: styled.div`
     position: absolute;
-    top: 0.5rem;
+    top: 0.375rem;
     right: 0;
     z-index: 2;
 
