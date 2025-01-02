@@ -53,7 +53,14 @@ const Time = styled.div`
   white-space: nowrap;
 `;
 
-const Text = styled.div``;
+const Text = styled.div`
+  user-select: text;
+
+  &::selection {
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
+  }
+`;
 
 const Comment = ({ name, text, timestamp }) => {
   return (
