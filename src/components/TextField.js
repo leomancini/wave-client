@@ -25,15 +25,22 @@ const Input = styled(TextareaAutosize)`
     outline: none;
   }
 
+  &::selection {
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
+  }
+
   ${({ disabled }) =>
     disabled &&
     `
       color: rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
 
-      &::selection {
-        background: transparent;
-      }
-        &:active,
+      &:active,
       &:focus {
         background-color: rgba(0, 0, 0, 0.05);
         outline: none;
