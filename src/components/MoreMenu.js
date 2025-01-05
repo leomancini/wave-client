@@ -287,7 +287,7 @@ export const MoreMenu = ({
   const [showSwitchDeviceInstructions, setShowSwitchDeviceInstructions] =
     useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
-  const [isLoadingQR, setIsLoadingQR] = useState(false);
+  const [isLoadingQRCode, setIsLoadingQRCode] = useState(true);
 
   useEffect(() => {
     if (!$visible && contentRef.current) {
@@ -326,18 +326,21 @@ export const MoreMenu = ({
 
   useEffect(() => {
     if (showSwitchDeviceInstructions) {
-      setIsLoadingQR(true);
       fetch(
         `${process.env.REACT_APP_API_URL}/generate-qr-code/${groupId}/${user.id}`
       )
         .then((response) => response.url)
         .then((url) => {
-          setQrCodeUrl(url);
-          setIsLoadingQR(false);
+          const img = new Image();
+          img.onload = () => {
+            setQrCodeUrl(url);
+            setIsLoadingQRCode(false);
+          };
+          img.src = url;
         })
         .catch((error) => {
           console.error("Error fetching QR code:", error);
-          setIsLoadingQR(false);
+          setIsLoadingQRCode(false);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -428,8 +431,8 @@ export const MoreMenu = ({
               <ListItem>
                 <ListItemContent style={{ padding: "0" }}>
                   <QRCodeContainer>
-                    {isLoadingQR ? (
-                      <Spinner $size="large" />
+                    {isLoadingQRCode ? (
+                      <Spinner $size="x-large" />
                     ) : (
                       qrCodeUrl && (
                         <img
