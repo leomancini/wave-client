@@ -231,6 +231,7 @@ const QRCodeContainer = styled.div`
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0;
   background-color: rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 
   img {
     width: calc(100% - 4rem);
