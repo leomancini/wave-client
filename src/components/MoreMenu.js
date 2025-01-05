@@ -231,9 +231,6 @@ const QRCodeContainer = styled.div`
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0;
   background-color: rgba(0, 0, 0, 0.05);
-  transform: translateZ(0);
-  will-change: transform;
-  -webkit-font-smoothing: antialiased;
 
   img {
     width: calc(100% - 4rem);
@@ -429,7 +426,7 @@ export const MoreMenu = ({
             )}
             <Section>
               <ListItem>
-                <ListItemContent>
+                <ListItemContent style={{ padding: "0" }}>
                   <QRCodeContainer>
                     {isLoadingQR ? (
                       <Spinner $size="large" />
