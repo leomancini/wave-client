@@ -5,6 +5,8 @@ import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
 
 import { formatDateTime } from "../utilities/formatDateTime";
+import { useDetectDeviceType } from "../utilities/detectDeviceType";
+
 import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
@@ -258,19 +260,6 @@ const UserListItem = ({ user, showSeparator }) => (
   </ListItem>
 );
 
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    const mobileRegex =
-      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-    setIsMobile(mobileRegex.test(userAgent.toLowerCase()));
-  }, []);
-
-  return isMobile;
-};
-
 export const MoreMenu = ({
   $visible,
   setIsMoreMenuVisible,
@@ -284,7 +273,7 @@ export const MoreMenu = ({
   const contentRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const resizeTimerRef = useRef(null);
-  const isMobile = useIsMobile();
+  const deviceType = useDetectDeviceType();
   const [showSwitchDeviceInstructions, setShowSwitchDeviceInstructions] =
     useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
@@ -368,7 +357,7 @@ export const MoreMenu = ({
           )}
           <GroupTitle>
             {showSwitchDeviceInstructions
-              ? `Login on a ${isMobile ? "computer" : "phone"}`
+              ? `Login on a ${deviceType === "mobile" ? "computer" : "phone"}`
               : groupId}
           </GroupTitle>
           {!showSwitchDeviceInstructions && (
@@ -388,7 +377,7 @@ export const MoreMenu = ({
       <Content ref={contentRef}>
         {showSwitchDeviceInstructions ? (
           <>
-            {isMobile ? (
+            {deviceType === "mobile" ? (
               <>
                 <Section>
                   <SectionHeader>
@@ -526,7 +515,9 @@ export const MoreMenu = ({
                   $type="text"
                   $size="small"
                   $stretch="fill"
-                  $label={`Login on a ${isMobile ? "computer" : "phone"}`}
+                  $label={`Login on a ${
+                    deviceType === "mobile" ? "computer" : "phone"
+                  }`}
                   onClick={() => setShowSwitchDeviceInstructions(true)}
                 />
               </ListItem>

@@ -11,11 +11,14 @@ import styled from "styled-components";
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
 
+import { useDetectDeviceType } from "../utilities/detectDeviceType";
+
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
+import { Banner } from "../components/Banner";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -52,6 +55,7 @@ const MediaGrid = styled.div`
 
 export const ViewGroup = ({ groupId, userId }) => {
   const { setConfig } = useConfig();
+  const deviceType = useDetectDeviceType();
   const [, setSelectedFile] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -323,6 +327,21 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        <Banner
+          label="NEW"
+          date="Jan 5, 2025"
+          messagesAlignment="left"
+          messages={[
+            "Quickly login on another device!",
+            "1️⃣&nbsp; Open the menu",
+            `2️⃣&nbsp; ${
+              deviceType === "mobile" ? "Tap" : "Click"
+            } <b>Login on a ${
+              deviceType === "mobile" ? "computer" : "phone"
+            }</b>`,
+            `3️⃣&nbsp; Scan the QR code`
+          ]}
+        />
         <MediaGrid>
           {mediaItems.map((item, index) => {
             const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;

@@ -52,16 +52,53 @@ const Label = styled.div`
   }
 `;
 
-export const Banner = ({ label, date, messages, footer }) => {
+const Messages = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+
+  ${(props) =>
+    props.$alignment === "center"
+      ? `
+        justify-content: center;
+        align-items: center;
+      `
+      : props.$alignment === "left"
+      ? `
+        justify-content: flex-start;
+        align-items: flex-start;
+      `
+      : ""}
+`;
+
+const Footer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const Banner = ({
+  label,
+  date,
+  messages,
+  footer,
+  messagesAlignment
+}) => {
   return (
     <BannerContainer>
       <Label>
         <strong>{label}</strong> {date}
       </Label>
-      {messages.map((message, index) => (
-        <p key={`banner-message-${index}`}>{message}</p>
-      ))}
-      {footer && <strong>{footer}</strong>}
+      <Messages $alignment={messagesAlignment}>
+        {messages.map((message, index) => (
+          <p
+            key={`banner-message-${index}`}
+            dangerouslySetInnerHTML={{ __html: message }}
+          />
+        ))}
+      </Messages>
+      {footer && <Footer>{footer}</Footer>}
     </BannerContainer>
   );
 };
