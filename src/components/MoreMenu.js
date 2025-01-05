@@ -393,7 +393,7 @@ export const MoreMenu = ({
                   <ListItem>
                     <ListItemContent style={{ padding: "0" }}>
                       <ListItemLabel>
-                        Open <b>https://wave.leo.gd/scan</b> on your computer
+                        Go to <b>wave.leo.gd/scan</b> on your computer
                       </ListItemLabel>
                     </ListItemContent>
                   </ListItem>
