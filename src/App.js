@@ -6,6 +6,7 @@ import { ConfigProvider } from "./contexts/ConfigContext";
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
+import { ScanQRCode } from "./pages/ScanQRCode";
 
 const Container = styled.div`
   display: flex;
@@ -23,13 +24,13 @@ const StatusBarShadow = styled.div`
   height: 0.5rem;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.1, 0.1)}) 0%,
-    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.05, 0.05)}) 50%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.$intensity * 0.1, 0.1)}) 0%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.$intensity * 0.05, 0.05)}) 50%,
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
   z-index: 99999;
-  opacity: ${(props) => (props.visible ? 1 : 0)};
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
   transition: opacity 0.2s ease-in-out;
 `;
 
@@ -47,6 +48,12 @@ const Pages = {
   JoinGroup: {
     id: "JOIN_GROUP",
     component: JoinGroup
+  },
+  ScanQRCode: {
+    id: "SCAN_QR_CODE",
+    url: "scan",
+    title: "Scan",
+    component: ScanQRCode
   }
 };
 
@@ -130,13 +137,14 @@ function App() {
   return (
     <ConfigProvider>
       <BrowserRouter basename="/">
-        <StatusBarShadow visible={!isAtTop} intensity={scrollIntensity} />
+        <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
         <Container>
           {page === Pages.CreateGroup.id && <CreateGroup />}
           {page === Pages.ViewGroup.id && (
             <ViewGroup groupId={groupId} userId={userId} />
           )}
           {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+          {page === Pages.ScanQRCode.id && <ScanQRCode />}
         </Container>
       </BrowserRouter>
     </ConfigProvider>

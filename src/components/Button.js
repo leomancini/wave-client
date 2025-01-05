@@ -16,6 +16,8 @@ const StyledButton = styled.button`
   align-items: center;
   flex-direction: column;
   height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
+  min-height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
+  max-height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
   display: flex;
   align-items: center;
   cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
@@ -51,24 +53,19 @@ const StyledButton = styled.button`
     }};
   }
 
-  width: ${(props) =>
-    props.$stretch === "fit"
-      ? props.$size === "small"
-        ? "3rem"
-        : "4rem"
-      : "100%"};
+  width: ${(props) => (props.$stretch === "fit" ? "auto" : "100%")};
   min-width: ${(props) =>
     props.$stretch === "fit"
       ? props.$size === "small"
         ? "3rem"
         : "4rem"
       : "auto"};
-  max-width: ${(props) =>
+  padding: ${(props) =>
     props.$stretch === "fit"
-      ? props.$size === "small"
-        ? "3rem"
-        : "4rem"
-      : "none"};
+      ? props.$type === "icon" || props.$type === "icon-small"
+        ? "0"
+        : "0 2rem"
+      : "0"};
 
   span {
     ${(props) => {

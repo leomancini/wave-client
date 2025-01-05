@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState, useRef, useEffect } from "react";
 
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
 
 import { formatDateTime } from "../utilities/formatDateTime";
@@ -12,7 +12,6 @@ import { Spinner } from "./Spinner";
 const Container = styled.div`
   position: fixed;
   top: 0;
-  padding: 1rem;
   padding-bottom: 0;
   width: 100%;
   max-width: 32rem;
@@ -78,7 +77,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 0.5rem 0.5rem 1rem 0.5rem;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
   height: 2.5rem;
@@ -95,7 +94,7 @@ const Header = styled.div`
 const HeaderContent = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: ${(props) => props.$justifyContent};
   width: 100%;
 `;
 
@@ -122,13 +121,14 @@ const HeaderShadow = styled.div`
 `;
 
 const Content = styled.div`
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
   padding-bottom: 1rem;
-  padding-top: 1.5rem;
+  padding-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  overflow-x: hidden;
   overflow-y: scroll;
   flex: 1;
   min-height: 0;
@@ -221,6 +221,26 @@ const ReactionEmoji = styled.div`
   font-size: 1.25rem;
 `;
 
+const QRCodeContainer = styled.div`
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2rem;
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0;
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+
+  img {
+    width: calc(100% - 4rem);
+    height: calc(100% - 4rem);
+  }
+`;
+
 const Reaction = ({ reaction, count }) => (
   <StyledReaction key={reaction}>
     <ReactionEmoji>{reaction}</ReactionEmoji>
@@ -240,23 +260,37 @@ const UserListItem = ({ user, showSeparator }) => (
   </ListItem>
 );
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const mobileRegex =
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+    setIsMobile(mobileRegex.test(userAgent.toLowerCase()));
+  }, []);
+
+  return isMobile;
+};
+
 export const MoreMenu = ({
   $visible,
   setIsMoreMenuVisible,
   groupId,
   users,
+  user,
   stats,
   statsIsLoading
 }) => {
   const { config } = useConfig();
-  const [scrollPosition, setScrollPosition] = useState(0);
   const contentRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const resizeTimerRef = useRef(null);
-
-  const handleScroll = (e) => {
-    setScrollPosition(e.target.scrollTop);
-  };
+  const isMobile = useIsMobile();
+  const [showSwitchDeviceInstructions, setShowSwitchDeviceInstructions] =
+    useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState(null);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
 
   useEffect(() => {
     if (!$visible && contentRef.current) {
@@ -293,107 +327,223 @@ export const MoreMenu = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (showSwitchDeviceInstructions) {
+      setIsLoadingQR(true);
+      fetch(
+        `${process.env.REACT_APP_API_URL}/generate-qr-code/${groupId}/${user.id}`
+      )
+        .then((response) => response.url)
+        .then((url) => {
+          setQrCodeUrl(url);
+          setIsLoadingQR(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching QR code:", error);
+          setIsLoadingQR(false);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSwitchDeviceInstructions]);
+
   return (
     <Container $visible={$visible} $isResizing={isResizing}>
       <Header>
-        <HeaderContent>
-          <GroupTitle>{groupId}</GroupTitle>
-          <Button
-            $type="icon-small"
-            $size="large"
-            $stretch="fit"
-            $prominence="tertiary"
-            $icon={faXmark}
-            onClick={() => setIsMoreMenuVisible(false)}
-            style={{ marginRight: "-1.25rem" }}
-          />
+        <HeaderContent
+          $justifyContent={
+            showSwitchDeviceInstructions ? "flex-start" : "space-between"
+          }
+        >
+          {showSwitchDeviceInstructions && (
+            <Button
+              $type="icon-small"
+              $size="large"
+              $stretch="fit"
+              $prominence="tertiary"
+              $icon={faArrowLeft}
+              onClick={() => setShowSwitchDeviceInstructions(false)}
+              style={{ marginLeft: "-1.25rem" }}
+            />
+          )}
+          <GroupTitle>
+            {showSwitchDeviceInstructions
+              ? `Login on a ${isMobile ? "computer" : "phone"}`
+              : groupId}
+          </GroupTitle>
+          {!showSwitchDeviceInstructions && (
+            <Button
+              $type="icon-small"
+              $size="large"
+              $stretch="fit"
+              $prominence="tertiary"
+              $icon={faXmark}
+              onClick={() => setIsMoreMenuVisible(false)}
+              style={{ marginRight: "-1.25rem" }}
+            />
+          )}
         </HeaderContent>
-        <HeaderShadow scrollPosition={scrollPosition} />
+        <HeaderShadow />
       </Header>
-      <Content onScroll={handleScroll} ref={contentRef}>
-        <Section>
-          <SectionHeader>
-            <SectionLabel>Stats</SectionLabel>
-            {statsIsLoading && <Spinner $size="small" />}
-          </SectionHeader>
-          <List>
-            {config.createdAt && (
+      <Content ref={contentRef}>
+        {showSwitchDeviceInstructions ? (
+          <>
+            {isMobile ? (
+              <>
+                <Section>
+                  <SectionHeader>
+                    <SectionLabel>Step 1</SectionLabel>
+                  </SectionHeader>
+                  <ListItem>
+                    <ListItemContent style={{ padding: "0" }}>
+                      <ListItemLabel>
+                        Open <b>https://wave.leo.gd/scan</b> on your computer
+                      </ListItemLabel>
+                    </ListItemContent>
+                  </ListItem>
+                </Section>
+                <Section>
+                  <SectionHeader>
+                    <SectionLabel>Step 2</SectionLabel>
+                  </SectionHeader>
+                  <ListItem>
+                    <ListItemContent style={{ padding: "0" }}>
+                      <ListItemLabel>Scan this QR code</ListItemLabel>
+                    </ListItemContent>
+                  </ListItem>
+                </Section>
+              </>
+            ) : (
+              <>
+                <Section>
+                  <ListItem>
+                    <ListItemContent
+                      style={{ padding: "0", marginTop: "-1.5rem" }}
+                    >
+                      <ListItemLabel>
+                        Use your phone to scan this QR code
+                      </ListItemLabel>
+                    </ListItemContent>
+                  </ListItem>
+                </Section>
+              </>
+            )}
+            <Section>
               <ListItem>
                 <ListItemContent>
-                  <ListItemLabel>Created</ListItemLabel>
-                  <ListItemValue>
-                    {formatDateTime(config.createdAt)}
-                  </ListItemValue>
+                  <QRCodeContainer>
+                    {isLoadingQR ? (
+                      <Spinner $size="large" />
+                    ) : (
+                      qrCodeUrl && (
+                        <img
+                          src={qrCodeUrl}
+                          alt={`${process.env.REACT_APP_API_URL}/${groupId}/${user.id}`}
+                        />
+                      )
+                    )}
+                  </QRCodeContainer>
                 </ListItemContent>
-                <Separator />
               </ListItem>
-            )}
-            {"userCount" in stats && (
+            </Section>
+          </>
+        ) : (
+          <>
+            <Section>
+              <SectionHeader>
+                <SectionLabel>Stats</SectionLabel>
+                {statsIsLoading && <Spinner $size="small" />}
+              </SectionHeader>
+              <List>
+                {config.createdAt && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Created</ListItemLabel>
+                      <ListItemValue>
+                        {formatDateTime(config.createdAt)}
+                      </ListItemValue>
+                    </ListItemContent>
+                    <Separator />
+                  </ListItem>
+                )}
+                {"userCount" in stats && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Members</ListItemLabel>
+                      <ListItemValue>{stats.userCount}</ListItemValue>
+                    </ListItemContent>
+                    <Separator />
+                  </ListItem>
+                )}
+                {"mediaCount" in stats && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Total Posts</ListItemLabel>
+                      <ListItemValue>{stats.mediaCount}</ListItemValue>
+                    </ListItemContent>
+                    <Separator />
+                  </ListItem>
+                )}
+                {"totalReactions" in stats && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Total Reactions</ListItemLabel>
+                      <ListItemValue>{stats.totalReactions}</ListItemValue>
+                    </ListItemContent>
+                    <Separator />
+                  </ListItem>
+                )}
+                {"topReactions" in stats && stats.topReactions.length > 0 && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Top Reactions</ListItemLabel>
+                      <ListItemValue>
+                        {stats.topReactions.map((reaction) => (
+                          <Reaction
+                            key={reaction.reaction}
+                            reaction={reaction.reaction}
+                            count={reaction.count}
+                          />
+                        ))}
+                      </ListItemValue>
+                    </ListItemContent>
+                    <Separator />
+                  </ListItem>
+                )}
+                {"totalComments" in stats && (
+                  <ListItem>
+                    <ListItemContent>
+                      <ListItemLabel>Total Comments</ListItemLabel>
+                      <ListItemValue>{stats.totalComments}</ListItemValue>
+                    </ListItemContent>
+                  </ListItem>
+                )}
+              </List>
+            </Section>
+            <Section style={{ paddingBottom: "1rem" }}>
               <ListItem>
-                <ListItemContent>
-                  <ListItemLabel>Members</ListItemLabel>
-                  <ListItemValue>{stats.userCount}</ListItemValue>
-                </ListItemContent>
-                <Separator />
+                <Button
+                  $type="text"
+                  $size="small"
+                  $stretch="fill"
+                  $label={`Login on a ${isMobile ? "computer" : "phone"}`}
+                  onClick={() => setShowSwitchDeviceInstructions(true)}
+                />
               </ListItem>
-            )}
-            {"mediaCount" in stats && (
-              <ListItem>
-                <ListItemContent>
-                  <ListItemLabel>Total Posts</ListItemLabel>
-                  <ListItemValue>{stats.mediaCount}</ListItemValue>
-                </ListItemContent>
-                <Separator />
-              </ListItem>
-            )}
-            {"totalReactions" in stats && (
-              <ListItem>
-                <ListItemContent>
-                  <ListItemLabel>Total Reactions</ListItemLabel>
-                  <ListItemValue>{stats.totalReactions}</ListItemValue>
-                </ListItemContent>
-                <Separator />
-              </ListItem>
-            )}
-            {"topReactions" in stats && stats.topReactions.length > 0 && (
-              <ListItem>
-                <ListItemContent>
-                  <ListItemLabel>Top Reactions</ListItemLabel>
-                  <ListItemValue>
-                    {stats.topReactions.map((reaction) => (
-                      <Reaction
-                        key={reaction.reaction}
-                        reaction={reaction.reaction}
-                        count={reaction.count}
-                      />
-                    ))}
-                  </ListItemValue>
-                </ListItemContent>
-                <Separator />
-              </ListItem>
-            )}
-            {"totalComments" in stats && (
-              <ListItem>
-                <ListItemContent>
-                  <ListItemLabel>Total Comments</ListItemLabel>
-                  <ListItemValue>{stats.totalComments}</ListItemValue>
-                </ListItemContent>
-              </ListItem>
-            )}
-          </List>
-        </Section>
-        <Section>
-          <SectionLabel>Members</SectionLabel>
-          <List style={{ paddingTop: "0.5rem" }}>
-            {users.map((user, index) => (
-              <UserListItem
-                key={user.id}
-                user={user}
-                showSeparator={index !== users.length - 1}
-              />
-            ))}
-          </List>
-        </Section>
+            </Section>
+            <Section>
+              <SectionLabel>Members</SectionLabel>
+              <List style={{ paddingTop: "0.5rem" }}>
+                {users.map((user, index) => (
+                  <UserListItem
+                    key={user.id}
+                    user={user}
+                    showSeparator={index !== users.length - 1}
+                  />
+                ))}
+              </List>
+            </Section>
+          </>
+        )}
       </Content>
     </Container>
   );

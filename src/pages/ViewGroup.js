@@ -291,6 +291,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         $visible={isMoreMenuVisible}
         groupId={groupId}
         users={users}
+        user={user}
         stats={stats}
         statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={setIsMoreMenuVisible}
