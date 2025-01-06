@@ -442,7 +442,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           label="NEW"
           date="Jan 6, 2025"
           messagesAlignment="center"
-          messages={["Unread posts are marked with a blue dot!"]}
+          messages={["Unread posts have a blue dot!"]}
         />
         <MediaGrid>
           {mediaItems.map((item, index) => {
