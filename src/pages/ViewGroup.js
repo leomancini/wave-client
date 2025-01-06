@@ -435,18 +435,9 @@ export const ViewGroup = ({ groupId, userId }) => {
         </ButtonContainer>
         <Banner
           label="NEW"
-          date="Jan 5, 2025"
-          messagesAlignment="left"
-          messages={[
-            "Quickly login on another device!",
-            "1️⃣&nbsp; Open the menu",
-            `2️⃣&nbsp; ${
-              deviceType === "mobile" ? "Tap" : "Click"
-            } <b>Login on a ${
-              deviceType === "mobile" ? "computer" : "phone"
-            }</b>`,
-            `3️⃣&nbsp; Scan the QR code`
-          ]}
+          date="Jan 6, 2025"
+          messagesAlignment="center"
+          messages={["Unread posts are marked with a blue dot!"]}
         />
         <MediaGrid>
           {mediaItems.map((item, index) => {
