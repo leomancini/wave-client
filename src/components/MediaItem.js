@@ -480,22 +480,15 @@ export const MediaItem = forwardRef(
           <Image
             src={imageUrl}
             alt={item.filename}
-            onLoad={() => {
+            onLoad={(e) => {
               setIsLoaded(true);
-              document
-                .querySelector(`img[alt="${item.filename}"]`)
-                ?.classList.add("loaded");
+              e.target.classList.add("loaded");
             }}
           />
           <Thumbnail
             src={thumbnailUrl}
             alt={item.filename}
-            onLoad={() => {
-              setIsLoaded(true);
-              document
-                .querySelector(`img[alt="${item.filename}"]`)
-                ?.classList.add("loaded");
-            }}
+            onLoad={(e) => e.target.classList.add("loaded")}
           />
         </Media>
         <Details>
