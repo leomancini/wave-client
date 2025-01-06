@@ -131,7 +131,9 @@ export const Home = () => {
                   <GroupName>{data.groupId}</GroupName>
                   <GroupValueContainer>
                     {unreadCounts[data.groupId] !== undefined ? (
-                      <Badge>{unreadCounts[data.groupId]}</Badge>
+                      unreadCounts[data.groupId] > 0 && (
+                        <Badge>{unreadCounts[data.groupId]}</Badge>
+                      )
                     ) : (
                       <Spinner $size="medium" />
                     )}
