@@ -8,16 +8,16 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: calc(100vh - 1rem);
   width: 100%;
 `;
 
 const GroupList = styled.div`
+  margin-top: 1rem;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   width: 100%;
 `;
 
