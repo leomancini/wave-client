@@ -5,6 +5,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { Page } from "../components/Page";
 import { Spinner } from "../components/Spinner";
 import { Button } from "../components/Button";
+import { EmptyCard } from "../components/EmptyCard";
 
 const ScannerContainer = styled.div`
   width: 100%;
@@ -15,19 +16,6 @@ const ScannerContainer = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-`;
-
-const NoPermission = styled.div`
-  width: 100%;
-  height: 32rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Container = styled.div`
@@ -195,20 +183,21 @@ export const ScanQRCode = () => {
     <Page>
       <ScannerContainer>
         {hasPermission === null ? (
-          <NoPermission>
+          <EmptyCard>
             <Spinner />
-          </NoPermission>
+          </EmptyCard>
         ) : !hasPermission ? (
-          <NoPermission>
-            <p>To scan QR codes, please enable camera for this site.</p>
+          <EmptyCard>
+            <p>To scan QR codes, please allow camera permissions.</p>
+            <br />
             <Button
               $size="small"
               $stretch="fit"
               $type="text"
               onClick={requestCameraPermission}
-              $label="Enable camera"
+              $label="Allow camera"
             />
-          </NoPermission>
+          </EmptyCard>
         ) : (
           <Container>
             {data && isValidUrl(data) ? (

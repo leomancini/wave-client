@@ -19,6 +19,7 @@ import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { Banner } from "../components/Banner";
+import { EmptyCard } from "../components/EmptyCard";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -75,10 +76,10 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     };
 
-    if (groupId) {
+    if (user.valid && groupId) {
       fetchConfig();
     }
-  }, [groupId, setConfig]);
+  }, [user, groupId, setConfig]);
 
   useEffect(() => {
     const MENU_ANIMATION_DURATION = 400;
@@ -97,7 +98,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     };
 
-    if (groupId && !isMoreMenuVisible) {
+    if (user.valid && groupId && !isMoreMenuVisible) {
       setStatsIsLoading(true);
       fetchStats();
     }
@@ -110,7 +111,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
       return () => clearTimeout(timer);
     }
-  }, [groupId, isMoreMenuVisible]);
+  }, [user, groupId, isMoreMenuVisible]);
 
   useEffect(() => {
     if (groupId && userId) {
@@ -121,10 +122,9 @@ export const ViewGroup = ({ groupId, userId }) => {
           return;
         } else {
           setUser(userData);
+          setPage(1);
+          fetchMediaItems(groupId, 1, false);
         }
-
-        setPage(1);
-        fetchMediaItems(groupId, 1, false);
       };
 
       init();
@@ -139,7 +139,6 @@ export const ViewGroup = ({ groupId, userId }) => {
 
       const validateData = await validateResponse.json();
       if (!validateResponse.ok || !validateData.valid) {
-        alert("Invalid group or user ID");
         return { valid: false };
       } else {
         if (validateData.isDuplicate && validateData.primaryId) {
@@ -276,10 +275,10 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     };
 
-    if (groupId) {
+    if (user.valid && groupId) {
       fetchUsers();
     }
-  }, [groupId]);
+  }, [user, groupId]);
 
   const handleMenuToggle = () => {
     startTransition(() => {
@@ -287,8 +286,20 @@ export const ViewGroup = ({ groupId, userId }) => {
     });
   };
 
+  if (isLoading) {
+    return <Spinner $size="x-large" />;
+  }
+
+  if (!user.valid) {
+    return (
+      <EmptyCard>
+        <p>Sorry, something went wrong.</p>
+      </EmptyCard>
+    );
+  }
+
   return (
-    <Page>
+    <Page style={{ minHeight: "100vh" }}>
       <MoreMenu
         $visible={isMoreMenuVisible}
         groupId={groupId}

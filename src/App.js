@@ -14,6 +14,7 @@ const Container = styled.div`
   align-items: center;
   position: relative;
   z-index: 1;
+  min-height: 100vh;
 `;
 
 const StatusBarShadow = styled.div`
@@ -74,7 +75,6 @@ function App() {
       setPage(Pages[currentPageKey].id);
       setTitle(Pages[currentPageKey].title);
     } else {
-      alert("Invalid page");
       return;
     }
   };
