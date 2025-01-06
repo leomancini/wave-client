@@ -35,7 +35,7 @@ const PageContainer = styled.div`
   width: 100%;
   top: 0;
   gap: 2rem;
-  min-height: 100vh;
+  min-height: calc(100vh - 1rem);
 `;
 
 const MediaGrid = styled.div`
@@ -147,11 +147,12 @@ export const ViewGroup = ({ groupId, userId }) => {
         if (validateData.isDuplicate && validateData.primaryId) {
           window.location.href = `/${groupId}/${validateData.primaryId}`;
         } else {
-          localStorage.setItem("userId", userId);
+          // Remove any existing userId from localStorage (from previous implementation)
+          localStorage.removeItem("userId");
 
           const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
-          if (!myGroups.includes(groupId)) {
-            myGroups.push(groupId);
+          if (!myGroups.some((group) => group.groupId === groupId)) {
+            myGroups.push({ groupId, userId });
             localStorage.setItem("myGroups", JSON.stringify(myGroups));
           }
         }

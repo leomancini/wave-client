@@ -7,6 +7,7 @@ import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
 import { ScanQRCode } from "./pages/ScanQRCode";
+import { Home } from "./pages/Home";
 
 const Container = styled.div`
   display: flex;
@@ -36,6 +37,12 @@ const StatusBarShadow = styled.div`
 `;
 
 const Pages = {
+  Home: {
+    id: "HOME",
+    url: "",
+    title: "WAVE",
+    component: Home
+  },
   CreateGroup: {
     id: "CREATE_GROUP",
     url: "create-group",
@@ -115,7 +122,7 @@ function App() {
     } else {
       // For all other known pages
       const pageId = urlParts[0];
-      setPageAndTitle(pageId);
+      setPageAndTitle(pageId || Pages.Home.id);
     }
   }, []);
 
@@ -139,6 +146,7 @@ function App() {
       <BrowserRouter basename="/">
         <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
         <Container>
+          {page === Pages.Home.id && <Home />}
           {page === Pages.CreateGroup.id && <CreateGroup />}
           {page === Pages.ViewGroup.id && (
             <ViewGroup groupId={groupId} userId={userId} />

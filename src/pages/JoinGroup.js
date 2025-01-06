@@ -17,9 +17,27 @@ export const JoinGroup = ({ groupId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId && groupId) {
-      window.location.href = `/${groupId}/${storedUserId}`;
+    // Remove any existing userId from localStorage (from previous implementation)
+    const existingUserId = localStorage.getItem("userId");
+    if (existingUserId) {
+      localStorage.removeItem("userId");
+      const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+      if (
+        !myGroups.some(
+          (group) =>
+            group.groupId === groupId && group.userId === existingUserId
+        )
+      ) {
+        myGroups.push({ groupId, userId: existingUserId });
+        localStorage.setItem("myGroups", JSON.stringify(myGroups));
+      }
+    }
+
+    const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+    const existingGroup = myGroups.find((group) => group.groupId === groupId);
+
+    if (existingGroup) {
+      window.location.href = `/${groupId}/${existingGroup.userId}`;
     }
   }, [groupId]);
 
