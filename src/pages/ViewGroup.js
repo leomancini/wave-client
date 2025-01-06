@@ -65,6 +65,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [readItems, setReadItems] = useState(new Set());
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -122,6 +123,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         const userData = await validateUser(groupId, userId);
         if (!userData.valid) {
           setIsLoading(false);
+          setIsInitialLoad(false);
           return;
         } else {
           setUser(userData);
@@ -188,6 +190,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       console.error("Error fetching media items:", error);
     } finally {
       setIsLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
@@ -256,14 +259,14 @@ export const ViewGroup = ({ groupId, userId }) => {
         },
         {
           root: null,
-          rootMargin: "0px",
-          threshold: 1.0
+          rootMargin: "20px",
+          threshold: 0.1
         }
       );
 
       if (node) observer.current.observe(node);
     },
-    [isLoading, hasMore, groupId, page]
+    [isLoading, hasMore, groupId, userId, page]
   );
 
   useEffect(() => {
@@ -374,7 +377,7 @@ export const ViewGroup = ({ groupId, userId }) => {
     return () => clearInterval(intervalId);
   }, [user.valid, groupId, userId]);
 
-  if (isLoading) {
+  if (isInitialLoad && isLoading) {
     return (
       <Page $fullHeight>
         <Spinner $size="x-large" />
@@ -468,7 +471,7 @@ export const ViewGroup = ({ groupId, userId }) => {
               />
             );
           })}
-          {isLoading && <Spinner $size="x-large" />}
+          {isLoading && hasMore && <Spinner $size="x-large" />}
         </MediaGrid>
       </PageContainer>
     </Page>
