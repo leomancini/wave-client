@@ -63,13 +63,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [, startTransition] = useTransition();
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (!storedUserId && userId) {
-      localStorage.setItem("userId", userId);
-    }
-  }, [userId]);
-
-  useEffect(() => {
     const fetchConfig = async () => {
       try {
         const response = await fetch(
@@ -151,6 +144,8 @@ export const ViewGroup = ({ groupId, userId }) => {
       } else {
         if (validateData.isDuplicate && validateData.primaryId) {
           window.location.href = `/${groupId}/${validateData.primaryId}`;
+        } else {
+          localStorage.setItem("userId", userId);
         }
 
         return { valid: true, id: userId, name: validateData.userName };
