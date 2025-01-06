@@ -51,7 +51,7 @@ export const CreateGroup = () => {
   };
 
   return (
-    <Page fullHeight>
+    <Page $fullHeight>
       <Form>
         <TextField
           placeholder="Group name"

@@ -180,7 +180,7 @@ export const ScanQRCode = () => {
   };
 
   return (
-    <Page fullHeight>
+    <Page $fullHeight>
       <ScannerContainer>
         {hasPermission === null ? (
           <EmptyCard>

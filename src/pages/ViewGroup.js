@@ -288,7 +288,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   if (isLoading) {
     return (
-      <Page fullHeight>
+      <Page $fullHeight>
         <Spinner $size="x-large" />
       </Page>
     );
@@ -296,7 +296,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   if (!user.valid) {
     return (
-      <Page fullHeight>
+      <Page $fullHeight>
         <EmptyCard>
           <p>Sorry, something went wrong.</p>
         </EmptyCard>

@@ -9,7 +9,7 @@ export const Page = styled.div`
   max-width: 32rem;
 
   ${(props) =>
-    props.fullHeight &&
+    props.$fullHeight &&
     `
       @supports (-webkit-touch-callout: none) {
         padding-bottom: calc(6rem + env(safe-area-inset-bottom));
