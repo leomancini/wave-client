@@ -147,6 +147,12 @@ export const ViewGroup = ({ groupId, userId }) => {
           window.location.href = `/${groupId}/${validateData.primaryId}`;
         } else {
           localStorage.setItem("userId", userId);
+
+          const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+          if (!myGroups.includes(groupId)) {
+            myGroups.push(groupId);
+            localStorage.setItem("myGroups", JSON.stringify(myGroups));
+          }
         }
 
         return { valid: true, id: userId, name: validateData.userName };
