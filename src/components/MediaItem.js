@@ -1,8 +1,6 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef, forwardRef } from "react";
 import styled from "styled-components";
-import { forwardRef } from "react";
 import { useConfig } from "../contexts/ConfigContext";
-
 import { formatDateTime } from "../utilities/formatDateTime";
 import { Comments } from "./Comments";
 import { Spinner } from "./Spinner";
@@ -70,8 +68,39 @@ const Name = styled.p`
   font-weight: bold;
 `;
 
+const TimeAndUnreadIndicator = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 const Time = styled.p`
   color: rgba(0, 0, 0, 0.5);
+  transition: color 1s;
+
+  ${({ $isUnread }) =>
+    $isUnread &&
+    `
+      color: rgba(0, 122, 255, 1);
+    `}
+`;
+
+const UnreadIndicator = styled.div`
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: rgba(0, 122, 255, 1);
+  box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
+    0px 2px 4px rgba(0, 122, 255, 0.25);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 1s;
+
+  ${({ $visible }) =>
+    $visible &&
+    `
+      opacity: 1;
+    `}
 `;
 
 const ReactionsContainer = styled.div`
@@ -357,10 +386,48 @@ const addReaction = async (
 };
 
 export const MediaItem = forwardRef(
-  ({ item, imageUrl, thumbnailUrl, groupId, user }, ref) => {
+  ({ item, imageUrl, thumbnailUrl, groupId, user, isUnread, onLoad }, ref) => {
     const { config } = useConfig();
-
     const [reactions, setReactions] = useState(item.reactions);
+    const [touchStartY, setTouchStartY] = useState(null);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const scrollThreshold = 10;
+    const localRef = useRef(null);
+    const observerRef = useRef(null);
+
+    const elementRef = ref || localRef;
+
+    useEffect(() => {
+      if (isLoaded) {
+        observerRef.current = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                onLoad(item.filename);
+                observerRef.current?.unobserve(entry.target);
+              }
+            });
+          },
+          {
+            root: null,
+            rootMargin: "0px",
+            threshold: 1.0
+          }
+        );
+
+        const element = elementRef.current;
+        if (element) {
+          observerRef.current.observe(element);
+        }
+
+        return () => {
+          if (observerRef.current) {
+            observerRef.current.disconnect();
+          }
+        };
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoaded, item.filename, onLoad]);
 
     const hasUserReaction = (reactionEmoji) => {
       return reactions.some(
@@ -373,60 +440,72 @@ export const MediaItem = forwardRef(
     );
 
     return (
-      <Container ref={ref}>
+      <Container>
         <Media
+          ref={elementRef}
           style={{
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
-          onClick={(e) =>
-            handleMediaItemClick(e, item.filename, setReactions, {
-              groupId,
-              user,
-              reaction: "❤️"
-            })
-          }
-          onTouchStart={(e) => {
-            if (e.touches.length > 1) {
-              e.preventDefault();
-              isPinching = true;
+          onClick={(e) => {
+            if (!("ontouchstart" in window)) {
+              handleMediaItemClick(e, item.filename, setReactions, {
+                groupId,
+                user,
+                reaction: "❤️"
+              });
             }
           }}
+          onTouchStart={(e) => {
+            setTouchStartY(e.touches[0].clientY);
+          }}
           onTouchMove={(e) => {
-            if (e.touches.length > 1) {
-              e.preventDefault();
-              isPinching = true;
+            if (touchStartY === null) return;
+            if (
+              Math.abs(e.touches[0].clientY - touchStartY) > scrollThreshold
+            ) {
+              setTouchStartY(null);
             }
           }}
           onTouchEnd={(e) => {
-            const wasPinching = isPinching;
-            isPinching = false;
-
-            if (wasPinching) {
-              e.preventDefault();
-              return;
+            if (touchStartY !== null) {
+              handleMediaItemClick(e, item.filename, setReactions, {
+                groupId,
+                user,
+                reaction: "❤️"
+              });
             }
-
-            handleMediaItemClick(e, item.filename, setReactions, {
-              groupId,
-              user,
-              reaction: "❤️"
-            });
+            setTouchStartY(null);
           }}
         >
           <Image
             src={imageUrl}
             alt={item.filename}
-            onLoad={(e) => e.target.classList.add("loaded")}
+            onLoad={() => {
+              setIsLoaded(true);
+              document
+                .querySelector(`img[alt="${item.filename}"]`)
+                ?.classList.add("loaded");
+            }}
           />
           <Thumbnail
             src={thumbnailUrl}
             alt={item.filename}
-            onLoad={(e) => e.target.classList.add("loaded")}
+            onLoad={() => {
+              setIsLoaded(true);
+              document
+                .querySelector(`img[alt="${item.filename}"]`)
+                ?.classList.add("loaded");
+            }}
           />
         </Media>
         <Details>
           <Name>{item.uploader.name}</Name>
-          <Time>{formatDateTime(item.metadata.uploadDate)}</Time>
+          <TimeAndUnreadIndicator>
+            <UnreadIndicator $visible={isUnread} />
+            <Time $isUnread={isUnread}>
+              {formatDateTime(item.metadata.uploadDate)}
+            </Time>
+          </TimeAndUnreadIndicator>
         </Details>
         <ReactionsContainer>
           <Reactions $isEmpty={Object.keys(reactions).length === 0}>

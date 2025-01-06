@@ -62,6 +62,9 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [statsIsLoading, setStatsIsLoading] = useState(true);
   const observer = useRef();
   const [, startTransition] = useTransition();
+  const [readItems, setReadItems] = useState(new Set());
+  const [processingItems, setProcessingItems] = useState(new Set());
+  const [, setPendingReadItems] = useState(new Set());
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -123,7 +126,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         } else {
           setUser(userData);
           setPage(1);
-          fetchMediaItems(groupId, 1, false);
+          fetchMediaItems(groupId, userId, 1, false);
         }
       };
 
@@ -158,6 +161,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   const fetchMediaItems = async (
     groupId,
+    userId,
     pageNum = 1,
     options = { append: false }
   ) => {
@@ -165,7 +169,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}?page=${pageNum}`
+        `${process.env.REACT_APP_API_URL}/media/${groupId}?userId=${userId}&page=${pageNum}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -174,6 +178,11 @@ export const ViewGroup = ({ groupId, userId }) => {
         setMediaItems((prev) =>
           options.append ? [...prev, ...mediaArray] : mediaArray
         );
+        mediaArray.forEach((item) => {
+          if (readItems.has(item.filename)) {
+            item.isUnread = false;
+          }
+        });
       }
     } catch (error) {
       console.error("Error fetching media items:", error);
@@ -219,7 +228,7 @@ export const ViewGroup = ({ groupId, userId }) => {
     } catch (error) {
       alert("Sorry, something went wrong.");
     } finally {
-      fetchMediaItems(groupId, 1, { refresh: true });
+      fetchMediaItems(groupId, userId, 1, { refresh: true });
       setIsUploading(false);
     }
   };
@@ -231,17 +240,24 @@ export const ViewGroup = ({ groupId, userId }) => {
 
       observer.current = new IntersectionObserver(
         (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const filename = entry.target.getAttribute("data-filename");
+              markAsRead(filename);
+            }
+          });
+
           if (entries[0].isIntersecting && hasMore) {
             setIsLoading(true);
             const nextPage = page + 1;
             setPage(nextPage);
-            fetchMediaItems(groupId, nextPage, { append: true });
+            fetchMediaItems(groupId, userId, nextPage, { append: true });
           }
         },
         {
           root: null,
-          rootMargin: "20px",
-          threshold: 0.1
+          rootMargin: "0px",
+          threshold: 1.0
         }
       );
 
@@ -285,6 +301,78 @@ export const ViewGroup = ({ groupId, userId }) => {
       setIsMoreMenuVisible((prev) => !prev);
     });
   };
+
+  const markAsRead = (filename) => {
+    setMediaItems((prevItems) => {
+      const item = prevItems.find((item) => item.filename === filename);
+      if (!item?.isUnread) return prevItems;
+
+      setPendingReadItems((prev) => new Set(prev).add(filename));
+
+      setTimeout(() => {
+        setMediaItems((currentItems) =>
+          currentItems.map((item) =>
+            item.filename === filename ? { ...item, isUnread: false } : item
+          )
+        );
+      }, 1000);
+
+      return prevItems;
+    });
+  };
+
+  const sendReadItemsToServer = async (items) => {
+    const itemsToMark = Array.from(items).filter(
+      (filename) => !readItems.has(filename) && !processingItems.has(filename)
+    );
+    if (itemsToMark.length === 0) return;
+
+    try {
+      setProcessingItems((prev) => new Set([...prev, ...itemsToMark]));
+
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/mark-items-read/${groupId}/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ items: itemsToMark })
+        }
+      );
+
+      setReadItems((prev) => new Set([...prev, ...itemsToMark]));
+
+      setProcessingItems((prev) => {
+        const newSet = new Set(prev);
+        itemsToMark.forEach((item) => newSet.delete(item));
+        return newSet;
+      });
+    } catch (error) {
+      console.error("Error marking items as read:", error);
+      setProcessingItems((prev) => {
+        const newSet = new Set(prev);
+        itemsToMark.forEach((item) => newSet.delete(item));
+        return newSet;
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!user.valid || !groupId || !userId) return;
+
+    const intervalId = setInterval(() => {
+      setPendingReadItems((pending) => {
+        if (pending.size > 0) {
+          sendReadItemsToServer(pending);
+          return new Set();
+        }
+        return pending;
+      });
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [user.valid, groupId, userId]);
 
   if (isLoading) {
     return (
@@ -374,6 +462,9 @@ export const ViewGroup = ({ groupId, userId }) => {
                 fetchMediaItems={fetchMediaItems}
                 groupId={groupId}
                 user={user}
+                isUnread={item.isUnread}
+                data-filename={item.filename}
+                onLoad={() => markAsRead(item.filename)}
               />
             );
           })}
