@@ -11,8 +11,6 @@ import styled from "styled-components";
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
 
-import { useDetectDeviceType } from "../utilities/detectDeviceType";
-
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
@@ -48,7 +46,6 @@ const MediaGrid = styled.div`
 
 export const ViewGroup = ({ groupId, userId }) => {
   const { setConfig } = useConfig();
-  const deviceType = useDetectDeviceType();
   const [, setSelectedFile] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
