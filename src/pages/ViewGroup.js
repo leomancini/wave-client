@@ -35,6 +35,7 @@ const PageContainer = styled.div`
   width: 100%;
   top: 0;
   gap: 2rem;
+  min-height: 100vh;
 `;
 
 const MediaGrid = styled.div`
