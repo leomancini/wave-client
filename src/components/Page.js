@@ -9,11 +9,16 @@ export const Page = styled.div`
 
   ${(props) =>
     props.$fullHeight &&
-    `
-      min-height: calc(100vh - 2rem);
-      
+    ` 
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+
       @supports (-webkit-touch-callout: none) {
-        padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+        margin-top: calc(-2rem - 1rem)
       }
     `}
 `;
