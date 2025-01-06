@@ -157,6 +157,10 @@ export const ViewGroup = ({ groupId, userId }) => {
         alert("Invalid group or user ID");
         return { valid: false };
       } else {
+        if (validateData.isDuplicate && validateData.primaryId) {
+          window.location.href = `/${groupId}/${validateData.primaryId}`;
+        }
+
         return { valid: true, id: userId, name: validateData.userName };
       }
     } catch (error) {
