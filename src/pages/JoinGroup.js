@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import { Page } from "../components/Page";
@@ -15,6 +15,13 @@ const Form = styled.form`
 export const JoinGroup = ({ groupId }) => {
   const [userName, setUserName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId && groupId) {
+      window.location.href = `/${groupId}/${storedUserId}`;
+    }
+  }, [groupId]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);

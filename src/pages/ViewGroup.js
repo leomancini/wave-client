@@ -71,6 +71,13 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [, startTransition] = useTransition();
 
   useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (!storedUserId && userId) {
+      localStorage.setItem("userId", userId);
+    }
+  }, [userId]);
+
+  useEffect(() => {
     const fetchConfig = async () => {
       try {
         const response = await fetch(
