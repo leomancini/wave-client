@@ -287,19 +287,25 @@ export const ViewGroup = ({ groupId, userId }) => {
   };
 
   if (isLoading) {
-    return <Spinner $size="x-large" />;
+    return (
+      <Page fullHeight>
+        <Spinner $size="x-large" />
+      </Page>
+    );
   }
 
   if (!user.valid) {
     return (
-      <EmptyCard>
-        <p>Sorry, something went wrong.</p>
-      </EmptyCard>
+      <Page fullHeight>
+        <EmptyCard>
+          <p>Sorry, something went wrong.</p>
+        </EmptyCard>
+      </Page>
     );
   }
 
   return (
-    <Page style={{ minHeight: "100vh" }}>
+    <Page>
       <MoreMenu
         $visible={isMoreMenuVisible}
         groupId={groupId}

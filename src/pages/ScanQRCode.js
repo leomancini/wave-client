@@ -11,7 +11,7 @@ const ScannerContainer = styled.div`
   width: 100%;
   height: calc(100vh - 2rem);
   max-width: 32rem;
-  min-width: 24rem;
+  min-width: 16rem;
   margin: 0 auto;
   position: relative;
   display: flex;
@@ -180,7 +180,7 @@ export const ScanQRCode = () => {
   };
 
   return (
-    <Page>
+    <Page fullHeight>
       <ScannerContainer>
         {hasPermission === null ? (
           <EmptyCard>

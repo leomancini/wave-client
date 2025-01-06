@@ -4,8 +4,7 @@ export const EmptyCard = styled.div`
   width: 100%;
   min-width: 16rem;
   aspect-ratio: 1;
-  max-width: 32rem;
-  margin: 1rem;
+  max-width: calc(100% - 2rem);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -20,7 +19,8 @@ export const EmptyCard = styled.div`
     margin: 0;
     padding: 0 1rem;
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.125rem;
     line-height: 1.5rem;
+    color: rgba(0, 0, 0, 0.4);
   }
 `;
