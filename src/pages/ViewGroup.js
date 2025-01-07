@@ -133,6 +133,12 @@ export const ViewGroup = ({ groupId, userId }) => {
     }
   }, [groupId, userId]);
 
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      document.title = `${groupId} – ${user.name}`;
+    }
+  }, [groupId, user]);
+
   const validateUser = async (groupId, userId) => {
     try {
       const validateResponse = await fetch(
