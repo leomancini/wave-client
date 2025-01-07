@@ -16,7 +16,6 @@ import { Button } from "../components/Button";
 import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
-import { Banner } from "../components/Banner";
 import { EmptyCard } from "../components/EmptyCard";
 
 const ButtonContainer = styled.div`
@@ -321,7 +320,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   };
 
   const markAsRead = (itemId) => {
-    console.log("Attempting to mark as read:", itemId);
     setMediaItems((prevItems) => {
       const item = prevItems.find((item) => item.metadata.itemId === itemId);
       if (!item?.isUnread) return prevItems;
@@ -346,7 +344,6 @@ export const ViewGroup = ({ groupId, userId }) => {
     const itemsToMark = Array.from(items).filter(
       (itemId) => !readItems.has(itemId) && !processingItems.has(itemId)
     );
-    console.log(itemsToMark);
     if (itemsToMark.length === 0) return;
 
     try {
@@ -452,12 +449,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
-        <Banner
-          label="NEW"
-          date="Jan 6, 2025"
-          messagesAlignment="center"
-          messages={["Unread posts have a blue dot!"]}
-        />
         <MediaGrid>
           {mediaItems.map((item, index) => {
             const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
