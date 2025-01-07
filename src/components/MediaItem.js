@@ -390,7 +390,7 @@ export const MediaItem = forwardRef(
     const { config } = useConfig();
     const [reactions, setReactions] = useState(item.reactions);
     const [touchStartY, setTouchStartY] = useState(null);
-    const [, setIsLoaded] = useState(false);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
     const scrollThreshold = 10;
     const localRef = useRef(null);
     const observerRef = useRef(null);
@@ -408,7 +408,7 @@ export const MediaItem = forwardRef(
       observerRef.current = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && isImageLoaded) {
               onLoad(item.metadata.itemId);
               observerRef.current?.unobserve(entry.target);
             }
@@ -430,7 +430,7 @@ export const MediaItem = forwardRef(
           observerRef.current.disconnect();
         }
       };
-    }, [item.metadata.itemId, onLoad]);
+    }, [item.metadata.itemId, onLoad, isImageLoaded]);
 
     const hasUserReaction = (reactionEmoji) => {
       return reactions.some(
@@ -485,7 +485,7 @@ export const MediaItem = forwardRef(
             src={imageUrl}
             alt={item.metadata.itemId}
             onLoad={(e) => {
-              setIsLoaded(true);
+              setIsImageLoaded(true);
               e.target.classList.add("loaded");
             }}
           />
