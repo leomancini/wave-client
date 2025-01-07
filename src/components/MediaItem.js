@@ -219,7 +219,7 @@ let isPinching = false;
 
 export const handleMediaItemClick = (
   e,
-  filename,
+  itemId,
   setReactions,
   { groupId, user, reaction }
 ) => {
@@ -240,14 +240,14 @@ export const handleMediaItemClick = (
   if (isTouch) {
     e.preventDefault();
     if (!isPinching && lastTouchTime && currentTime - lastTouchTime < 300) {
-      addReaction(filename, setReactions, { groupId, user, reaction });
+      addReaction(itemId, setReactions, { groupId, user, reaction });
       lastTouchTime = 0;
     } else {
       lastTouchTime = currentTime;
     }
   } else {
     if (lastClickTime && currentTime - lastClickTime < 300) {
-      addReaction(filename, setReactions, { groupId, user, reaction });
+      addReaction(itemId, setReactions, { groupId, user, reaction });
       lastClickTime = 0;
     } else {
       lastClickTime = currentTime;
@@ -256,7 +256,7 @@ export const handleMediaItemClick = (
 };
 
 const addReaction = async (
-  filename,
+  itemId,
   setReactions,
   { groupId, user, reaction }
 ) => {
@@ -291,7 +291,7 @@ const addReaction = async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   if (!isRemoving) {
-    const img = document.querySelector(`img[alt="${filename}"]`);
+    const img = document.querySelector(`img[alt="${itemId}"]`);
     const tempReaction = document.createElement("div");
     tempReaction.style.cssText = `
       position: absolute;
@@ -333,7 +333,7 @@ const addReaction = async (
 
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/media/${groupId}/${filename}/reactions`,
+      `${process.env.REACT_APP_API_URL}/media/${groupId}/${itemId}/reactions`,
       {
         method: "POST",
         headers: {
@@ -390,44 +390,47 @@ export const MediaItem = forwardRef(
     const { config } = useConfig();
     const [reactions, setReactions] = useState(item.reactions);
     const [touchStartY, setTouchStartY] = useState(null);
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [, setIsLoaded] = useState(false);
     const scrollThreshold = 10;
     const localRef = useRef(null);
     const observerRef = useRef(null);
 
-    const elementRef = ref || localRef;
+    const mergeRefs = (node) => {
+      if (typeof ref === "function") {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
+      localRef.current = node;
+    };
 
     useEffect(() => {
-      if (isLoaded) {
-        observerRef.current = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                onLoad(item.filename);
-                observerRef.current?.unobserve(entry.target);
-              }
-            });
-          },
-          {
-            root: null,
-            rootMargin: "0px",
-            threshold: 1.0
-          }
-        );
-
-        const element = elementRef.current;
-        if (element) {
-          observerRef.current.observe(element);
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              onLoad(item.metadata.itemId);
+              observerRef.current?.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: "0px",
+          threshold: 1.0
         }
+      );
 
-        return () => {
-          if (observerRef.current) {
-            observerRef.current.disconnect();
-          }
-        };
+      if (localRef.current) {
+        observerRef.current.observe(localRef.current);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoaded, item.filename, onLoad]);
+
+      return () => {
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }, [item.metadata.itemId, onLoad]);
 
     const hasUserReaction = (reactionEmoji) => {
       return reactions.some(
@@ -442,13 +445,14 @@ export const MediaItem = forwardRef(
     return (
       <Container>
         <Media
-          ref={elementRef}
+          ref={mergeRefs}
+          data-item-id={item.metadata.itemId}
           style={{
             aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
           }}
           onClick={(e) => {
             if (!("ontouchstart" in window)) {
-              handleMediaItemClick(e, item.filename, setReactions, {
+              handleMediaItemClick(e, item.metadata.itemId, setReactions, {
                 groupId,
                 user,
                 reaction: "❤️"
@@ -468,7 +472,7 @@ export const MediaItem = forwardRef(
           }}
           onTouchEnd={(e) => {
             if (touchStartY !== null) {
-              handleMediaItemClick(e, item.filename, setReactions, {
+              handleMediaItemClick(e, item.metadata.itemId, setReactions, {
                 groupId,
                 user,
                 reaction: "❤️"
@@ -479,7 +483,7 @@ export const MediaItem = forwardRef(
         >
           <Image
             src={imageUrl}
-            alt={item.filename}
+            alt={item.metadata.itemId}
             onLoad={(e) => {
               setIsLoaded(true);
               e.target.classList.add("loaded");
@@ -487,7 +491,7 @@ export const MediaItem = forwardRef(
           />
           <Thumbnail
             src={thumbnailUrl}
-            alt={item.filename}
+            alt={item.metadata.itemId}
             onLoad={(e) => e.target.classList.add("loaded")}
           />
         </Media>
@@ -529,7 +533,7 @@ export const MediaItem = forwardRef(
                 key={reaction}
                 className={hasUserReaction(reaction) ? "selected" : ""}
                 onClick={() =>
-                  addReaction(item.filename, setReactions, {
+                  addReaction(item.metadata.itemId, setReactions, {
                     groupId,
                     user,
                     reaction

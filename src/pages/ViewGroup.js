@@ -191,7 +191,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           options.append ? [...prev, ...mediaArray] : mediaArray
         );
         mediaArray.forEach((item) => {
-          if (readItems.has(item.filename)) {
+          if (readItems.has(item.metadata.itemId)) {
             item.isUnread = false;
           }
         });
@@ -249,17 +249,9 @@ export const ViewGroup = ({ groupId, userId }) => {
   const lastMediaElementRef = useCallback(
     (node) => {
       if (isLoading) return;
-      if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver(
+      const scrollObserver = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const filename = entry.target.getAttribute("data-filename");
-              markAsRead(filename);
-            }
-          });
-
           if (entries[0].isIntersecting && hasMore) {
             setIsLoading(true);
             const nextPage = page + 1;
@@ -269,15 +261,28 @@ export const ViewGroup = ({ groupId, userId }) => {
         },
         {
           root: null,
-          rootMargin: "20px",
-          threshold: 0.1
+          rootMargin: "0px",
+          threshold: 0.5
         }
       );
 
-      if (node) observer.current.observe(node);
+      if (node) {
+        scrollObserver.observe(node);
+        observer.current = {
+          scroll: scrollObserver
+        };
+      }
     },
     [isLoading, hasMore, groupId, userId, page]
   );
+
+  useEffect(() => {
+    return () => {
+      if (observer.current) {
+        observer.current.scroll?.disconnect();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isMoreMenuVisible) {
@@ -315,17 +320,20 @@ export const ViewGroup = ({ groupId, userId }) => {
     });
   };
 
-  const markAsRead = (filename) => {
+  const markAsRead = (itemId) => {
+    console.log("Attempting to mark as read:", itemId);
     setMediaItems((prevItems) => {
-      const item = prevItems.find((item) => item.filename === filename);
+      const item = prevItems.find((item) => item.metadata.itemId === itemId);
       if (!item?.isUnread) return prevItems;
 
-      setPendingReadItems((prev) => new Set(prev).add(filename));
+      setPendingReadItems((prev) => new Set(prev).add(itemId));
 
       setTimeout(() => {
         setMediaItems((currentItems) =>
           currentItems.map((item) =>
-            item.filename === filename ? { ...item, isUnread: false } : item
+            item.metadata.itemId === itemId
+              ? { ...item, isUnread: false }
+              : item
           )
         );
       }, 1000);
@@ -336,8 +344,9 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   const sendReadItemsToServer = async (items) => {
     const itemsToMark = Array.from(items).filter(
-      (filename) => !readItems.has(filename) && !processingItems.has(filename)
+      (itemId) => !readItems.has(itemId) && !processingItems.has(itemId)
     );
+    console.log(itemsToMark);
     if (itemsToMark.length === 0) return;
 
     try {
@@ -451,15 +460,15 @@ export const ViewGroup = ({ groupId, userId }) => {
         />
         <MediaGrid>
           {mediaItems.map((item, index) => {
-            const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}`;
-            const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/thumbnail`;
+            const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
+            const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/thumbnail`;
 
             return (
               <MediaItem
                 ref={
                   index === mediaItems.length - 1 ? lastMediaElementRef : null
                 }
-                key={item.filename}
+                key={item.metadata.itemId}
                 item={item}
                 imageUrl={imageUrl}
                 thumbnailUrl={thumbnailUrl}
@@ -467,8 +476,7 @@ export const ViewGroup = ({ groupId, userId }) => {
                 groupId={groupId}
                 user={user}
                 isUnread={item.isUnread}
-                data-filename={item.filename}
-                onLoad={() => markAsRead(item.filename)}
+                onLoad={(itemId) => markAsRead(itemId)}
               />
             );
           })}
