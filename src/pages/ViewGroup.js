@@ -249,7 +249,6 @@ export const ViewGroup = ({ groupId, userId }) => {
     (node) => {
       if (isLoading) return;
 
-      // Cleanup previous observer before creating a new one
       if (observer.current?.scroll) {
         observer.current.scroll.disconnect();
       }
