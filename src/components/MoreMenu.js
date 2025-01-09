@@ -269,7 +269,7 @@ const EmojiPickerContainer = styled.div`
     width: 100%;
     min-width: 100%;
     box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-    --border-radius: 2rem;
+    --border-radius: 1rem;
     --rgb-accent: 0, 0, 0;
   }
 `;
