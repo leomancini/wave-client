@@ -43,6 +43,7 @@ const Metadata = styled.div`
   flex-direction: row;
   gap: 0.5rem;
   justify-content: space-between;
+  height: 1.25rem;
 `;
 
 const Name = styled.div`
@@ -63,13 +64,27 @@ const Text = styled.div`
   }
 `;
 
+const SpinnerContainer = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+`;
+
 const Comment = ({ name, text, timestamp }) => {
   return (
     <CommentContainer>
       <Metadata>
         <Name>{name}</Name>
         <Time>
-          {timestamp === "new" ? <Spinner $size="small" /> : timestamp}
+          {timestamp === "new" ? (
+            <SpinnerContainer>
+              <Spinner $size="small" />
+            </SpinnerContainer>
+          ) : (
+            timestamp
+          )}
         </Time>
       </Metadata>
       <Text>{text}</Text>

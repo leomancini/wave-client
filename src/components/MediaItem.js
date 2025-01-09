@@ -217,12 +217,13 @@ const ReactionEmoji = styled.div`
   font-size: 1.25rem;
 `;
 
-const SpinnerWrapper = styled.div`
+const SpinnerContainer = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.25rem;
   height: 1.25rem;
+  margin-top: 0.375rem;
 `;
 
 let lastClickTime = 0;
@@ -541,9 +542,9 @@ export const MediaItem = forwardRef(
                 <ReactionEmoji>{reaction}</ReactionEmoji>
                 {users.join(", ")}
                 {isPending && (
-                  <SpinnerWrapper>
+                  <SpinnerContainer>
                     <Spinner $size="small" />
-                  </SpinnerWrapper>
+                  </SpinnerContainer>
                 )}
               </Reaction>
             ))}
