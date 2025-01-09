@@ -11,6 +11,7 @@ import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { EmptyCard } from "../components/EmptyCard";
+import { Banner } from "../components/Banner";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -135,7 +136,6 @@ export const ViewGroup = ({ groupId, userId }) => {
           setUser(userData);
           setPage(1);
 
-          // Wait for both fetchConfig and fetchMediaItems
           const promises = [
             fetch(`${process.env.REACT_APP_API_URL}/config/${groupId}`)
               .then((response) => response.json())
@@ -481,6 +481,16 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        <Banner
+          label="NEW"
+          date="Jan 9, 2025"
+          messagesAlignment="left"
+          messages={[
+            "🎲&nbsp; Anyone can change the reaction emojis.",
+            "👀&nbsp; Everyone will see the new emojis.",
+            "↖️&nbsp; Open the menu to try it out!"
+          ]}
+        />
         <MediaGrid>
           {mediaItems.map((item, index) => {
             const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
