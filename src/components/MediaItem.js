@@ -519,8 +519,8 @@ export const MediaItem = forwardRef(
                   acc[reaction.reaction].isPending || reaction.isPending;
                 return acc;
               }, {})
-            ).map(([reaction, { users, isPending }]) => (
-              <Reaction key={reaction}>
+            ).map(([reaction, { users, isPending }], index) => (
+              <Reaction key={`item-${item.metadata.itemId}-reaction-${index}`}>
                 <ReactionEmoji>{reaction}</ReactionEmoji>
                 {users.join(", ")}
                 {isPending && <Spinner $size="small" />}
@@ -528,9 +528,9 @@ export const MediaItem = forwardRef(
             ))}
           </Reactions>
           <AddReactionButtons>
-            {config.reactions?.map((reaction) => (
+            {config.reactions?.map((reaction, index) => (
               <AddReactionButton
-                key={reaction}
+                key={`item-${item.metadata.itemId}-add-reaction-${index}`}
                 className={hasUserReaction(reaction) ? "selected" : ""}
                 onClick={() =>
                   addReaction(item.metadata.itemId, setReactions, {

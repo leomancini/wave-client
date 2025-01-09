@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { useState, useRef, useEffect, useContext } from "react";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -146,7 +148,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   background-color: white;
-  gap: 1.5rem;
+  gap: 2.5rem;
   overflow-x: hidden;
   overflow-y: scroll;
   flex: 1;
@@ -254,8 +256,97 @@ const QRCodeContainer = styled.div`
   }
 `;
 
+const EmojiPickerContainer = styled.div`
+  em-emoji-picker {
+    width: 100%;
+    min-width: 100%;
+    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    --border-radius: 2rem;
+    --rgb-accent: 0, 0, 0;
+  }
+`;
+
+const ReactionButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding: 0;
+`;
+
+const ReactionButton = styled.button`
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc((100% - 1.5rem) / 3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 0.5rem;
+  text-align: center;
+  outline: none;
+  border: none;
+  background-color: white;
+  border-radius: 2rem;
+  font-size: 1.25rem;
+  height: 2.625rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  transform-origin: center center;
+  will-change: transform;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  box-sizing: border-box;
+  user-select: none;
+  border: 2px dashed rgba(0, 0, 0, 0.1);
+
+  &:hover:not(:disabled) {
+    border-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(0, 0, 0, 0.05);
+    outline: none;
+  }
+
+  &:active:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.9) translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  ${(props) =>
+    props.selected &&
+    `
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.05);
+
+      &&:hover:not(:disabled) {
+        border-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      &:active:not(:disabled) {
+        border-color: rgba(0, 0, 0, 0.5);
+      }
+  `}
+
+  &:disabled {
+    opacity: 0.75;
+    background: rgba(0, 0, 0, 0.025);
+    cursor: not-allowed;
+    color: inherit;
+  }
+`;
+
 const Reaction = ({ reaction, count }) => (
-  <StyledReaction key={reaction}>
+  <StyledReaction>
     <ReactionEmoji>{reaction}</ReactionEmoji>
     {count}
   </StyledReaction>
@@ -387,6 +478,11 @@ export const MoreMenu = ({
     useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [isLoadingQRCode, setIsLoadingQRCode] = useState(true);
+  const [reactionEmojis, setReactionEmojis] = useState([]);
+  const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
+  const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
+  const [reactionEmojisLoading, setReactionEmojisLoading] = useState(false);
+
   const {
     isSubscribed,
     setIsSubscribed,
@@ -397,6 +493,12 @@ export const MoreMenu = ({
     requestNotificationPermission
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
+
+  useEffect(() => {
+    if (config?.reactions) {
+      setReactionEmojis(config.reactions);
+    }
+  }, [config]);
 
   useEffect(() => {
     if (!$visible && contentRef.current) {
@@ -494,6 +596,36 @@ export const MoreMenu = ({
     );
   };
 
+  const handleEmojiSelect = (emoji) => {
+    const updatedEmojis = [...reactionEmojis];
+    updatedEmojis[reactionEmojiSlotIndex] = emoji.native;
+    setReactionEmojis(updatedEmojis);
+    setEmojiPickerVisible(false);
+    setReactionEmojisLoading(true);
+
+    try {
+      fetch(
+        `${process.env.REACT_APP_API_URL}/update-reaction-emojis/${groupId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ emojis: updatedEmojis })
+        }
+      )
+        .catch((error) => {
+          console.error("Error updating reaction emojis:", error);
+        })
+        .finally(() => {
+          setReactionEmojisLoading(false);
+          setReactionEmojiSlotIndex(null);
+        });
+    } catch (error) {
+      console.error("Error updating reaction emojis:", error);
+    }
+  };
+
   return (
     <Container $visible={$visible} $isResizing={isResizing} $isPWA={isPWA}>
       <Header>
@@ -533,8 +665,47 @@ export const MoreMenu = ({
         <HeaderShadow />
       </Header>
       <Content ref={contentRef}>
-        {(groupId === "LOCALHOST" || groupId === "LEOTEST") && (
-          <Section style={{ paddingBottom: "1rem" }}>
+        <Section style={{ gap: "1rem" }}>
+          <SectionHeader>
+            <SectionLabel>Reactions</SectionLabel>
+            {reactionEmojisLoading && <Spinner $size="small" />}
+          </SectionHeader>
+          <List style={{ gap: "1rem" }}>
+            <ReactionButtons>
+              {reactionEmojis?.map((reaction, index) => (
+                <ReactionButton
+                  key={`reaction-emoji-slot-${index}-${reaction}`}
+                  onClick={() => {
+                    setEmojiPickerVisible(true);
+                    setReactionEmojiSlotIndex(index);
+                  }}
+                  disabled={reactionEmojisLoading}
+                  selected={index === reactionEmojiSlotIndex}
+                >
+                  {reaction}
+                </ReactionButton>
+              ))}
+            </ReactionButtons>
+            {emojiPickerVisible && (
+              <EmojiPickerContainer>
+                <Picker
+                  data={data}
+                  dynamicWidth={true}
+                  theme="light"
+                  previewPosition="none"
+                  maxFrequentRows="0"
+                  emojiSize={32}
+                  emojiButtonSize={48}
+                  emojiButtonRadius="0.5rem"
+                  searchPosition="static"
+                  onEmojiSelect={handleEmojiSelect}
+                />
+              </EmojiPickerContainer>
+            )}
+          </List>
+        </Section>
+        {((false && groupId === "LOCALHOST") || groupId === "LEOTEST") && (
+          <Section>
             <ListItem>
               Permission: {pushPermission.toUpperCase()}
               <br />
@@ -641,7 +812,7 @@ export const MoreMenu = ({
                 {statsIsLoading && <Spinner $size="small" />}
               </SectionHeader>
               <List>
-                {config.createdAt && (
+                {config?.createdAt && (
                   <ListItem>
                     <ListItemContent>
                       <ListItemLabel>Created</ListItemLabel>
@@ -684,11 +855,12 @@ export const MoreMenu = ({
                     <ListItemContent>
                       <ListItemLabel>Top Reactions</ListItemLabel>
                       <ListItemValue>
-                        {stats.topReactions.map((reaction) => (
+                        {stats.topReactions.map((reaction, index) => (
                           <Reaction
-                            key={reaction.reaction}
+                            key={`top-reaction-${index}`}
                             reaction={reaction.reaction}
                             count={reaction.count}
+                            index={index}
                           />
                         ))}
                       </ListItemValue>
@@ -724,7 +896,7 @@ export const MoreMenu = ({
               <List style={{ paddingTop: "0.5rem" }}>
                 {users.map((user, index) => (
                   <UserListItem
-                    key={user.id}
+                    key={`user-${index}`}
                     user={user}
                     showSeparator={index !== users.length - 1}
                   />
