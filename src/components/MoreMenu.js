@@ -29,8 +29,8 @@ const Container = styled.div`
   position: fixed;
   top: 0;
   padding-bottom: ${(props) =>
-    props.$isPWA ? "2rem" : "env(safe-area-inset-bottom)"};
-  padding-top: ${(props) => (props.$isPWA ? "0" : "env(safe-area-inset-top)")};
+    props.$isPWA ? "0" : "env(safe-area-inset-bottom)"};
+  padding-top: env(safe-area-inset-top);
   width: 100%;
   max-width: 32rem;
   max-height: 100vh;
@@ -141,10 +141,11 @@ const HeaderShadow = styled.div`
 const Content = styled.div`
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  padding-bottom: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   padding-top: 2rem;
   display: flex;
   flex-direction: column;
+  background-color: white;
   gap: 1.5rem;
   overflow-x: hidden;
   overflow-y: scroll;

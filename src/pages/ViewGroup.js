@@ -35,6 +35,9 @@ const PageContainer = styled.div`
   top: 0;
   gap: 2rem;
   pointer-events: ${(props) => (props.$moreMenuVisible ? "none" : "auto")};
+  overflow: ${(props) => (props.$moreMenuVisible ? "hidden" : "auto")};
+  position: ${(props) => (props.$moreMenuVisible ? "fixed" : "initial")};
+  z-index: 1;
 `;
 
 const MediaGrid = styled.div`
@@ -42,6 +45,18 @@ const MediaGrid = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+`;
+
+const PageContainerInteractionBlocker = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  pointer-events: ${(props) => (props.$visible ? "all" : "none")};
+  z-index: 2;
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
 `;
 
 export const ViewGroup = ({ groupId, userId }) => {
@@ -429,8 +444,10 @@ export const ViewGroup = ({ groupId, userId }) => {
         stats={stats}
         statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={handleMenuToggle}
+        style={{ zIndex: 3 }}
       />
-      <PageContainer $moreMenuVisible={isMoreMenuVisible}>
+      <PageContainerInteractionBlocker $visible={isMoreMenuVisible} />
+      <PageContainer>
         <ButtonContainer>
           <Button
             $type="icon-small"

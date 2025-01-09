@@ -36,6 +36,7 @@ const StatusBarBackground = styled.div`
 
 const StatusBarShadow = styled.div`
   position: fixed;
+  top: env(safe-area-inset-top);
   left: 0;
   right: 0;
   height: 0.5rem;
