@@ -136,6 +136,7 @@ export const Comments = ({ item, groupId, user }) => {
         ))}
       </List>
       <TextField
+        id={`item-${item.filename}-comment-text-field`}
         placeholder="Write a comment..."
         onSubmit={onSubmit}
         buttonLabel="↑"

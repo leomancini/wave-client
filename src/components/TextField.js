@@ -76,6 +76,7 @@ const Button = styled.button`
 `;
 
 export const TextField = ({
+  id,
   initialValue = "",
   placeholder,
   onSubmit,
@@ -89,6 +90,7 @@ export const TextField = ({
   return (
     <TextFieldContainer>
       <Input
+        id={id}
         value={value}
         placeholder={placeholder}
         maxRows={multiLine ? 99999 : 1}
