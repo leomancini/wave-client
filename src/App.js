@@ -224,9 +224,8 @@ function App() {
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array
+  }, []);
 
-  // Add this function to handle permission requests
   const requestNotificationPermission = async () => {
     try {
       setIsSubscriptionLoading(true);
