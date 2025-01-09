@@ -487,8 +487,8 @@ export const ViewGroup = ({ groupId, userId }) => {
           messagesAlignment="left"
           messages={[
             "🎲&nbsp; Anyone can change the reaction emojis.",
-            "👀&nbsp; Everyone will see the new emojis.",
-            "↖️&nbsp; Open the menu to try it out!"
+            "👀&nbsp; Everyone can use the new emojis.",
+            "💞&nbsp; Open the menu to try it out!"
           ]}
         />
         <MediaGrid>

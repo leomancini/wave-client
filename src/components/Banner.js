@@ -3,8 +3,8 @@ import styled from "styled-components";
 const BannerContainer = styled.div`
   border-radius: 2rem;
   min-height: 4rem;
-  padding: 1rem 2rem 1.25rem 2rem;
-  width: calc(100% - 4rem);
+  padding: 1rem;
+  width: calc(100% - 2rem);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,7 +56,7 @@ const Messages = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 
   ${(props) =>
     props.$alignment === "center"
