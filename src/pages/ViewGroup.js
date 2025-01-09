@@ -35,7 +35,6 @@ const PageContainer = styled.div`
   top: 0;
   gap: 2rem;
   pointer-events: ${(props) => (props.$moreMenuVisible ? "none" : "auto")};
-  overflow: ${(props) => (props.$moreMenuVisible ? "hidden" : "auto")};
   position: ${(props) => (props.$moreMenuVisible ? "fixed" : "initial")};
   z-index: 1;
 `;
