@@ -10,6 +10,7 @@ import { ScanQRCode } from "./pages/ScanQRCode";
 import { Home } from "./pages/Home";
 
 export const NotificationContext = createContext();
+export const AppContext = createContext();
 
 const Container = styled.div`
   display: flex;
@@ -18,14 +19,23 @@ const Container = styled.div`
   position: relative;
   z-index: 1;
   padding: 1rem 0;
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + 1rem);
   min-height: 100vh;
   box-sizing: border-box;
 `;
 
+const StatusBarBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background-color: white;
+  z-index: 99999;
+`;
+
 const StatusBarShadow = styled.div`
   position: fixed;
-  top: env(safe-area-inset-top);
   left: 0;
   right: 0;
   height: 0.5rem;
@@ -85,6 +95,22 @@ function App() {
     "Notification" in window ? Notification.permission : "denied"
   );
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
+
+  // Add isPWA check
+  const [isPWA] = useState(() => {
+    // Check for standalone mode (iOS)
+    const standaloneMode = window.navigator.standalone;
+
+    // Check for display-mode: standalone (Android/Desktop)
+    const displayModeStandalone = window.matchMedia(
+      "(display-mode: standalone)"
+    ).matches;
+
+    // Check if launched from homescreen
+    const fromHomescreen = window.location.search.includes("source=pwa");
+
+    return standaloneMode || displayModeStandalone || fromHomescreen;
+  });
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
@@ -251,31 +277,34 @@ function App() {
 
   return (
     <ConfigProvider>
-      <NotificationContext.Provider
-        value={{
-          isSubscribed,
-          setIsSubscribed,
-          isCheckingSubscription,
-          pushPermission,
-          setPushPermission,
-          isSubscriptionLoading,
-          setIsSubscriptionLoading,
-          requestNotificationPermission
-        }}
-      >
-        <BrowserRouter basename="/">
-          <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
-          <Container>
-            {page === Pages.Home.id && <Home />}
-            {page === Pages.CreateGroup.id && <CreateGroup />}
-            {page === Pages.ViewGroup.id && (
-              <ViewGroup groupId={groupId} userId={userId} />
-            )}
-            {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
-            {page === Pages.ScanQRCode.id && <ScanQRCode />}
-          </Container>
-        </BrowserRouter>
-      </NotificationContext.Provider>
+      <AppContext.Provider value={{ isPWA }}>
+        <NotificationContext.Provider
+          value={{
+            isSubscribed,
+            setIsSubscribed,
+            isCheckingSubscription,
+            pushPermission,
+            setPushPermission,
+            isSubscriptionLoading,
+            setIsSubscriptionLoading,
+            requestNotificationPermission
+          }}
+        >
+          <BrowserRouter basename="/">
+            <StatusBarBackground />
+            <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
+            <Container>
+              {page === Pages.Home.id && <Home />}
+              {page === Pages.CreateGroup.id && <CreateGroup />}
+              {page === Pages.ViewGroup.id && (
+                <ViewGroup groupId={groupId} userId={userId} />
+              )}
+              {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+              {page === Pages.ScanQRCode.id && <ScanQRCode />}
+            </Container>
+          </BrowserRouter>
+        </NotificationContext.Provider>
+      </AppContext.Provider>
     </ConfigProvider>
   );
 }

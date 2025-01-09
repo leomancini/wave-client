@@ -10,7 +10,7 @@ import { useDetectDeviceType } from "../utilities/detectDeviceType";
 import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
-import { NotificationContext } from "../App";
+import { NotificationContext, AppContext } from "../App";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -28,12 +28,14 @@ function urlBase64ToUint8Array(base64String) {
 const Container = styled.div`
   position: fixed;
   top: 0;
-  padding-bottom: 0;
+  padding-bottom: ${(props) =>
+    props.$isPWA ? "2rem" : "env(safe-area-inset-bottom)"};
+  padding-top: ${(props) => (props.$isPWA ? "0" : "env(safe-area-inset-top)")};
   width: 100%;
   max-width: 32rem;
   max-height: 100vh;
-  height: fit-content;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
   background-color: white;
   z-index: 1000;
   pointer-events: none;
@@ -156,10 +158,6 @@ const Content = styled.div`
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
-
-  @supports (-webkit-touch-callout: none) {
-    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
-  }
 `;
 
 const Section = styled.div`
@@ -419,6 +417,7 @@ export const MoreMenu = ({
     setIsSubscriptionLoading,
     requestNotificationPermission
   } = useContext(NotificationContext);
+  const { isPWA } = useContext(AppContext);
 
   useEffect(() => {
     if (!$visible && contentRef.current) {
@@ -524,7 +523,7 @@ export const MoreMenu = ({
   };
 
   return (
-    <Container $visible={$visible} $isResizing={isResizing}>
+    <Container $visible={$visible} $isResizing={isResizing} $isPWA={isPWA}>
       <Header>
         <HeaderContent
           $justifyContent={

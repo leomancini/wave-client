@@ -34,6 +34,7 @@ const PageContainer = styled.div`
   width: 100%;
   top: 0;
   gap: 2rem;
+  pointer-events: ${(props) => (props.$moreMenuVisible ? "none" : "auto")};
 `;
 
 const MediaGrid = styled.div`
@@ -52,9 +53,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
-  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(() => {
-    return window.location.hash === "#menu";
-  });
+  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
