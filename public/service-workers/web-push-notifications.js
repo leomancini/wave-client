@@ -45,8 +45,6 @@ async function renewSubscription() {
       }
       throw new Error(data.error || "Failed to renew subscription");
     }
-
-    const data = await response.json();
   } catch (error) {
     console.error("Error renewing push subscription:", error);
   }
