@@ -210,10 +210,19 @@ const Reaction = styled.div`
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
+  min-height: 1.25rem;
 `;
 
 const ReactionEmoji = styled.div`
   font-size: 1.25rem;
+`;
+
+const SpinnerWrapper = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
 `;
 
 let lastClickTime = 0;
@@ -531,7 +540,11 @@ export const MediaItem = forwardRef(
               <Reaction key={`item-${item.metadata.itemId}-reaction-${index}`}>
                 <ReactionEmoji>{reaction}</ReactionEmoji>
                 {users.join(", ")}
-                {isPending && <Spinner $size="small" />}
+                {isPending && (
+                  <SpinnerWrapper>
+                    <Spinner $size="small" />
+                  </SpinnerWrapper>
+                )}
               </Reaction>
             ))}
           </Reactions>
