@@ -1,12 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  useTransition
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
