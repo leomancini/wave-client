@@ -67,12 +67,13 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
-  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
+  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(
+    window.location.hash === "#menu"
+  );
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
   const observer = useRef();
-  const [, startTransition] = useTransition();
   const [readItems, setReadItems] = useState(new Set());
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
@@ -333,12 +334,15 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [user, groupId]);
 
   const handleMenuToggle = () => {
-    startTransition(() => {
-      const newState = !isMoreMenuVisible;
-      setIsMoreMenuVisible(newState);
+    if (process.env.NODE_ENV === "development") {
+      if (isMoreMenuVisible) {
+        window.history.replaceState(null, null, " ");
+      } else {
+        window.location.hash = "menu";
+      }
+    }
 
-      window.location.hash = newState ? "menu" : "";
-    });
+    setIsMoreMenuVisible(!isMoreMenuVisible);
   };
 
   const markAsRead = (itemId) => {
