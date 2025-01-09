@@ -18,11 +18,14 @@ const Container = styled.div`
   position: relative;
   z-index: 1;
   padding: 1rem 0;
+  padding-top: env(safe-area-inset-top);
+  min-height: 100vh;
+  box-sizing: border-box;
 `;
 
 const StatusBarShadow = styled.div`
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top);
   left: 0;
   right: 0;
   height: 0.5rem;
