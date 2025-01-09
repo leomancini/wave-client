@@ -124,6 +124,8 @@ const AddReactionButtons = styled.div`
   box-sizing: border-box;
   flex-shrink: 0;
   padding: 0;
+  height: 2.625rem;
+  min-height: 2.625rem;
 `;
 
 const AddReactionButton = styled.button`
@@ -141,6 +143,7 @@ const AddReactionButton = styled.button`
   border-radius: 2rem;
   font-size: 1.25rem;
   height: 2.625rem;
+  min-height: 2.625rem;
   line-height: 1.25rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -391,6 +394,7 @@ export const MediaItem = forwardRef(
     const [reactions, setReactions] = useState(item.reactions);
     const [touchStartY, setTouchStartY] = useState(null);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const [reactionEmojis, setReactionEmojis] = useState(config.reactions);
     const scrollThreshold = 10;
     const localRef = useRef(null);
     const observerRef = useRef(null);
@@ -431,6 +435,10 @@ export const MediaItem = forwardRef(
         }
       };
     }, [item.metadata.itemId, onLoad, isImageLoaded]);
+
+    useEffect(() => {
+      setReactionEmojis(config.reactions);
+    }, [config.reactions]);
 
     const hasUserReaction = (reactionEmoji) => {
       return reactions.some(
@@ -528,7 +536,7 @@ export const MediaItem = forwardRef(
             ))}
           </Reactions>
           <AddReactionButtons>
-            {config.reactions?.map((reaction, index) => (
+            {reactionEmojis?.map((reaction, index) => (
               <AddReactionButton
                 key={`item-${item.metadata.itemId}-add-reaction-${index}`}
                 className={hasUserReaction(reaction) ? "selected" : ""}

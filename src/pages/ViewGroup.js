@@ -134,7 +134,17 @@ export const ViewGroup = ({ groupId, userId }) => {
         } else {
           setUser(userData);
           setPage(1);
-          fetchMediaItems(groupId, userId, 1, false);
+
+          // Wait for both fetchConfig and fetchMediaItems
+          const promises = [
+            fetch(`${process.env.REACT_APP_API_URL}/config/${groupId}`)
+              .then((response) => response.json())
+              .then((data) => setConfig(data))
+              .catch((error) => console.error("Error fetching config:", error)),
+            fetchMediaItems(groupId, userId, 1, false)
+          ];
+
+          await Promise.all(promises);
         }
       };
 

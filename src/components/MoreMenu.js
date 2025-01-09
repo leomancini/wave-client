@@ -166,7 +166,7 @@ const Content = styled.div`
 const Section = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.5rem;
 `;
 
 const SectionHeader = styled.div`
@@ -185,9 +185,17 @@ const SectionLabel = styled.div`
   flex: 1;
 `;
 
+const SectionContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
 const List = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: -1rem;
+  margin-bottom: -1rem;
 `;
 
 const ListItem = styled.div`
@@ -276,6 +284,7 @@ const ReactionButtons = styled.div`
   box-sizing: border-box;
   flex-shrink: 0;
   padding: 0;
+  min-height: 2.625rem;
 `;
 
 const ReactionButton = styled.button`
@@ -481,7 +490,7 @@ export const MoreMenu = ({
   const [reactionEmojis, setReactionEmojis] = useState([]);
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
-  const [reactionEmojisLoading, setReactionEmojisLoading] = useState(false);
+  const [reactionEmojisLoading, setReactionEmojisLoading] = useState(true);
 
   const {
     isSubscribed,
@@ -497,6 +506,7 @@ export const MoreMenu = ({
   useEffect(() => {
     if (config?.reactions) {
       setReactionEmojis(config.reactions);
+      setReactionEmojisLoading(false);
     }
   }, [config]);
 
@@ -596,7 +606,7 @@ export const MoreMenu = ({
     );
   };
 
-  const handleEmojiSelect = (emoji) => {
+  const handleEmojiSelect = async (emoji) => {
     const updatedEmojis = [...reactionEmojis];
     updatedEmojis[reactionEmojiSlotIndex] = emoji.native;
     setReactionEmojis(updatedEmojis);
@@ -604,7 +614,7 @@ export const MoreMenu = ({
     setReactionEmojisLoading(true);
 
     try {
-      fetch(
+      const response = await fetch(
         `${process.env.REACT_APP_API_URL}/update-reaction-emojis/${groupId}`,
         {
           method: "POST",
@@ -613,16 +623,21 @@ export const MoreMenu = ({
           },
           body: JSON.stringify({ emojis: updatedEmojis })
         }
-      )
-        .catch((error) => {
-          console.error("Error updating reaction emojis:", error);
-        })
-        .finally(() => {
-          setReactionEmojisLoading(false);
-          setReactionEmojiSlotIndex(null);
-        });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update reactions");
+      }
+
+      config.reactions = updatedEmojis;
     } catch (error) {
       console.error("Error updating reaction emojis:", error);
+      setReactionEmojiSlotIndex(reactionEmojiSlotIndex);
+      setReactionEmojisLoading(false);
+      setEmojiPickerVisible(true);
+    } finally {
+      setReactionEmojisLoading(false);
+      setReactionEmojiSlotIndex(null);
     }
   };
 
@@ -665,19 +680,25 @@ export const MoreMenu = ({
         <HeaderShadow />
       </Header>
       <Content ref={contentRef}>
-        <Section style={{ gap: "1rem" }}>
+        <Section>
           <SectionHeader>
             <SectionLabel>Reactions</SectionLabel>
             {reactionEmojisLoading && <Spinner $size="small" />}
           </SectionHeader>
-          <List style={{ gap: "1rem" }}>
+          <SectionContent>
             <ReactionButtons>
               {reactionEmojis?.map((reaction, index) => (
                 <ReactionButton
                   key={`reaction-emoji-slot-${index}-${reaction}`}
-                  onClick={() => {
-                    setEmojiPickerVisible(true);
-                    setReactionEmojiSlotIndex(index);
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (index !== reactionEmojiSlotIndex) {
+                      setEmojiPickerVisible(true);
+                      setReactionEmojiSlotIndex(index);
+                    } else {
+                      setEmojiPickerVisible(false);
+                      setReactionEmojiSlotIndex(null);
+                    }
                   }}
                   disabled={reactionEmojisLoading}
                   selected={index === reactionEmojiSlotIndex}
@@ -699,10 +720,14 @@ export const MoreMenu = ({
                   emojiButtonRadius="0.5rem"
                   searchPosition="static"
                   onEmojiSelect={handleEmojiSelect}
+                  onClickOutside={() => {
+                    setEmojiPickerVisible(false);
+                    setReactionEmojiSlotIndex(null);
+                  }}
                 />
               </EmojiPickerContainer>
             )}
-          </List>
+          </SectionContent>
         </Section>
         {((false && groupId === "LOCALHOST") || groupId === "LEOTEST") && (
           <Section>
@@ -878,7 +903,7 @@ export const MoreMenu = ({
                 )}
               </List>
             </Section>
-            <Section style={{ paddingBottom: "1rem" }}>
+            <Section>
               <ListItem>
                 <Button
                   $type="text"
