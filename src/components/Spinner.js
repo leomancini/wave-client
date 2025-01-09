@@ -36,6 +36,8 @@ export const Spinner = styled.div`
     }
   }}
 
+  position: relative;
+  display: inline-block;
   border-style: solid;
   margin: 0 auto;
   border-color: ${({ $theme }) =>
@@ -44,17 +46,20 @@ export const Spinner = styled.div`
     $theme === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"};
 
   border-radius: 50%;
-  animation: spin 0.5s linear infinite;
+  animation: spinner 0.6s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   box-sizing: border-box;
   transform-origin: center center;
-  transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  will-change: transform;
 
-  @keyframes spin {
+  @keyframes spinner {
     0% {
-      transform: rotate(0deg);
+      transform: translate3d(0, 0, 0) rotateZ(0deg);
     }
     100% {
-      transform: rotate(360deg);
+      transform: translate3d(0, 0, 0) rotateZ(360deg);
     }
   }
 `;
