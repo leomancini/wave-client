@@ -1,6 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #ffffff !important">
   <head>
+    <style>
+      :root {
+        background-color: #ffffff !important;
+      }
+
+      html,
+      body,
+      #root {
+        background-color: #ffffff !important;
+      }
+
+      @media (display-mode: standalone) {
+        :root,
+        html,
+        body,
+        #root {
+          background-color: #ffffff !important;
+        }
+      }
+    </style>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -31,10 +51,21 @@
     />
     <meta name="apple-mobile-web-app-title" content="WAVE" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: dark)"
+    />
     <meta name="theme-color" content="#ffffff" />
+    <meta name="background-color" content="#ffffff" />
   </head>
-  <body>
+  <body style="background-color: #ffffff !important">
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root" style="background-color: #ffffff !important"></div>
   </body>
 </html>
