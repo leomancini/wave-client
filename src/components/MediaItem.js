@@ -210,7 +210,7 @@ const Reaction = styled.div`
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
-  min-height: 1.25rem;
+  min-height: calc(1.25rem + 0.375rem);
 `;
 
 const ReactionEmoji = styled.div`
