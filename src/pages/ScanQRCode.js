@@ -98,7 +98,6 @@ export const ScanQRCode = () => {
   const html5QrCode = useRef(null);
 
   useEffect(() => {
-    // Reset data state when component mounts
     setData("");
     requestCameraPermission();
   }, []);
@@ -125,7 +124,7 @@ export const ScanQRCode = () => {
             html5QrCode.current.clear();
           })
           .catch(() => {
-            // Silently handle any cleanup errors
+            console.error("Error stopping scanner");
           });
       }
     };

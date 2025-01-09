@@ -89,7 +89,6 @@ function App() {
   const [isAtTop, setIsAtTop] = useState(true);
   const [scrollIntensity, setScrollIntensity] = useState(1);
 
-  // Notification context states
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
   const [pushPermission, setPushPermission] = useState(
@@ -97,17 +96,13 @@ function App() {
   );
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
 
-  // Add isPWA check
   const [isPWA] = useState(() => {
-    // Check for standalone mode (iOS)
     const standaloneMode = window.navigator.standalone;
 
-    // Check for display-mode: standalone (Android/Desktop)
     const displayModeStandalone = window.matchMedia(
       "(display-mode: standalone)"
     ).matches;
 
-    // Check if launched from homescreen
     const fromHomescreen = window.location.search.includes("source=pwa");
 
     return standaloneMode || displayModeStandalone || fromHomescreen;
@@ -172,7 +167,7 @@ function App() {
     const checkScroll = () => {
       const scrollY = window.scrollY;
       setIsAtTop(scrollY < 12);
-      setScrollIntensity(Math.min(scrollY / 100, 1)); // Gradually increase intensity
+      setScrollIntensity(Math.min(scrollY / 100, 1));
       frameId = requestAnimationFrame(checkScroll);
     };
 
@@ -216,7 +211,6 @@ function App() {
           }
         }
 
-        // Check initial permission state
         if ("Notification" in window) {
           setPushPermission(Notification.permission);
         }

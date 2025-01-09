@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* global clients */
 
-// Check and renew subscription periodically
 const SUBSCRIPTION_RENEWAL_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
 
 async function renewSubscription() {
@@ -11,7 +10,6 @@ async function renewSubscription() {
 
     if (!subscription) return;
 
-    // Extract groupId and userId from the current URL path
     const clients = await self.clients.matchAll();
     const client = clients[0];
     if (!client) return;
@@ -21,13 +19,11 @@ async function renewSubscription() {
 
     if (!groupId || !userId) return;
 
-    // Renew the subscription
     const newSubscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: subscription.options.applicationServerKey
     });
 
-    // Update the subscription on the server
     const response = await fetch(
       `${self.location.origin}/web-push/renew-subscription/${groupId}/${userId}`,
       {
@@ -40,7 +36,6 @@ async function renewSubscription() {
     if (!response.ok) {
       const data = await response.json();
       if (data.isExpired) {
-        // If subscription is expired, remove it
         await subscription.unsubscribe();
       }
       throw new Error(data.error || "Failed to renew subscription");
