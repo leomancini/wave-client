@@ -20,7 +20,7 @@ const Container = styled.div`
   z-index: 1;
   padding: 1rem 0;
   padding-top: calc(env(safe-area-inset-top) + 1rem);
-  min-height: 100vh;
+  min-height: 100%;
   box-sizing: border-box;
 `;
 
