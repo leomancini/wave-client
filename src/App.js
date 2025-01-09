@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 import { ConfigProvider } from "./contexts/ConfigContext";
@@ -8,6 +8,8 @@ import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
 import { ScanQRCode } from "./pages/ScanQRCode";
 import { Home } from "./pages/Home";
+
+export const NotificationContext = createContext();
 
 const Container = styled.div`
   display: flex;
@@ -72,6 +74,14 @@ function App() {
   const [page, setPage] = useState("");
   const [isAtTop, setIsAtTop] = useState(true);
   const [scrollIntensity, setScrollIntensity] = useState(1);
+
+  // Notification context states
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
+  const [pushPermission, setPushPermission] = useState(
+    "Notification" in window ? Notification.permission : "denied"
+  );
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
@@ -141,20 +151,129 @@ function App() {
     return () => cancelAnimationFrame(frameId);
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const registerServiceWorker = async () => {
+      console.log("Starting service worker registration...");
+
+      try {
+        if (!("serviceWorker" in navigator)) {
+          console.log("Service workers not supported");
+          if (mounted) setIsCheckingSubscription(false);
+          return;
+        }
+
+        console.log("Setting initial checking state...");
+        if (mounted) setIsCheckingSubscription(true);
+
+        // Check for existing registrations
+        const existingRegistrations =
+          await navigator.serviceWorker.getRegistrations();
+        let registration = existingRegistrations.find((reg) =>
+          reg.scope.includes("/service-workers/")
+        );
+
+        if (!registration) {
+          console.log(
+            "No existing service worker found, registering new one..."
+          );
+          registration = await navigator.serviceWorker.register(
+            "/service-workers/web-push-notifications.js",
+            { scope: "/service-workers/" }
+          );
+          console.log("Service worker registered:", registration);
+
+          if (registration.installing) {
+            console.log("Waiting for service worker to install...");
+            await new Promise((resolve) => {
+              registration.installing.addEventListener("statechange", (e) => {
+                if (e.target.state === "activated") {
+                  console.log("Service worker activated");
+                  resolve();
+                }
+              });
+            });
+          }
+        } else {
+          console.log("Found existing service worker:", registration.scope);
+        }
+
+        // Check initial permission state
+        if ("Notification" in window) {
+          setPushPermission(Notification.permission);
+        }
+
+        const subscription = await registration.pushManager.getSubscription();
+        console.log("Subscription status:", !!subscription);
+        if (mounted) {
+          setIsSubscribed(!!subscription);
+          setIsCheckingSubscription(false);
+        }
+      } catch (error) {
+        console.error("Service worker registration failed:", error);
+        if (mounted) setIsCheckingSubscription(false);
+      }
+    };
+
+    console.log("Initial checking state:", isCheckingSubscription);
+    registerServiceWorker();
+
+    return () => {
+      console.log("Cleanup: Component unmounting");
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array
+
+  // Add this function to handle permission requests
+  const requestNotificationPermission = async () => {
+    try {
+      setIsSubscriptionLoading(true);
+
+      if (!("Notification" in window)) {
+        throw new Error("This browser does not support notifications");
+      }
+
+      const permission = await Notification.requestPermission();
+      setPushPermission(permission);
+
+      return permission;
+    } catch (error) {
+      console.error("Error requesting permission:", error);
+      throw error;
+    } finally {
+      setIsSubscriptionLoading(false);
+    }
+  };
+
   return (
     <ConfigProvider>
-      <BrowserRouter basename="/">
-        <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
-        <Container>
-          {page === Pages.Home.id && <Home />}
-          {page === Pages.CreateGroup.id && <CreateGroup />}
-          {page === Pages.ViewGroup.id && (
-            <ViewGroup groupId={groupId} userId={userId} />
-          )}
-          {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
-          {page === Pages.ScanQRCode.id && <ScanQRCode />}
-        </Container>
-      </BrowserRouter>
+      <NotificationContext.Provider
+        value={{
+          isSubscribed,
+          setIsSubscribed,
+          isCheckingSubscription,
+          pushPermission,
+          setPushPermission,
+          isSubscriptionLoading,
+          setIsSubscriptionLoading,
+          requestNotificationPermission
+        }}
+      >
+        <BrowserRouter basename="/">
+          <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
+          <Container>
+            {page === Pages.Home.id && <Home />}
+            {page === Pages.CreateGroup.id && <CreateGroup />}
+            {page === Pages.ViewGroup.id && (
+              <ViewGroup groupId={groupId} userId={userId} />
+            )}
+            {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+            {page === Pages.ScanQRCode.id && <ScanQRCode />}
+          </Container>
+        </BrowserRouter>
+      </NotificationContext.Provider>
     </ConfigProvider>
   );
 }

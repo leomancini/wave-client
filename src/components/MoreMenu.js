@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 
 import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useConfig } from "../contexts/ConfigContext";
@@ -10,6 +10,20 @@ import { useDetectDeviceType } from "../utilities/detectDeviceType";
 import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
+import { NotificationContext } from "../App";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 const Container = styled.div`
   position: fixed;
@@ -260,6 +274,124 @@ const UserListItem = ({ user, showSeparator }) => (
   </ListItem>
 );
 
+const requestPushSubscription = async (
+  groupId,
+  userId,
+  permission,
+  setIsSubscribed,
+  setIsSubscriptionLoading,
+  isUnsubscribing = false
+) => {
+  try {
+    console.log(
+      isUnsubscribing
+        ? "Starting unsubscribe..."
+        : "Starting push subscription request..."
+    );
+
+    setIsSubscriptionLoading(true);
+
+    // Get the existing registration
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    const registration = registrations.find((reg) =>
+      reg.scope.includes("/service-workers/")
+    );
+
+    if (!registration) {
+      throw new Error("Service worker not found");
+    }
+
+    console.log("Found service worker registration:", registration);
+
+    // Check existing subscription
+    const existingSubscription =
+      await registration.pushManager.getSubscription();
+
+    // Handle unsubscribe request
+    if (isUnsubscribing) {
+      if (!existingSubscription) {
+        console.log("No subscription to unsubscribe from");
+        setIsSubscribed(false);
+        return { success: true };
+      }
+
+      console.log("Unsubscribing from push notifications...");
+      await existingSubscription.unsubscribe();
+
+      // Notify the server
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
+        { method: "POST" }
+      );
+
+      const data = await response.json();
+      console.log("Server unsubscribe response:", data);
+      setIsSubscribed(false);
+      return data;
+    }
+
+    // Rest of the existing subscription logic...
+    if (permission !== "granted") {
+      throw new Error("Permission not granted");
+    }
+
+    if (existingSubscription) {
+      console.log("Found existing subscription, attempting to renew...");
+      try {
+        const renewResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/web-push/renew-subscription/${groupId}/${userId}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(existingSubscription)
+          }
+        );
+
+        const renewData = await renewResponse.json();
+        console.log("Renewal response:", renewData);
+        setIsSubscribed(renewData.success);
+        return renewData;
+      } catch (error) {
+        console.error("Error renewing subscription:", error);
+      }
+    }
+
+    console.log("Creating new subscription...");
+    const convertedVapidKey = urlBase64ToUint8Array(
+      process.env.REACT_APP_VAPID_PUBLIC_KEY
+    );
+
+    console.log("Attempting to subscribe...");
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey
+    });
+    console.log("Subscription successful:", subscription);
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subscription)
+      }
+    );
+
+    const data = await response.json();
+    console.log("Server response:", data);
+
+    setIsSubscribed(data.success);
+    return data;
+  } catch (error) {
+    console.error("Push subscription failed:", error);
+    setIsSubscribed(false);
+    alert(`Subscription error: ${error.message}`);
+    return { success: false, error: error.message };
+  } finally {
+    setIsSubscriptionLoading(false);
+  }
+};
+
 export const MoreMenu = ({
   $visible,
   setIsMoreMenuVisible,
@@ -278,6 +410,15 @@ export const MoreMenu = ({
     useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [isLoadingQRCode, setIsLoadingQRCode] = useState(true);
+  const {
+    isSubscribed,
+    setIsSubscribed,
+    isCheckingSubscription,
+    pushPermission,
+    isSubscriptionLoading,
+    setIsSubscriptionLoading,
+    requestNotificationPermission
+  } = useContext(NotificationContext);
 
   useEffect(() => {
     if (!$visible && contentRef.current) {
@@ -336,6 +477,52 @@ export const MoreMenu = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSwitchDeviceInstructions]);
 
+  const initalizePushNotifications = async () => {
+    try {
+      if (isSubscribed) {
+        // If already subscribed, unsubscribe
+        console.log("Disabling push notifications...");
+        await requestPushSubscription(
+          groupId,
+          user.id,
+          pushPermission,
+          setIsSubscribed,
+          setIsSubscriptionLoading,
+          true // Pass true for unsubscribe
+        );
+      } else {
+        console.log("Starting push notification initialization...");
+        const permission = await requestNotificationPermission();
+        console.log("Permission response:", permission);
+
+        if (permission === "granted") {
+          console.log("Permission granted, requesting subscription...");
+          await requestPushSubscription(
+            groupId,
+            user.id,
+            permission,
+            setIsSubscribed,
+            setIsSubscriptionLoading,
+            false // Pass false for subscribe
+          );
+        } else {
+          console.log("Permission not granted:", permission);
+        }
+      }
+    } catch (error) {
+      console.error("Error initializing push notifications:", error);
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const sendTestNotification = async () => {
+    console.log("Sending test notification...");
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/web-push/send-test/${groupId}/${user.id}`
+    );
+    console.log("Test notification sent");
+  };
+
   return (
     <Container $visible={$visible} $isResizing={isResizing}>
       <Header>
@@ -375,6 +562,45 @@ export const MoreMenu = ({
         <HeaderShadow />
       </Header>
       <Content ref={contentRef}>
+        {(groupId === "LOCALHOST" || groupId === "LEOTEST") && (
+          <Section style={{ paddingBottom: "1rem" }}>
+            <ListItem>
+              Permission: {pushPermission.toUpperCase()}
+              <br />
+              Subscription:{" "}
+              {isSubscriptionLoading ? "..." : isSubscribed ? "YES" : "NO"}
+              <br />
+              <br />
+              <Button
+                $type="text"
+                $size="small"
+                $stretch="fill"
+                $isLoading={isCheckingSubscription || isSubscriptionLoading}
+                $label={
+                  isCheckingSubscription
+                    ? "Checking notifications..."
+                    : isSubscribed
+                    ? "Disable push notifications"
+                    : "Enable push notifications"
+                }
+                onClick={initalizePushNotifications}
+                disabled={isCheckingSubscription}
+              />
+              {isSubscribed && (
+                <>
+                  <br />
+                  <Button
+                    $type="text"
+                    $size="small"
+                    $stretch="fill"
+                    $label="Send test notification"
+                    onClick={sendTestNotification}
+                  />
+                </>
+              )}
+            </ListItem>
+          </Section>
+        )}
         {showSwitchDeviceInstructions ? (
           <>
             {deviceType === "mobile" ? (
