@@ -282,15 +282,8 @@ const requestPushSubscription = async (
   isUnsubscribing = false
 ) => {
   try {
-    console.log(
-      isUnsubscribing
-        ? "Starting unsubscribe..."
-        : "Starting push subscription request..."
-    );
-
     setIsSubscriptionLoading(true);
 
-    // Get the existing registration
     const registrations = await navigator.serviceWorker.getRegistrations();
     const registration = registrations.find((reg) =>
       reg.scope.includes("/service-workers/")
@@ -300,42 +293,32 @@ const requestPushSubscription = async (
       throw new Error("Service worker not found");
     }
 
-    console.log("Found service worker registration:", registration);
-
-    // Check existing subscription
     const existingSubscription =
       await registration.pushManager.getSubscription();
 
-    // Handle unsubscribe request
     if (isUnsubscribing) {
       if (!existingSubscription) {
-        console.log("No subscription to unsubscribe from");
         setIsSubscribed(false);
         return { success: true };
       }
 
-      console.log("Unsubscribing from push notifications...");
       await existingSubscription.unsubscribe();
 
-      // Notify the server
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
         { method: "POST" }
       );
 
       const data = await response.json();
-      console.log("Server unsubscribe response:", data);
       setIsSubscribed(false);
       return data;
     }
 
-    // Rest of the existing subscription logic...
     if (permission !== "granted") {
       throw new Error("Permission not granted");
     }
 
     if (existingSubscription) {
-      console.log("Found existing subscription, attempting to renew...");
       try {
         const renewResponse = await fetch(
           `${process.env.REACT_APP_API_URL}/web-push/renew-subscription/${groupId}/${userId}`,
@@ -347,7 +330,6 @@ const requestPushSubscription = async (
         );
 
         const renewData = await renewResponse.json();
-        console.log("Renewal response:", renewData);
         setIsSubscribed(renewData.success);
         return renewData;
       } catch (error) {
@@ -355,17 +337,14 @@ const requestPushSubscription = async (
       }
     }
 
-    console.log("Creating new subscription...");
     const convertedVapidKey = urlBase64ToUint8Array(
       process.env.REACT_APP_VAPID_PUBLIC_KEY
     );
 
-    console.log("Attempting to subscribe...");
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: convertedVapidKey
     });
-    console.log("Subscription successful:", subscription);
 
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
@@ -377,7 +356,6 @@ const requestPushSubscription = async (
     );
 
     const data = await response.json();
-    console.log("Server response:", data);
 
     setIsSubscribed(data.success);
     return data;
@@ -480,30 +458,25 @@ export const MoreMenu = ({
   const initalizePushNotifications = async () => {
     try {
       if (isSubscribed) {
-        // If already subscribed, unsubscribe
-        console.log("Disabling push notifications...");
         await requestPushSubscription(
           groupId,
           user.id,
           pushPermission,
           setIsSubscribed,
           setIsSubscriptionLoading,
-          true // Pass true for unsubscribe
+          true
         );
       } else {
-        console.log("Starting push notification initialization...");
         const permission = await requestNotificationPermission();
-        console.log("Permission response:", permission);
 
         if (permission === "granted") {
-          console.log("Permission granted, requesting subscription...");
           await requestPushSubscription(
             groupId,
             user.id,
             permission,
             setIsSubscribed,
             setIsSubscriptionLoading,
-            false // Pass false for subscribe
+            false
           );
         } else {
           console.log("Permission not granted:", permission);
@@ -516,11 +489,9 @@ export const MoreMenu = ({
   };
 
   const sendTestNotification = async () => {
-    console.log("Sending test notification...");
     await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/send-test/${groupId}/${user.id}`
     );
-    console.log("Test notification sent");
   };
 
   return (
