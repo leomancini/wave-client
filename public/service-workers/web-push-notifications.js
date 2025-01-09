@@ -47,24 +47,19 @@ async function renewSubscription() {
     }
 
     const data = await response.json();
-    console.log("Push subscription renewed successfully:", data);
   } catch (error) {
     console.error("Error renewing push subscription:", error);
   }
 }
 
-// Set up periodic subscription renewal
 setInterval(renewSubscription, SUBSCRIPTION_RENEWAL_INTERVAL);
 
-// Also renew on service worker activation
 self.addEventListener("activate", (event) => {
   event.waitUntil(renewSubscription());
 });
 
-// Handle push events
 self.addEventListener("push", function (event) {
   if (!event.data) {
-    console.log("Push event received but no data");
     return;
   }
 
@@ -101,7 +96,6 @@ self.addEventListener("push", function (event) {
     event.waitUntil(
       self.registration
         .showNotification(data.title || "Push Notification", options)
-        .then(() => console.log("Notification shown successfully"))
         .catch((error) => console.error("Error showing notification:", error))
     );
   } catch (error) {
@@ -109,16 +103,13 @@ self.addEventListener("push", function (event) {
   }
 });
 
-// Handle notification clicks
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
 
-  // Check if any window/tab is already open
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windowClients) => {
-        // If a window exists, focus it
         if (windowClients.length > 0) {
           const client = windowClients[0];
           client.focus();
@@ -126,7 +117,6 @@ self.addEventListener("notificationclick", function (event) {
             return client.navigate("/");
           }
         } else if (event.action === "explore") {
-          // If no window exists, open a new one
           return clients.openWindow("/");
         }
       })

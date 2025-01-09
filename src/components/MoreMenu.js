@@ -581,7 +581,7 @@ export const MoreMenu = ({
             false
           );
         } else {
-          console.log("Permission not granted:", permission);
+          console.error("Permission not granted:", permission);
         }
       }
     } catch (error) {

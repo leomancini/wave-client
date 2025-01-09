@@ -185,19 +185,14 @@ function App() {
     let mounted = true;
 
     const registerServiceWorker = async () => {
-      console.log("Starting service worker registration...");
-
       try {
         if (!("serviceWorker" in navigator)) {
-          console.log("Service workers not supported");
           if (mounted) setIsCheckingSubscription(false);
           return;
         }
 
-        console.log("Setting initial checking state...");
         if (mounted) setIsCheckingSubscription(true);
 
-        // Check for existing registrations
         const existingRegistrations =
           await navigator.serviceWorker.getRegistrations();
         let registration = existingRegistrations.find((reg) =>
@@ -205,28 +200,20 @@ function App() {
         );
 
         if (!registration) {
-          console.log(
-            "No existing service worker found, registering new one..."
-          );
           registration = await navigator.serviceWorker.register(
             "/service-workers/web-push-notifications.js",
             { scope: "/service-workers/" }
           );
-          console.log("Service worker registered:", registration);
 
           if (registration.installing) {
-            console.log("Waiting for service worker to install...");
             await new Promise((resolve) => {
               registration.installing.addEventListener("statechange", (e) => {
                 if (e.target.state === "activated") {
-                  console.log("Service worker activated");
                   resolve();
                 }
               });
             });
           }
-        } else {
-          console.log("Found existing service worker:", registration.scope);
         }
 
         // Check initial permission state
@@ -235,7 +222,6 @@ function App() {
         }
 
         const subscription = await registration.pushManager.getSubscription();
-        console.log("Subscription status:", !!subscription);
         if (mounted) {
           setIsSubscribed(!!subscription);
           setIsCheckingSubscription(false);
@@ -246,11 +232,9 @@ function App() {
       }
     };
 
-    console.log("Initial checking state:", isCheckingSubscription);
     registerServiceWorker();
 
     return () => {
-      console.log("Cleanup: Component unmounting");
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
