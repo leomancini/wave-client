@@ -46,6 +46,8 @@ export const Spinner = styled.div`
   border-radius: 50%;
   animation: spin 0.5s linear infinite;
   box-sizing: border-box;
+  transform-origin: center center;
+  transform: translateZ(0);
 
   @keyframes spin {
     0% {
