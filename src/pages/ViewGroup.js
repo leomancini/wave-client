@@ -52,7 +52,9 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
-  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(false);
+  const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(() => {
+    return window.location.hash === "#menu";
+  });
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
@@ -319,7 +321,10 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   const handleMenuToggle = () => {
     startTransition(() => {
-      setIsMoreMenuVisible((prev) => !prev);
+      const newState = !isMoreMenuVisible;
+      setIsMoreMenuVisible(newState);
+
+      window.location.hash = newState ? "menu" : "";
     });
   };
 
@@ -424,7 +429,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         user={user}
         stats={stats}
         statsIsLoading={statsIsLoading}
-        setIsMoreMenuVisible={setIsMoreMenuVisible}
+        setIsMoreMenuVisible={handleMenuToggle}
       />
       <PageContainer $moreMenuVisible={isMoreMenuVisible}>
         <ButtonContainer>
