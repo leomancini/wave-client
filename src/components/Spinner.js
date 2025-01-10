@@ -52,8 +52,6 @@ export const Spinner = styled.div`
   transform-origin: 50% 50%;
   will-change: transform;
 
-  top: -0.1em;
-
   @keyframes spin {
     from {
       transform: rotate(0deg);
