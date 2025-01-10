@@ -198,6 +198,8 @@ export const ViewGroup = ({ groupId, userId }) => {
   ) => {
     if (!groupId) return;
 
+    // TODO: Exclude optimistically uploaded items from the fetch,
+    // since we already have them on the client
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/media/${groupId}?userId=${userId}&page=${pageNum}`
@@ -205,15 +207,11 @@ export const ViewGroup = ({ groupId, userId }) => {
       if (response.ok) {
         const data = await response.json();
         const mediaArray = Array.isArray(data.media) ? data.media : data;
+
         setHasMore(data.hasMore);
         setMediaItems((prev) =>
           options.append ? [...prev, ...mediaArray] : mediaArray
         );
-        mediaArray.forEach((item) => {
-          if (readItems.has(item.metadata.itemId)) {
-            item.isUnread = false;
-          }
-        });
       }
     } catch (error) {
       console.error("Error fetching media items:", error);
@@ -235,32 +233,94 @@ export const ViewGroup = ({ groupId, userId }) => {
       setSelectedFile(files[0]);
     }
 
-    const formData = new FormData();
-    const filesArray = Array.from(files);
+    // Create temporary media items with correct dimensions
+    const optimisticallyUploadedMediaItems = await Promise.all(
+      Array.from(files).map(async (file) => {
+        const dimensions = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            resolve({
+              width: img.width,
+              height: img.height
+            });
+            URL.revokeObjectURL(img.src);
+          };
+          img.src = URL.createObjectURL(file);
+        });
 
-    filesArray.forEach((file) => {
-      const renamedFile = new File(
-        [file],
-        `${groupId}-${userId}-${file.name}`,
-        {
-          type: file.type
-        }
-      );
-      formData.append("media", renamedFile);
+        const itemId = `${Date.now()}-${userId}-${Math.floor(
+          Math.random() * 10000000000
+        )}`;
+
+        return {
+          file,
+          metadata: {
+            itemId,
+            uploadDate: new Date().toISOString(),
+            uploaderId: userId,
+            dimensions
+          },
+          uploader: {
+            name: user.name
+          },
+          isUploadedThisPageLoad: true,
+          isDoneUploading: false,
+          skipThumbnail: true,
+          localUrl: URL.createObjectURL(file),
+          comments: [],
+          reactions: []
+        };
+      })
+    );
+
+    setMediaItems((prev) => [...optimisticallyUploadedMediaItems, ...prev]);
+
+    const formData = new FormData();
+
+    optimisticallyUploadedMediaItems.forEach((tempMediaItem) => {
+      const file = tempMediaItem.file;
+      const media = new File([file], `${groupId}-${userId}-${file.name}`, {
+        type: file.type
+      });
+      formData.append("media", media);
+      formData.append("itemId", tempMediaItem.metadata.itemId);
     });
 
     formData.append("group", groupId);
     formData.append("uploaderId", userId);
 
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
         method: "POST",
         body: formData
       });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
+
+      optimisticallyUploadedMediaItems.forEach((item) => {
+        URL.revokeObjectURL(item.localUrl);
+      });
+
+      setMediaItems((currentMediaItems) => {
+        return currentMediaItems.map((item) => {
+          if (item.isUploadedThisPageLoad) {
+            item.isDoneUploading = true;
+          }
+          return item;
+        });
+      });
     } catch (error) {
+      console.error("Upload error:", error);
+      setMediaItems((prev) =>
+        prev.filter((item) => !item.isUploadedThisPageLoad)
+      );
+      optimisticallyUploadedMediaItems.forEach((item) => {
+        URL.revokeObjectURL(item.localUrl);
+      });
       alert("Sorry, something went wrong.");
     } finally {
-      fetchMediaItems(groupId, userId, 1, { refresh: true });
       setIsUploading(false);
     }
   };
@@ -350,15 +410,17 @@ export const ViewGroup = ({ groupId, userId }) => {
   };
 
   const markAsRead = (itemId) => {
-    setMediaItems((prevItems) => {
-      const item = prevItems.find((item) => item.metadata.itemId === itemId);
-      if (!item?.isUnread) return prevItems;
+    setMediaItems((currentMediaItems) => {
+      const item = currentMediaItems.find(
+        (item) => item.metadata.itemId === itemId
+      );
+      if (!item?.isUnread) return currentMediaItems;
 
       setPendingReadItems((prev) => new Set(prev).add(itemId));
 
       setTimeout(() => {
-        setMediaItems((currentItems) =>
-          currentItems.map((item) =>
+        setMediaItems((currentMediaItems) =>
+          currentMediaItems.map((item) =>
             item.metadata.itemId === itemId
               ? { ...item, isUnread: false }
               : item
@@ -366,7 +428,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         );
       }, 1000);
 
-      return prevItems;
+      return currentMediaItems;
     });
   };
 
@@ -493,9 +555,6 @@ export const ViewGroup = ({ groupId, userId }) => {
         />
         <MediaGrid>
           {mediaItems.map((item, index) => {
-            const imageUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
-            const thumbnailUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/thumbnail`;
-
             return (
               <MediaItem
                 ref={
@@ -503,13 +562,25 @@ export const ViewGroup = ({ groupId, userId }) => {
                 }
                 key={item.metadata.itemId}
                 item={item}
-                imageUrl={imageUrl}
-                thumbnailUrl={thumbnailUrl}
+                imageUrl={
+                  item.isUploadedThisPageLoad
+                    ? item.localUrl
+                    : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`
+                }
+                thumbnailUrl={
+                  item.isUploadedThisPageLoad
+                    ? null
+                    : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/thumbnail`
+                }
                 fetchMediaItems={fetchMediaItems}
                 groupId={groupId}
                 user={user}
                 isUnread={item.isUnread}
                 onLoad={(itemId) => markAsRead(itemId)}
+                isUploadedThisPageLoad={item.isUploadedThisPageLoad}
+                isDoneUploading={
+                  item.isUploadedThisPageLoad ? item.isDoneUploading : true
+                }
               />
             );
           })}

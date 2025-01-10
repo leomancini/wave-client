@@ -10,7 +10,7 @@ const TextFieldContainer = styled.div`
 `;
 
 const Input = styled(TextareaAutosize)`
-  background-color: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 1.25rem;
   padding: 0.625rem 5rem 0.75rem 1rem;
@@ -18,38 +18,41 @@ const Input = styled(TextareaAutosize)`
   height: 2.5rem;
   line-height: 1.25rem;
   resize: none;
+  transition: background 0.2s ease-in-out;
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+  }
 
   &:active,
   &:focus {
-    background-color: rgba(0, 0, 0, 0.075);
+    background: ${(props) =>
+      props.$disabled ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.075)"};
     outline: none;
   }
 
   &::selection {
-    background-color: rgba(0, 0, 0, 1);
-    color: white;
+    background: ${(props) =>
+      props.$disabled ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 1)"};
+    color: ${(props) => (props.$disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
   }
 
-  ${({ disabled }) =>
-    disabled &&
+  ${({ $disabled }) =>
+    $disabled &&
     `
       color: rgba(0, 0, 0, 0.25);
-      pointer-events: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-
-      &:active,
-      &:focus {
-        background-color: rgba(0, 0, 0, 0.05);
-        outline: none;
-      }
+      cursor: not-allowed;
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
     `}
+
+  ${({ $additionalStyles }) => $additionalStyles || ""}
 `;
 
 const Button = styled.button`
-  background-color: rgba(0, 0, 0, 1);
+  background: rgba(0, 0, 0, 1);
   width: 3.5rem;
   color: white;
   border: none;
@@ -71,7 +74,7 @@ const Button = styled.button`
 
   &:active,
   &:focus {
-    background-color: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.75);
   }
 `;
 
@@ -83,7 +86,8 @@ export const TextField = ({
   buttonLabel,
   multiLine = false,
   handleChange,
-  disabled = false
+  disabled = false,
+  additionalStyles = ""
 }) => {
   const [value, setValue] = useState(initialValue);
 
@@ -112,6 +116,9 @@ export const TextField = ({
             }
           }
         }}
+        $disabled={disabled}
+        $additionalStyles={additionalStyles}
+        readOnly={disabled}
         disabled={disabled}
       />
       {value && buttonLabel && (

@@ -72,7 +72,7 @@ const SpinnerContainer = styled.div`
   height: 1.25rem;
 `;
 
-const Comment = ({ name, text, timestamp }) => {
+const Comment = ({ name, text, timestamp, disabled }) => {
   return (
     <CommentContainer>
       <Metadata>
@@ -92,7 +92,7 @@ const Comment = ({ name, text, timestamp }) => {
   );
 };
 
-export const Comments = ({ item, groupId, user }) => {
+export const Comments = ({ item, groupId, user, disabled }) => {
   const [newComments, setNewComments] = useState([]);
 
   const onSubmit = async (comment) => {
@@ -101,7 +101,7 @@ export const Comments = ({ item, groupId, user }) => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.filename}/comment`,
+        `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/comment`,
         {
           method: "POST",
           headers: {
@@ -151,11 +151,16 @@ export const Comments = ({ item, groupId, user }) => {
         ))}
       </List>
       <TextField
-        id={`item-${item.filename}-comment-text-field`}
+        id={`item-${item.metadata.itemId}-comment-text-field`}
         placeholder="Write a comment..."
         onSubmit={onSubmit}
         buttonLabel="↑"
         multiLine={true}
+        disabled={disabled}
+        additionalStyles={
+          disabled &&
+          "opacity: 0.75; background: rgba(0, 0, 0, 0.025); &:active, &:focus { background: rgba(0, 0, 0, 0.025); }"
+        }
       />
     </Container>
   );

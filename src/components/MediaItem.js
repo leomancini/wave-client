@@ -25,20 +25,47 @@ const Media = styled.div`
   overflow: hidden;
 `;
 
+const ImageContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.5s;
+
+  ${({ $isUploadedThisPageLoad }) =>
+    $isUploadedThisPageLoad &&
+    `
+      opacity: 0.5;
+    `}
+
+  ${({ $isDoneUploading }) =>
+    $isDoneUploading &&
+    `
+      opacity: 1;
+    `}
+`;
+
 const Image = styled.img`
   width: 100%;
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1;
-  opacity: 0;
+  opacity: ${(props) => (props.$isUploadedThisPageLoad ? 1 : 0)};
   transition: opacity 0.5s, filter 0.5s;
   filter: blur(8px);
 
-  &.loaded {
-    filter: blur(0px);
-    opacity: 1;
-  }
+  ${({ $isUploadedThisPageLoad, $isDoneUploading }) =>
+    $isUploadedThisPageLoad
+      ? $isDoneUploading &&
+        `
+      filter: blur(0px);
+    `
+      : `
+      &.loaded {
+        filter: blur(0px);
+        opacity: 1;
+      }
+    `}
 `;
 
 const Thumbnail = styled.img`
@@ -52,6 +79,14 @@ const Thumbnail = styled.img`
   &.loaded {
     opacity: 1;
   }
+`;
+
+const ImageSpinnerContainer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 `;
 
 const Details = styled.div`
@@ -191,6 +226,7 @@ const AddReactionButton = styled.button`
     background: rgba(0, 0, 0, 0.025);
     cursor: not-allowed;
     color: inherit;
+    color: rgba(0, 0, 0, 0.5);
   }
 `;
 
@@ -221,7 +257,7 @@ const ReactionEmoji = styled.div`
   font-size: 1.25rem;
 `;
 
-const SpinnerContainer = styled.div`
+const ReactionSpinnerContainer = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -403,9 +439,22 @@ const addReaction = async (
 };
 
 export const MediaItem = forwardRef(
-  ({ item, imageUrl, thumbnailUrl, groupId, user, isUnread, onLoad }, ref) => {
+  (
+    {
+      item,
+      imageUrl,
+      thumbnailUrl,
+      groupId,
+      user,
+      isUnread,
+      onLoad,
+      isUploadedThisPageLoad,
+      isDoneUploading
+    },
+    ref
+  ) => {
     const { config } = useConfig();
-    const [reactions, setReactions] = useState(item.reactions);
+    const [reactions, setReactions] = useState(item.reactions || []);
     const [touchStartY, setTouchStartY] = useState(null);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [reactionEmojis, setReactionEmojis] = useState(config.reactions);
@@ -464,15 +513,24 @@ export const MediaItem = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
+    const handleImageLoad = (e) => {
+      setIsImageLoaded(true);
+      e.target.classList.add("loaded");
+    };
+
     return (
       <Container>
         <Media
           ref={mergeRefs}
           data-item-id={item.metadata.itemId}
           style={{
-            aspectRatio: `${item.metadata.dimensions.width} / ${item.metadata.dimensions.height}`
+            aspectRatio: `${item.metadata.dimensions?.width || 1} / ${
+              item.metadata.dimensions?.height || 1
+            }`,
+            pointerEvents: isUploadedThisPageLoad ? "none" : "auto"
           }}
           onClick={(e) => {
+            if (isUploadedThisPageLoad) return;
             if (!("ontouchstart" in window)) {
               handleMediaItemClick(e, item.metadata.itemId, setReactions, {
                 groupId,
@@ -503,27 +561,46 @@ export const MediaItem = forwardRef(
             setTouchStartY(null);
           }}
         >
-          <Image
-            src={imageUrl}
-            alt={item.metadata.itemId}
-            onLoad={(e) => {
-              setIsImageLoaded(true);
-              e.target.classList.add("loaded");
-            }}
-          />
-          <Thumbnail
-            src={thumbnailUrl}
-            alt={item.metadata.itemId}
-            onLoad={(e) => e.target.classList.add("loaded")}
-          />
+          <ImageContainer
+            $isUploadedThisPageLoad={isUploadedThisPageLoad}
+            $isDoneUploading={isDoneUploading}
+          >
+            <Image
+              src={imageUrl}
+              alt={item.metadata.itemId}
+              $isUploadedThisPageLoad={isUploadedThisPageLoad}
+              $isDoneUploading={isDoneUploading}
+              onLoad={handleImageLoad}
+            />
+            {!isUploadedThisPageLoad && (
+              <Thumbnail
+                src={thumbnailUrl}
+                alt={item.metadata.itemId}
+                onLoad={(e) => e.target.classList.add("loaded")}
+              />
+            )}
+          </ImageContainer>
+          {isUploadedThisPageLoad && !isDoneUploading && (
+            <ImageSpinnerContainer>
+              <Spinner $size="x-large" />
+            </ImageSpinnerContainer>
+          )}
         </Media>
         <Details>
-          <Name>{item.uploader.name}</Name>
+          <Name>{item.uploader?.name || user.name}</Name>
           <TimeAndUnreadIndicator>
-            <UnreadIndicator $visible={isUnread} />
-            <Time $isUnread={isUnread}>
-              {formatDateTime(item.metadata.uploadDate)}
-            </Time>
+            {isUploadedThisPageLoad === undefined ||
+            (isUploadedThisPageLoad && isDoneUploading) ? (
+              <>
+                <UnreadIndicator $visible={isUnread} />
+                <Time $isUnread={isUnread}>
+                  {formatDateTime(item.metadata.uploadDate)}
+                </Time>
+              </>
+            ) : (
+              isUploadedThisPageLoad &&
+              !isDoneUploading && <Time>Uploading...</Time>
+            )}
           </TimeAndUnreadIndicator>
         </Details>
         <ReactionsContainer>
@@ -546,9 +623,9 @@ export const MediaItem = forwardRef(
                 <ReactionEmoji>{reaction}</ReactionEmoji>
                 {users.join(", ")}
                 {isPending && (
-                  <SpinnerContainer>
+                  <ReactionSpinnerContainer>
                     <Spinner $size="small" />
-                  </SpinnerContainer>
+                  </ReactionSpinnerContainer>
                 )}
               </Reaction>
             ))}
@@ -565,14 +642,21 @@ export const MediaItem = forwardRef(
                     reaction
                   })
                 }
-                disabled={isPendingAny}
+                disabled={
+                  isPendingAny || (isUploadedThisPageLoad && !isDoneUploading)
+                }
               >
                 {reaction}
               </AddReactionButton>
             ))}
           </AddReactionButtons>
         </ReactionsContainer>
-        <Comments item={item} groupId={groupId} user={user} />
+        <Comments
+          item={item}
+          groupId={groupId}
+          user={user}
+          disabled={isUploadedThisPageLoad && !isDoneUploading}
+        />
       </Container>
     );
   }
