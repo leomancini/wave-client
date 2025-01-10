@@ -347,8 +347,8 @@ const ReactionButton = styled.button`
   `}
 
   &:disabled {
-    opacity: 0.75;
-    background: rgba(0, 0, 0, 0.025);
+    opacity: 0.65;
+    background: white;
     cursor: not-allowed;
     color: inherit;
   }
@@ -612,6 +612,7 @@ export const MoreMenu = ({
     setReactionEmojis(updatedEmojis);
     setEmojiPickerVisible(false);
     setReactionEmojisLoading(true);
+    setReactionEmojiSlotIndex(null);
 
     try {
       const response = await fetch(
