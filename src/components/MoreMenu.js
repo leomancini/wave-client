@@ -143,7 +143,7 @@ const HeaderShadow = styled.div`
 const Content = styled.div`
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   padding-top: 2rem;
   display: flex;
   flex-direction: column;
