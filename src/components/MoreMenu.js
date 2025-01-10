@@ -317,10 +317,12 @@ const ReactionButton = styled.button`
   user-select: none;
   border: 2px dashed rgba(0, 0, 0, 0.1);
 
-  &:hover:not(:disabled) {
-    border-color: rgba(0, 0, 0, 0.15);
-    background-color: rgba(0, 0, 0, 0.05);
-    outline: none;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: rgba(0, 0, 0, 0.15);
+      background-color: rgba(0, 0, 0, 0.05);
+      outline: none;
+    }
   }
 
   &:active:not(:disabled) {
@@ -336,9 +338,11 @@ const ReactionButton = styled.button`
       border-color: rgba(0, 0, 0, 0.5);
       background-color: rgba(0, 0, 0, 0.05);
 
-      &&:hover:not(:disabled) {
-        border-color: rgba(0, 0, 0, 0.5);
-        background-color: rgba(0, 0, 0, 0.05);
+      @media (hover: hover) {
+        &:hover:not(:disabled) {
+          border-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.05);
+        }
       }
 
       &:active:not(:disabled) {

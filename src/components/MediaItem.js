@@ -158,9 +158,11 @@ const AddReactionButton = styled.button`
   box-sizing: border-box;
   user-select: none;
 
-  &:hover:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.075);
-    outline: none;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: rgba(0, 0, 0, 0.075);
+      outline: none;
+    }
   }
 
   &:active:not(:disabled) {
@@ -173,8 +175,10 @@ const AddReactionButton = styled.button`
     background-color: rgba(0, 0, 0, 0);
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0px 1px 8px rgba(0, 0, 0, 0.15);
 
-    &:hover {
-      background-color: rgba(0, 0, 0, 0);
+    @media (hover: hover) {
+      &:hover {
+        background-color: rgba(0, 0, 0, 0);
+      }
     }
 
     &:active {

@@ -131,8 +131,10 @@ const StyledButton = styled.button`
         }
       })()};
 
-      &:hover:not(:disabled) {
-        background: rgba(0, 0, 0, ${opacity[type].hover});
+      @media (hover: hover) {
+        &:hover:not(:disabled) {
+          background: rgba(0, 0, 0, ${opacity[type].hover});
+        }
       }
 
       &:active:not(:disabled) {
