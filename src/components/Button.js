@@ -93,35 +93,35 @@ const StyledButton = styled.button`
   }
 
   ${(props) => {
-    const opacity = {
+    const background = {
       primary: {
-        default: props.$isLoading ? 0.5 : 1,
-        hover: props.$isLoading ? 0.25 : 1,
-        active: props.$isLoading ? 0.25 : 0.75
+        default: `rgba(0, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
+        hover: `rgba(0, 0, 0, ${props.$isLoading ? 0.25 : 1})`,
+        active: `rgba(0, 0, 0, ${props.$isLoading ? 0.25 : 0.75})`
       },
       secondary: {
-        default: props.$isLoading ? 1 : 0.05,
-        hover: props.$isLoading ? 0.025 : 0.075,
-        active: props.$isLoading ? 0.025 : 0.1
+        default: `rgba(0, 0, 0, ${props.$isLoading ? 1 : 0.05})`,
+        hover: `rgba(0, 0, 0, ${props.$isLoading ? 0.025 : 0.1})`,
+        active: `rgba(0, 0, 0, ${props.$isLoading ? 0.025 : 0.15})`
+      },
+      destructive: {
+        default: `rgba(255, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
+        hover: `rgba(225, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
+        active: `rgba(200, 0, 0, ${props.$isLoading ? 0.5 : 1})`
       },
       tertiary: {
-        default: 0,
-        hover: 0,
-        active: 0
+        default: "rgba(0, 0, 0, 0)",
+        hover: "rgba(0, 0, 0, 0)",
+        active: "rgba(0, 0, 0, 0)"
       }
     };
 
-    const type =
-      props.$prominence === "secondary"
-        ? "secondary"
-        : props.$prominence === "tertiary"
-        ? "tertiary"
-        : "primary";
+    const prominence = props.$prominence;
 
     return `
-      background: rgba(0, 0, 0, ${opacity[type].default});
+      background: ${background[prominence].default};
       color: ${(() => {
-        switch (type) {
+        switch (prominence) {
           case "secondary":
             return "rgba(0, 0, 0, 0.75)";
           case "tertiary":
@@ -133,12 +133,12 @@ const StyledButton = styled.button`
 
       @media (hover: hover) {
         &:hover:not(:disabled) {
-          background: rgba(0, 0, 0, ${opacity[type].hover});
+          background: ${background[prominence].hover};
         }
       }
 
       &:active:not(:disabled) {
-        background: rgba(0, 0, 0, ${opacity[type].active});
+        background: ${background[prominence].active};
       }
     `;
   }}
