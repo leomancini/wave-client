@@ -610,6 +610,15 @@ export const MoreMenu = ({
     );
   };
 
+  const showInvitationShareSheet = () => {
+    navigator
+      .share({
+        title: `Join me in (WAVE)${groupId}`,
+        url: `${process.env.REACT_APP_CLIENT_URL}/${groupId}/join`
+      })
+      .catch((error) => console.error("Error sharing:", error));
+  };
+
   const handleEmojiSelect = async (emoji) => {
     const updatedEmojis = [...reactionEmojis];
     updatedEmojis[reactionEmojiSlotIndex] = emoji.native;
@@ -909,19 +918,6 @@ export const MoreMenu = ({
               </List>
             </Section>
             <Section>
-              <ListItem>
-                <Button
-                  $type="text"
-                  $size="small"
-                  $stretch="fill"
-                  $label={`Login on a ${
-                    deviceType === "mobile" ? "computer" : "phone"
-                  }`}
-                  onClick={() => setShowSwitchDeviceInstructions(true)}
-                />
-              </ListItem>
-            </Section>
-            <Section>
               <SectionLabel>Members</SectionLabel>
               <List style={{ paddingTop: "0.5rem" }}>
                 {users.map((user, index) => (
@@ -932,6 +928,31 @@ export const MoreMenu = ({
                   />
                 ))}
               </List>
+              {navigator.share && (
+                <Button
+                  $type="text"
+                  $size="small"
+                  $prominence="primary"
+                  $stretch="fill"
+                  $label={`Invite someone`}
+                  onClick={showInvitationShareSheet}
+                />
+              )}
+            </Section>
+            <Section>
+              <SectionLabel>Settings</SectionLabel>
+              <ListItem>
+                <Button
+                  $type="text"
+                  $size="small"
+                  $stretch="fill"
+                  $prominence="secondary"
+                  $label={`Login on a ${
+                    deviceType === "mobile" ? "computer" : "phone"
+                  }`}
+                  onClick={() => setShowSwitchDeviceInstructions(true)}
+                />
+              </ListItem>
             </Section>
           </>
         )}
