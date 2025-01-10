@@ -12,6 +12,8 @@ import { useDetectDeviceType } from "../utilities/detectDeviceType";
 import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
+import { TextField } from "./TextField";
+import { SegmentedController } from "./SegmentedController";
 import { NotificationContext, AppContext } from "../App";
 
 function urlBase64ToUint8Array(base64String) {
@@ -495,6 +497,7 @@ export const MoreMenu = ({
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
   const [reactionEmojisLoading, setReactionEmojisLoading] = useState(true);
+  const [notificationPreference, setNotificationPreference] = useState("OFF");
 
   const {
     isSubscribed,
@@ -743,43 +746,68 @@ export const MoreMenu = ({
             )}
           </SectionContent>
         </Section>
-        {((false && groupId === "LOCALHOST") || groupId === "LEOTEST") && (
+        {(groupId === "LOCALHOST" || groupId === "LEOTEST") && (
           <Section>
-            <ListItem>
-              Permission: {pushPermission.toUpperCase()}
-              <br />
-              Subscription:{" "}
-              {isSubscriptionLoading ? "..." : isSubscribed ? "YES" : "NO"}
-              <br />
-              <br />
-              <Button
-                $type="text"
-                $size="small"
-                $stretch="fill"
-                $isLoading={isCheckingSubscription || isSubscriptionLoading}
-                $label={
-                  isCheckingSubscription
-                    ? "Checking notifications..."
-                    : isSubscribed
-                    ? "Disable push notifications"
-                    : "Enable push notifications"
-                }
-                onClick={initalizePushNotifications}
-                disabled={isCheckingSubscription}
-              />
-              {isSubscribed && (
-                <>
-                  <br />
+            <SectionHeader>
+              <SectionLabel>Notifications</SectionLabel>
+            </SectionHeader>
+            <SegmentedController
+              options={["Off", "Push", "SMS"]}
+              selectedOption={notificationPreference}
+              setSelectedOption={setNotificationPreference}
+            />
+            {notificationPreference === "PUSH" && (
+              <Section>
+                {isPWA || "Notification" in window ? (
+                  <>
+                    <Button
+                      $type="text"
+                      $size="small"
+                      $stretch="fill"
+                      $isLoading={
+                        isCheckingSubscription || isSubscriptionLoading
+                      }
+                      $label={
+                        isCheckingSubscription
+                          ? "Checking notifications..."
+                          : isSubscribed
+                          ? "Disable push notifications"
+                          : "Enable push notifications"
+                      }
+                      onClick={initalizePushNotifications}
+                      disabled={isCheckingSubscription}
+                    />
+                    {isSubscribed && (
+                      <Button
+                        $type="text"
+                        $size="small"
+                        $stretch="fill"
+                        $label="Send test notification"
+                        onClick={sendTestNotification}
+                      />
+                    )}
+                  </>
+                ) : (
                   <Button
                     $type="text"
                     $size="small"
+                    $prominence="secondary"
                     $stretch="fill"
-                    $label="Send test notification"
+                    $label="Add to home screen"
                     onClick={sendTestNotification}
                   />
-                </>
-              )}
-            </ListItem>
+                )}
+              </Section>
+            )}
+            {notificationPreference === "SMS" && (
+              <Section>
+                <TextField
+                  placeholder="Add your phone number..."
+                  buttonLabel="↑"
+                  multiLine={false}
+                />
+              </Section>
+            )}
           </Section>
         )}
         {showSwitchDeviceInstructions ? (
@@ -918,7 +946,9 @@ export const MoreMenu = ({
               </List>
             </Section>
             <Section>
-              <SectionLabel>Members</SectionLabel>
+              <SectionHeader>
+                <SectionLabel>Members</SectionLabel>
+              </SectionHeader>
               <List style={{ paddingTop: "0.5rem" }}>
                 {users.map((user, index) => (
                   <UserListItem
@@ -940,7 +970,9 @@ export const MoreMenu = ({
               )}
             </Section>
             <Section>
-              <SectionLabel>Settings</SectionLabel>
+              <SectionHeader>
+                <SectionLabel>Settings</SectionLabel>
+              </SectionHeader>
               <ListItem>
                 <Button
                   $type="text"

@@ -7,6 +7,7 @@ const TextFieldContainer = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   position: relative;
+  width: 100%;
 `;
 
 const Input = styled(TextareaAutosize)`

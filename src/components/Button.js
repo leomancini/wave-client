@@ -116,7 +116,7 @@ const StyledButton = styled.button`
       }
     };
 
-    const prominence = props.$prominence;
+    const prominence = props.$prominence || "primary";
 
     return `
       background: ${background[prominence].default};
