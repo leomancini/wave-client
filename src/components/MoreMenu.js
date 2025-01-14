@@ -458,7 +458,12 @@ const requestPushSubscription = async (
     );
 
     const data = await response.json();
-    setIsSubscribed(data.success);
+
+    // Check subscription status immediately
+    const currentSubscription =
+      await registration.pushManager.getSubscription();
+    setIsSubscribed(!!currentSubscription && !!currentSubscription.endpoint);
+
     return data;
   } catch (error) {
     console.error("Push subscription failed:", error);
@@ -619,7 +624,7 @@ export const MoreMenu = ({
     };
 
     checkSubscriptionStatus();
-  }, [visible, isPWA, setIsSubscribed]);
+  }, [visible, isPWA, setIsSubscribed, isSubscriptionLoading]);
 
   useEffect(() => {
     if (!visible) return;

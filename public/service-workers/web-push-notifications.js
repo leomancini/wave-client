@@ -52,9 +52,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", function (event) {
-  if (!event.data) {
-    return;
-  }
+  if (!event.data) return;
 
   try {
     let data;
@@ -66,10 +64,13 @@ self.addEventListener("push", function (event) {
 
     const options = {
       body: data.body || data.message || "New notification",
+      icon: "/logo192.png",
+      badge: "/logo192.png",
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
         primaryKey: 1,
+        url: data.url || "/",
         ...data
       },
       timestamp: Date.now(),
@@ -83,13 +84,24 @@ self.addEventListener("push", function (event) {
           action: "close",
           title: "Close"
         }
-      ]
+      ],
+      silent: false
     };
 
     event.waitUntil(
       self.registration
         .showNotification(data.title || "Push Notification", options)
-        .catch((error) => console.error("Error showing notification:", error))
+        .catch((error) => {
+          console.error("Error showing notification:", error);
+          // Try again without optional features
+          delete options.actions;
+          delete options.badge;
+          delete options.vibrate;
+          return self.registration.showNotification(
+            data.title || "Push Notification",
+            options
+          );
+        })
     );
   } catch (error) {
     console.error("Error processing push event:", error);
@@ -99,18 +111,23 @@ self.addEventListener("push", function (event) {
 self.addEventListener("notificationclick", function (event) {
   event.notification.close();
 
+  if (event.action === "close") return;
+
+  const url = event.notification.data.url || "/";
+
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windowClients) => {
-        if (windowClients.length > 0) {
-          const client = windowClients[0];
-          client.focus();
-          if (event.action === "explore") {
-            return client.navigate("/");
+        // If a window exists, focus it and navigate if needed
+        for (const client of windowClients) {
+          if (client.url === url && "focus" in client) {
+            return client.focus();
           }
-        } else if (event.action === "explore") {
-          return clients.openWindow("/");
+        }
+        // If no window exists, open a new one
+        if (clients.openWindow) {
+          return clients.openWindow(url);
         }
       })
   );
