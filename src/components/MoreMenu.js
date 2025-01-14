@@ -596,6 +596,32 @@ export const MoreMenu = ({
   ]);
 
   useEffect(() => {
+    const checkSubscriptionStatus = async () => {
+      if (!visible || !isPWA) return;
+
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        const registration = registrations.find((reg) =>
+          reg.scope.includes("/service-workers/")
+        );
+
+        if (!registration) {
+          setIsSubscribed(false);
+          return;
+        }
+
+        const subscription = await registration.pushManager.getSubscription();
+        setIsSubscribed(!!subscription && !!subscription.endpoint);
+      } catch (error) {
+        console.error("Error checking subscription status:", error);
+        setIsSubscribed(false);
+      }
+    };
+
+    checkSubscriptionStatus();
+  }, [visible, isPWA, setIsSubscribed]);
+
+  useEffect(() => {
     if (!visible) return;
     if (notificationPreference === null) {
       const serverPreference = user.notificationPreference || "OFF";
