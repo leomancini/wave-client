@@ -11,7 +11,6 @@ import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { EmptyCard } from "../components/EmptyCard";
-import { Banner } from "../components/Banner";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -543,16 +542,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
-        <Banner
-          label="NEW"
-          date="Jan 9, 2025"
-          messagesAlignment="left"
-          messages={[
-            "🎲&nbsp; Anyone can change the reaction emojis.",
-            "👀&nbsp; Everyone can use the new emojis.",
-            "💞&nbsp; Open the menu to try it out!"
-          ]}
-        />
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
