@@ -432,23 +432,29 @@ const requestPushSubscription = async (
 
     // Check if this device is already subscribed
     if (existingSubscription) {
-      const checkResponse = await fetch(
-        `${process.env.REACT_APP_API_URL}/web-push/check-subscription/${groupId}/${userId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            endpoint: existingSubscription.endpoint
-          })
+      // Add validation for existing subscription
+      if (!existingSubscription.endpoint) {
+        console.log("Invalid existing subscription - unsubscribing");
+        await existingSubscription.unsubscribe();
+      } else {
+        const checkResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/web-push/check-subscription/${groupId}/${userId}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              endpoint: existingSubscription.endpoint
+            })
+          }
+        );
+        const { exists } = await checkResponse.json();
+        if (exists) {
+          setIsSubscribed(true);
+          return { success: true };
         }
-      );
-      const { exists } = await checkResponse.json();
-      if (exists) {
-        setIsSubscribed(true);
-        return { success: true };
+        // If not in server list, unsubscribe locally
+        await existingSubscription.unsubscribe();
       }
-      // If not in server list, unsubscribe locally to get a fresh subscription
-      await existingSubscription.unsubscribe();
     }
 
     const convertedVapidKey = urlBase64ToUint8Array(
@@ -460,63 +466,48 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
-    alert("Raw subscription: " + JSON.stringify(subscription, null, 2));
-    console.log("Raw subscription:", subscription);
-    console.log("Keys available:", subscription.getKey !== undefined);
-
-    try {
-      const p256dhKey = subscription.getKey("p256dh");
-      const authKey = subscription.getKey("auth");
-      alert(
-        "Keys: " +
-          JSON.stringify(
-            {
-              p256dhAvailable: p256dhKey !== null,
-              authAvailable: authKey !== null,
-              getKeyExists: subscription.getKey !== undefined
-            },
-            null,
-            2
-          )
-      );
-      console.log("p256dh available:", p256dhKey !== null);
-      console.log("auth available:", authKey !== null);
-
-      const subscriptionData = {
-        subscription: {
-          endpoint: subscription.endpoint,
-          keys: {
-            p256dh: btoa(
-              String.fromCharCode.apply(null, new Uint8Array(p256dhKey))
-            ),
-            auth: btoa(String.fromCharCode.apply(null, new Uint8Array(authKey)))
-          }
-        }
-      };
-
-      console.log("Sending subscription data:", subscriptionData);
-
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(subscriptionData)
-        }
-      );
-
-      const data = await response.json();
-      console.log("Server response:", data);
-      setIsSubscribed(data.success);
-      return data;
-    } catch (error) {
-      console.error("Error extracting keys:", error);
-      throw error;
+    // Validate new subscription
+    if (!subscription || !subscription.endpoint) {
+      throw new Error("Invalid subscription: empty endpoint");
     }
+
+    console.log("New subscription created:", subscription);
+
+    const p256dhKey = subscription.getKey("p256dh");
+    const authKey = subscription.getKey("auth");
+
+    if (!p256dhKey || !authKey) {
+      throw new Error("Missing required subscription keys");
+    }
+
+    const subscriptionData = {
+      endpoint: subscription.endpoint,
+      keys: {
+        p256dh: btoa(
+          String.fromCharCode.apply(null, new Uint8Array(p256dhKey))
+        ),
+        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(authKey)))
+      }
+    };
+
+    console.log("Sending subscription data:", subscriptionData);
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subscriptionData)
+      }
+    );
+
+    const data = await response.json();
+    console.log("Server response:", data);
+    setIsSubscribed(data.success);
+    return data;
   } catch (error) {
     console.error("Push subscription failed:", error);
     setIsSubscribed(false);
-    alert(`Subscription error: ${error.message}`);
     return { success: false, error: error.message };
   } finally {
     setIsSubscriptionLoading(false);
