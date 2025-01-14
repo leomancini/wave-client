@@ -24,3 +24,23 @@ export const EmptyCard = styled.div`
     color: rgba(0, 0, 0, 0.4);
   }
 `;
+
+export const InlineEmptyCard = styled.div`
+  width: 100%;
+  min-width: 16rem;
+  max-width: calc(100% - 4rem);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: rgba(0, 0, 0, 0.4);
+`;

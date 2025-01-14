@@ -14,6 +14,7 @@ import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
 import { TextField } from "./TextField";
 import { SegmentedController } from "./SegmentedController";
+import { InlineEmptyCard } from "./EmptyCard";
 import { NotificationContext, AppContext } from "../App";
 
 function urlBase64ToUint8Array(base64String) {
@@ -480,6 +481,10 @@ export const MoreMenu = ({
   const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
   const [reactionEmojisLoading, setReactionEmojisLoading] = useState(true);
   const [notificationPreference, setNotificationPreference] = useState(null);
+  const [
+    isSwitchingNotificationPreference,
+    setIsSwitchingNotificationPreference
+  ] = useState(false);
 
   const {
     isSubscribed,
@@ -784,15 +789,16 @@ export const MoreMenu = ({
           <Section>
             <SectionHeader>
               <SectionLabel>Notifications</SectionLabel>
-              {isCheckingSubscription ||
-                (isSubscriptionLoading && <Spinner size="small" />)}
+              {(isCheckingSubscription ||
+                isSubscriptionLoading ||
+                isSwitchingNotificationPreference) && <Spinner size="small" />}
             </SectionHeader>
             <SegmentedController
               options={["Off", "Push", "SMS"]}
               selectedOption={notificationPreference}
               setSelectedOption={async (option) => {
+                setIsSwitchingNotificationPreference(true);
                 const serverOption = option.toUpperCase();
-                setIsSubscriptionLoading(true);
                 try {
                   if (serverOption === "PUSH") {
                     if (isPWA) {
@@ -838,7 +844,9 @@ export const MoreMenu = ({
                       })
                     }
                   );
+
                   setNotificationPreference(serverOption);
+
                   if (serverOption !== "PUSH" || !isPWA) {
                     setIsSubscriptionLoading(false);
                   }
@@ -847,73 +855,69 @@ export const MoreMenu = ({
                     "Error updating notification preference:",
                     error
                   );
+
                   setIsSubscriptionLoading(false);
                 }
+
+                setIsSwitchingNotificationPreference(false);
               }}
-              isLoading={isCheckingSubscription || isSubscriptionLoading}
+              isLoading={
+                isCheckingSubscription ||
+                isSubscriptionLoading ||
+                isSwitchingNotificationPreference
+              }
             />
-            {notificationPreference === "PUSH" && (
-              <Section>
-                Subscription: {isSubscribed ? "YES" : "NO"}
-                <br />
-                Permission: {pushPermission === "granted" ? "YES" : "NO"}
-                {isPWA ? (
-                  isSubscribed && pushPermission === "granted" ? (
-                    <Button
-                      type="text"
-                      size="small"
-                      stretch="fill"
-                      label="Send test notification"
-                      onClick={sendTestNotification}
+            {!isSwitchingNotificationPreference && (
+              <>
+                {notificationPreference === "PUSH" &&
+                  !isCheckingSubscription &&
+                  !isSubscriptionLoading && (
+                    <Section>
+                      {isPWA ? (
+                        isSubscribed && pushPermission === "granted" ? (
+                          <Button
+                            type="text"
+                            size="small"
+                            stretch="fill"
+                            label="Send test notification"
+                            onClick={sendTestNotification}
+                          />
+                        ) : pushPermission === "denied" ? (
+                          <InlineEmptyCard>
+                            Push notifications blocked, check browser settings.
+                          </InlineEmptyCard>
+                        ) : isSubscriptionLoading ? (
+                          <InlineEmptyCard>
+                            Setting up push notifications...
+                          </InlineEmptyCard>
+                        ) : (
+                          <Button
+                            type="text"
+                            size="small"
+                            prominence="secondary"
+                            stretch="fill"
+                            label="Enable push notifications"
+                            onClick={setupPushNotifications}
+                          />
+                        )
+                      ) : (
+                        <InlineEmptyCard>
+                          To enable push notifications,
+                          <br /> add to your home screen.
+                        </InlineEmptyCard>
+                      )}
+                    </Section>
+                  )}
+                {notificationPreference === "SMS" && (
+                  <Section>
+                    <TextField
+                      placeholder="Add your phone number..."
+                      buttonLabel="↑"
+                      multiLine={false}
                     />
-                  ) : pushPermission === "denied" ? (
-                    <Button
-                      type="text"
-                      size="small"
-                      prominence="secondary"
-                      stretch="fill"
-                      label="Push notifications blocked - check browser settings"
-                      disabled={true}
-                    />
-                  ) : isSubscriptionLoading ? (
-                    <Button
-                      type="text"
-                      size="small"
-                      prominence="secondary"
-                      stretch="fill"
-                      label="Setting up push notifications..."
-                      disabled={true}
-                    />
-                  ) : (
-                    <Button
-                      type="text"
-                      size="small"
-                      prominence="secondary"
-                      stretch="fill"
-                      label="Enable push notifications"
-                      onClick={setupPushNotifications}
-                    />
-                  )
-                ) : (
-                  <Button
-                    type="text"
-                    size="small"
-                    prominence="secondary"
-                    stretch="fill"
-                    label="Add to home screen for push notifications"
-                    disabled={true}
-                  />
+                  </Section>
                 )}
-              </Section>
-            )}
-            {notificationPreference === "SMS" && (
-              <Section>
-                <TextField
-                  placeholder="Add your phone number..."
-                  buttonLabel="↑"
-                  multiLine={false}
-                />
-              </Section>
+              </>
             )}
           </Section>
         )}
