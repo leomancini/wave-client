@@ -403,24 +403,13 @@ const requestPushSubscription = async (
       await registration.pushManager.getSubscription();
 
     if (isUnsubscribing) {
-      if (!existingSubscription) {
-        setIsSubscribed(false);
-        return { success: true };
+      if (existingSubscription) {
+        await existingSubscription.unsubscribe();
       }
-
-      await existingSubscription.unsubscribe();
-
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            endpoint: existingSubscription.endpoint
-          })
-        }
+        { method: "POST" }
       );
-
       const data = await response.json();
       setIsSubscribed(false);
       return data;
@@ -430,30 +419,8 @@ const requestPushSubscription = async (
       throw new Error("Permission not granted");
     }
 
-    // Check if this device is already subscribed
     if (existingSubscription) {
-      // Add validation for existing subscription
-      if (!existingSubscription.endpoint) {
-        await existingSubscription.unsubscribe();
-      } else {
-        const checkResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/web-push/check-subscription/${groupId}/${userId}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              endpoint: existingSubscription.endpoint
-            })
-          }
-        );
-        const { exists } = await checkResponse.json();
-        if (exists) {
-          setIsSubscribed(true);
-          return { success: true };
-        }
-        // If not in server list, unsubscribe locally
-        await existingSubscription.unsubscribe();
-      }
+      await existingSubscription.unsubscribe();
     }
 
     const convertedVapidKey = urlBase64ToUint8Array(
@@ -465,34 +432,28 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
-    // Validate new subscription
-    if (!subscription || !subscription.endpoint) {
-      throw new Error("Invalid subscription: empty endpoint");
-    }
-
-    const p256dhKey = subscription.getKey("p256dh");
-    const authKey = subscription.getKey("auth");
-
-    if (!p256dhKey || !authKey) {
-      throw new Error("Missing required subscription keys");
-    }
-
-    const subscriptionData = {
-      endpoint: subscription.endpoint,
-      keys: {
-        p256dh: btoa(
-          String.fromCharCode.apply(null, new Uint8Array(p256dhKey))
-        ),
-        auth: btoa(String.fromCharCode.apply(null, new Uint8Array(authKey)))
-      }
-    };
-
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscriptionData)
+        body: JSON.stringify({
+          subscription: {
+            endpoint: subscription.endpoint,
+            keys: {
+              p256dh: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(subscription.getKey("p256dh"))
+                )
+              ),
+              auth: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(subscription.getKey("auth"))
+                )
+              )
+            }
+          }
+        })
       }
     );
 
@@ -818,11 +779,10 @@ export const MoreMenu = ({
               selectedOption={notificationPreference}
               setSelectedOption={async (option) => {
                 const serverOption = option.toUpperCase();
-                const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
                 setIsSubscriptionLoading(true);
                 try {
                   if (serverOption === "PUSH") {
-                    if (!isIOS || isPWA) {
+                    if (isPWA) {
                       const permission = await requestNotificationPermission();
                       if (permission === "granted") {
                         await requestPushSubscription(
@@ -866,7 +826,7 @@ export const MoreMenu = ({
                     }
                   );
                   setNotificationPreference(serverOption);
-                  if (serverOption !== "PUSH" || (isIOS && !isPWA)) {
+                  if (serverOption !== "PUSH" || !isPWA) {
                     setIsSubscriptionLoading(false);
                   }
                 } catch (error) {
@@ -881,7 +841,10 @@ export const MoreMenu = ({
             />
             {notificationPreference === "PUSH" && (
               <Section>
-                {"Notification" in window || isPWA ? (
+                Subscription: {isSubscribed ? "YES" : "NO"}
+                <br />
+                Permission: {pushPermission === "granted" ? "YES" : "NO"}
+                {isPWA ? (
                   isSubscribed && pushPermission === "granted" ? (
                     <Button
                       type="text"
@@ -918,22 +881,13 @@ export const MoreMenu = ({
                       onClick={setupPushNotifications}
                     />
                   )
-                ) : !isPWA && deviceType === "mobile" ? (
-                  <Button
-                    type="text"
-                    size="small"
-                    prominence="secondary"
-                    stretch="fill"
-                    label="Add to home screen for push notifications"
-                    disabled={true}
-                  />
                 ) : (
                   <Button
                     type="text"
                     size="small"
                     prominence="secondary"
                     stretch="fill"
-                    label="Push notifications not supported in this browser"
+                    label="Add to home screen for push notifications"
                     disabled={true}
                   />
                 )}
