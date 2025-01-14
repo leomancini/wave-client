@@ -133,7 +133,6 @@ export const ViewGroup = ({ groupId, userId }) => {
           return;
         } else {
           setUser(userData);
-          console.log(userData);
           setPage(1);
 
           const promises = [

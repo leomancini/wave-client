@@ -434,7 +434,6 @@ const requestPushSubscription = async (
     if (existingSubscription) {
       // Add validation for existing subscription
       if (!existingSubscription.endpoint) {
-        console.log("Invalid existing subscription - unsubscribing");
         await existingSubscription.unsubscribe();
       } else {
         const checkResponse = await fetch(
@@ -471,8 +470,6 @@ const requestPushSubscription = async (
       throw new Error("Invalid subscription: empty endpoint");
     }
 
-    console.log("New subscription created:", subscription);
-
     const p256dhKey = subscription.getKey("p256dh");
     const authKey = subscription.getKey("auth");
 
@@ -490,8 +487,6 @@ const requestPushSubscription = async (
       }
     };
 
-    console.log("Sending subscription data:", subscriptionData);
-
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
       {
@@ -502,7 +497,6 @@ const requestPushSubscription = async (
     );
 
     const data = await response.json();
-    console.log("Server response:", data);
     setIsSubscribed(data.success);
     return data;
   } catch (error) {
