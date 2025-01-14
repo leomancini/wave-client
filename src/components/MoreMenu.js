@@ -432,6 +432,8 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
+    alert(subscription);
+
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
       {

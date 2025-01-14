@@ -52,25 +52,29 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", function (event) {
-  if (!event.data) return;
+  console.log("Push event received:", event);
+
+  if (!event.data) {
+    console.log("No data in push event");
+    return;
+  }
 
   try {
     let data;
     try {
       data = event.data.json();
+      console.log("Push data:", data);
     } catch (e) {
       data = { message: event.data.text() };
+      console.log("Push text:", data);
     }
 
     const options = {
       body: data.body || data.message || "New notification",
-      icon: "/logo192.png",
-      badge: "/logo192.png",
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
         primaryKey: 1,
-        url: data.url || "/",
         ...data
       },
       timestamp: Date.now(),
@@ -84,24 +88,15 @@ self.addEventListener("push", function (event) {
           action: "close",
           title: "Close"
         }
-      ],
-      silent: false
+      ]
     };
 
+    console.log("Showing notification with options:", options);
     event.waitUntil(
       self.registration
         .showNotification(data.title || "Push Notification", options)
-        .catch((error) => {
-          console.error("Error showing notification:", error);
-          // Try again without optional features
-          delete options.actions;
-          delete options.badge;
-          delete options.vibrate;
-          return self.registration.showNotification(
-            data.title || "Push Notification",
-            options
-          );
-        })
+        .then(() => console.log("Notification shown successfully"))
+        .catch((error) => console.error("Error showing notification:", error))
     );
   } catch (error) {
     console.error("Error processing push event:", error);
