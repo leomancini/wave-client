@@ -3,6 +3,8 @@ import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 import { ConfigProvider } from "./contexts/ConfigContext";
 
+import { useDetectDeviceType } from "./utilities/detectDeviceType";
+
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
@@ -88,6 +90,7 @@ function App() {
   const [page, setPage] = useState("");
   const [isAtTop, setIsAtTop] = useState(true);
   const [scrollIntensity, setScrollIntensity] = useState(1);
+  const deviceType = useDetectDeviceType();
 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
@@ -271,7 +274,12 @@ function App() {
         >
           <BrowserRouter basename="/">
             <StatusBarBackground />
-            <StatusBarShadow $visible={!isAtTop} $intensity={scrollIntensity} />
+            {deviceType === "mobile" ? (
+              <StatusBarShadow
+                $visible={!isAtTop}
+                $intensity={scrollIntensity}
+              />
+            ) : null}
             <Container>
               {page === Pages.Home.id && <Home />}
               {page === Pages.CreateGroup.id && <CreateGroup />}
