@@ -488,7 +488,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   if (isInitialLoad && isLoading) {
     return (
       <Page $fullHeight>
-        <Spinner $size="x-large" />
+        <Spinner size="x-large" />
       </Page>
     );
   }
@@ -519,20 +519,20 @@ export const ViewGroup = ({ groupId, userId }) => {
       <PageContainer>
         <ButtonContainer>
           <Button
-            $type="icon-small"
-            $size="large"
-            $stretch="fit"
+            type="icon-small"
+            size="large"
+            stretch="fit"
             $prominence="secondary"
-            $icon={faBars}
+            icon={faBars}
             onClick={handleMenuToggle}
           />
           <Button
-            $isLoading={isUploading}
-            $type="icon"
-            $size="large"
-            $stretch="fill"
-            $prominence="primary"
-            $icon={faPlus}
+            disabled={isUploading}
+            type="icon"
+            size="large"
+            stretch="fill"
+            prominence="primary"
+            icon={faPlus}
           >
             <input
               type="file"
@@ -584,7 +584,7 @@ export const ViewGroup = ({ groupId, userId }) => {
               />
             );
           })}
-          {isLoading && hasMore && <Spinner $size="x-large" />}
+          {isLoading && hasMore && <Spinner size="x-large" />}
         </MediaGrid>
       </PageContainer>
     </Page>

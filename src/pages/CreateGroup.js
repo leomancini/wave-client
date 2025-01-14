@@ -71,9 +71,9 @@ export const CreateGroup = () => {
             handleSubmit();
           }}
           $isLoading={isSubmitting}
-          $size="small"
-          $type="text"
-          $label="Create"
+          size="small"
+          type="text"
+          label="Create"
         />
       </Form>
     </Page>

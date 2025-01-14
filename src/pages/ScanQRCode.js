@@ -190,11 +190,11 @@ export const ScanQRCode = () => {
             <p>To scan QR codes, please allow camera permissions.</p>
             <br />
             <Button
-              $size="small"
-              $stretch="fit"
-              $type="text"
+              size="small"
+              stretch="fit"
+              type="text"
               onClick={requestCameraPermission}
-              $label="Allow camera"
+              label="Allow camera"
             />
           </EmptyCard>
         ) : (

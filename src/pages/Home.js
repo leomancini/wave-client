@@ -135,7 +135,7 @@ export const Home = () => {
                         <Badge>{unreadCounts[data.groupId]}</Badge>
                       )
                     ) : (
-                      <Spinner $size="medium" />
+                      <Spinner size="medium" />
                     )}
                   </GroupValueContainer>
                 </GroupListItem>

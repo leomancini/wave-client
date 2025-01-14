@@ -668,11 +668,11 @@ export const MoreMenu = ({
         >
           {showSwitchDeviceInstructions && (
             <Button
-              $type="icon-small"
-              $size="large"
-              $stretch="fit"
+              type="icon-small"
+              size="large"
+              stretch="fit"
               $prominence="tertiary"
-              $icon={faArrowLeft}
+              icon={faArrowLeft}
               onClick={() => setShowSwitchDeviceInstructions(false)}
               style={{ marginLeft: "-1.25rem" }}
             />
@@ -684,11 +684,11 @@ export const MoreMenu = ({
           </GroupTitle>
           {!showSwitchDeviceInstructions && (
             <Button
-              $type="icon-small"
-              $size="large"
-              $stretch="fit"
+              type="icon-small"
+              size="large"
+              stretch="fit"
               $prominence="tertiary"
-              $icon={faXmark}
+              icon={faXmark}
               onClick={() => setIsMoreMenuVisible(false)}
               style={{ marginRight: "-1.25rem" }}
             />
@@ -700,7 +700,7 @@ export const MoreMenu = ({
         <Section>
           <SectionHeader>
             <SectionLabel>Reactions</SectionLabel>
-            {reactionEmojisLoading && <Spinner $size="small" />}
+            {reactionEmojisLoading && <Spinner size="small" />}
           </SectionHeader>
           <SectionContent>
             <ReactionButtons>
@@ -761,13 +761,13 @@ export const MoreMenu = ({
                 {isPWA || "Notification" in window ? (
                   <>
                     <Button
-                      $type="text"
-                      $size="small"
-                      $stretch="fill"
+                      type="text"
+                      size="small"
+                      stretch="fill"
                       $isLoading={
                         isCheckingSubscription || isSubscriptionLoading
                       }
-                      $label={
+                      label={
                         isCheckingSubscription
                           ? "Checking notifications..."
                           : isSubscribed
@@ -779,21 +779,21 @@ export const MoreMenu = ({
                     />
                     {isSubscribed && (
                       <Button
-                        $type="text"
-                        $size="small"
-                        $stretch="fill"
-                        $label="Send test notification"
+                        type="text"
+                        size="small"
+                        stretch="fill"
+                        label="Send test notification"
                         onClick={sendTestNotification}
                       />
                     )}
                   </>
                 ) : (
                   <Button
-                    $type="text"
-                    $size="small"
+                    type="text"
+                    size="small"
                     $prominence="secondary"
-                    $stretch="fill"
-                    $label="Add to home screen"
+                    stretch="fill"
+                    label="Add to home screen"
                     onClick={sendTestNotification}
                   />
                 )}
@@ -857,7 +857,7 @@ export const MoreMenu = ({
                 <ListItemContent style={{ padding: "0" }}>
                   <QRCodeContainer>
                     {isLoadingQRCode ? (
-                      <Spinner $size="x-large" />
+                      <Spinner size="x-large" />
                     ) : (
                       qrCodeUrl && (
                         <img
@@ -876,7 +876,7 @@ export const MoreMenu = ({
             <Section>
               <SectionHeader>
                 <SectionLabel>Stats</SectionLabel>
-                {statsIsLoading && <Spinner $size="small" />}
+                {statsIsLoading && <Spinner size="small" />}
               </SectionHeader>
               <List>
                 {config?.createdAt && (
@@ -960,11 +960,11 @@ export const MoreMenu = ({
               </List>
               {navigator.share && (
                 <Button
-                  $type="text"
-                  $size="small"
+                  type="text"
+                  size="small"
                   $prominence="primary"
-                  $stretch="fill"
-                  $label={`Invite someone`}
+                  stretch="fill"
+                  label={`Invite someone`}
                   onClick={showInvitationShareSheet}
                 />
               )}
@@ -975,11 +975,11 @@ export const MoreMenu = ({
               </SectionHeader>
               <ListItem>
                 <Button
-                  $type="text"
-                  $size="small"
-                  $stretch="fill"
+                  type="text"
+                  size="small"
+                  stretch="fill"
                   $prominence="secondary"
-                  $label={`Login on a ${
+                  label={`Login on a ${
                     deviceType === "mobile" ? "computer" : "phone"
                   }`}
                   onClick={() => setShowSwitchDeviceInstructions(true)}

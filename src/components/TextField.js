@@ -117,10 +117,9 @@ export const TextField = ({
             }
           }
         }}
-        $disabled={disabled}
+        disabled={disabled}
         $additionalStyles={additionalStyles}
         readOnly={disabled}
-        disabled={disabled}
       />
       {value && buttonLabel && (
         <Button

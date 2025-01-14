@@ -20,8 +20,8 @@ const StyledButton = styled.button`
   max-height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
   display: flex;
   align-items: center;
-  cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
-  pointer-events: ${(props) => (props.$isLoading ? "none" : "auto")};
+  cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
+  pointer-events: ${(props) => (props.$disabled ? "none" : "auto")};
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s;
@@ -37,8 +37,8 @@ const StyledButton = styled.button`
   user-select: none;
 
   &:active {
-    transform: ${(props) => (props.$isLoading ? "none" : "scale(0.9)")};
-    background: rgba(0, 0, 0, ${(props) => (props.$isLoading ? 0.5 : 0.75)});
+    transform: ${(props) => (props.$disabled ? "none" : "scale(0.9)")};
+    background: rgba(0, 0, 0, ${(props) => (props.$disabled ? 0.5 : 0.75)});
     color: ${(props) => {
       switch (props.$prominence) {
         case "primary":
@@ -95,19 +95,19 @@ const StyledButton = styled.button`
   ${(props) => {
     const background = {
       primary: {
-        default: `rgba(0, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
-        hover: `rgba(0, 0, 0, ${props.$isLoading ? 0.25 : 1})`,
-        active: `rgba(0, 0, 0, ${props.$isLoading ? 0.25 : 0.75})`
+        default: `rgba(0, 0, 0, ${props.$disabled ? 0.5 : 1})`,
+        hover: `rgba(0, 0, 0, ${props.$disabled ? 0.25 : 1})`,
+        active: `rgba(0, 0, 0, ${props.$disabled ? 0.25 : 0.75})`
       },
       secondary: {
-        default: `rgba(0, 0, 0, ${props.$isLoading ? 1 : 0.05})`,
-        hover: `rgba(0, 0, 0, ${props.$isLoading ? 0.025 : 0.1})`,
-        active: `rgba(0, 0, 0, ${props.$isLoading ? 0.025 : 0.15})`
+        default: `rgba(0, 0, 0, ${props.$disabled ? 1 : 0.05})`,
+        hover: `rgba(0, 0, 0, ${props.$disabled ? 0.025 : 0.1})`,
+        active: `rgba(0, 0, 0, ${props.$disabled ? 0.025 : 0.15})`
       },
       destructive: {
-        default: `rgba(255, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
-        hover: `rgba(225, 0, 0, ${props.$isLoading ? 0.5 : 1})`,
-        active: `rgba(200, 0, 0, ${props.$isLoading ? 0.5 : 1})`
+        default: `rgba(255, 0, 0, ${props.$disabled ? 0.5 : 1})`,
+        hover: `rgba(225, 0, 0, ${props.$disabled ? 0.5 : 1})`,
+        active: `rgba(200, 0, 0, ${props.$disabled ? 0.5 : 1})`
       },
       tertiary: {
         default: "rgba(0, 0, 0, 0)",
@@ -155,40 +155,62 @@ const StyledButton = styled.button`
   input[type="file"] {
     position: absolute;
     opacity: 0;
-    cursor: ${(props) => (props.$isLoading ? "default" : "pointer")};
+    cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
     width: 100%;
     height: 100%;
   }
+
+  ${({ $disabled }) =>
+    $disabled &&
+    `
+      background: red;
+      opacity: 0.5;
+
+    `}
 `;
 
-export const Button = ({ $label, $size, $icon, children, ...props }) => {
+export const Button = ({
+  type,
+  size,
+  stretch,
+  prominence,
+  label,
+  icon,
+  isLoading,
+  disabled,
+  children,
+  ...props
+}) => {
   const getContent = () => {
     if (props.$isLoading) {
       return (
-        <Spinner
-          $theme="light"
-          $size={$size === "large" ? "large" : "medium"}
-        />
+        <Spinner $theme="light" size={size === "large" ? "large" : "medium"} />
       );
     }
 
-    if ($icon) {
+    if (icon) {
       return (
         <span>
-          <FontAwesomeIcon
-            icon={$icon}
-            size={$size === "large" ? "lg" : "1x"}
-          />
-          {$label && <span style={{ marginLeft: "0.5rem" }}>{$label}</span>}
+          <FontAwesomeIcon icon={icon} size={size === "large" ? "lg" : "1x"} />
+          {label && <span style={{ marginLeft: "0.5rem" }}>{label}</span>}
         </span>
       );
     }
 
-    return <span>{$label}</span>;
+    return <span>{label}</span>;
   };
 
   return (
-    <StyledButton $size={$size} {...props}>
+    <StyledButton
+      $type={type}
+      $size={size}
+      $stretch={stretch}
+      $prominence={prominence}
+      $label={label}
+      $icon={icon}
+      $disabled={disabled || isLoading}
+      {...props}
+    >
       {getContent()}
       {children}
     </StyledButton>

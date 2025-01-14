@@ -582,7 +582,7 @@ export const MediaItem = forwardRef(
           </ImageContainer>
           {isUploadedThisPageLoad && !isDoneUploading && (
             <ImageSpinnerContainer>
-              <Spinner $size="x-large" />
+              <Spinner size="x-large" />
             </ImageSpinnerContainer>
           )}
         </Media>
@@ -624,7 +624,7 @@ export const MediaItem = forwardRef(
                 {users.join(", ")}
                 {isPending && (
                   <ReactionSpinnerContainer>
-                    <Spinner $size="small" />
+                    <Spinner size="small" />
                   </ReactionSpinnerContainer>
                 )}
               </Reaction>

@@ -80,7 +80,7 @@ const Comment = ({ name, text, timestamp, disabled }) => {
         <Time>
           {timestamp === "new" ? (
             <SpinnerContainer>
-              <Spinner $size="small" />
+              <Spinner size="small" />
             </SpinnerContainer>
           ) : (
             timestamp

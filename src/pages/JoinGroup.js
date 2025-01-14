@@ -94,9 +94,9 @@ export const JoinGroup = ({ groupId }) => {
             handleSubmit();
           }}
           $isLoading={isSubmitting}
-          $size="small"
-          $type="text"
-          $label="Join"
+          size="small"
+          type="text"
+          label="Join"
         />
       </Form>
     </Page>
