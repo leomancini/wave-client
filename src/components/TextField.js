@@ -19,7 +19,7 @@ const Input = styled(TextareaAutosize)`
   height: 2.5rem;
   line-height: 1.25rem;
   resize: none;
-  transition: background 0.2s ease-in-out;
+  transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
 
   &::placeholder {
     color: rgba(0, 0, 0, 0.5);
