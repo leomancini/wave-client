@@ -273,12 +273,14 @@ function App() {
           }}
         >
           <BrowserRouter basename="/">
-            <StatusBarBackground />
             {deviceType === "mobile" ? (
-              <StatusBarShadow
-                $visible={!isAtTop}
-                $intensity={scrollIntensity}
-              />
+              <>
+                <StatusBarBackground />
+                <StatusBarShadow
+                  $visible={!isAtTop}
+                  $intensity={scrollIntensity}
+                />
+              </>
             ) : null}
             <Container>
               {page === Pages.Home.id && <Home />}
