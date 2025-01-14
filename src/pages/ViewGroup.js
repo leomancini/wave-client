@@ -232,7 +232,6 @@ export const ViewGroup = ({ groupId, userId }) => {
       setSelectedFile(files[0]);
     }
 
-    // Create temporary media items with correct dimensions
     const optimisticallyUploadedMediaItems = await Promise.all(
       Array.from(files).map(async (file) => {
         const dimensions = await new Promise((resolve) => {

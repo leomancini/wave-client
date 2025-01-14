@@ -92,7 +92,6 @@ const customProps = new Set([
   "prominence",
   "size",
   "stretch"
-  // Add other custom props your app uses
 ]);
 
 const shouldForwardProp = (prop) => isPropValid(prop) && !customProps.has(prop);

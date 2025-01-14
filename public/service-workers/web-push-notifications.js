@@ -114,13 +114,11 @@ self.addEventListener("notificationclick", function (event) {
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windowClients) => {
-        // If a window exists, focus it and navigate if needed
         for (const client of windowClients) {
           if (client.url === url && "focus" in client) {
             return client.focus();
           }
         }
-        // If no window exists, open a new one
         if (clients.openWindow) {
           return clients.openWindow(url);
         }

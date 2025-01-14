@@ -432,8 +432,6 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
-    alert(JSON.stringify(subscription, null, 2));
-
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
       {
@@ -445,7 +443,6 @@ const requestPushSubscription = async (
 
     const data = await response.json();
 
-    // Check subscription status immediately
     const currentSubscription =
       await registration.pushManager.getSubscription();
     setIsSubscribed(!!currentSubscription && !!currentSubscription.endpoint);
@@ -616,7 +613,6 @@ export const MoreMenu = ({
     if (!visible) return;
     if (notificationPreference === null) {
       const serverPreference = user.notificationPreference || "OFF";
-      // Only reset PUSH to OFF if permission is explicitly denied
       if (serverPreference === "PUSH" && isPWA && pushPermission === "denied") {
         fetch(
           `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
