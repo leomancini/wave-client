@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect, useContext, useCallback } from "react";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
@@ -412,7 +412,13 @@ const requestPushSubscription = async (
 
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
-        { method: "POST" }
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: existingSubscription.endpoint
+          })
+        }
       );
 
       const data = await response.json();
@@ -424,23 +430,25 @@ const requestPushSubscription = async (
       throw new Error("Permission not granted");
     }
 
+    // Check if this device is already subscribed
     if (existingSubscription) {
-      try {
-        const renewResponse = await fetch(
-          `${process.env.REACT_APP_API_URL}/web-push/renew-subscription/${groupId}/${userId}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(existingSubscription)
-          }
-        );
-
-        const renewData = await renewResponse.json();
-        setIsSubscribed(renewData.success);
-        return renewData;
-      } catch (error) {
-        console.error("Error renewing subscription:", error);
+      const checkResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/web-push/check-subscription/${groupId}/${userId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: existingSubscription.endpoint
+          })
+        }
+      );
+      const { exists } = await checkResponse.json();
+      if (exists) {
+        setIsSubscribed(true);
+        return { success: true };
       }
+      // If not in server list, unsubscribe locally to get a fresh subscription
+      await existingSubscription.unsubscribe();
     }
 
     const convertedVapidKey = urlBase64ToUint8Array(
@@ -452,19 +460,59 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription)
-      }
-    );
+    alert("Raw subscription: " + JSON.stringify(subscription, null, 2));
+    console.log("Raw subscription:", subscription);
+    console.log("Keys available:", subscription.getKey !== undefined);
 
-    const data = await response.json();
+    try {
+      const p256dhKey = subscription.getKey("p256dh");
+      const authKey = subscription.getKey("auth");
+      alert(
+        "Keys: " +
+          JSON.stringify(
+            {
+              p256dhAvailable: p256dhKey !== null,
+              authAvailable: authKey !== null,
+              getKeyExists: subscription.getKey !== undefined
+            },
+            null,
+            2
+          )
+      );
+      console.log("p256dh available:", p256dhKey !== null);
+      console.log("auth available:", authKey !== null);
 
-    setIsSubscribed(data.success);
-    return data;
+      const subscriptionData = {
+        subscription: {
+          endpoint: subscription.endpoint,
+          keys: {
+            p256dh: btoa(
+              String.fromCharCode.apply(null, new Uint8Array(p256dhKey))
+            ),
+            auth: btoa(String.fromCharCode.apply(null, new Uint8Array(authKey)))
+          }
+        }
+      };
+
+      console.log("Sending subscription data:", subscriptionData);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscriptionData)
+        }
+      );
+
+      const data = await response.json();
+      console.log("Server response:", data);
+      setIsSubscribed(data.success);
+      return data;
+    } catch (error) {
+      console.error("Error extracting keys:", error);
+      throw error;
+    }
   } catch (error) {
     console.error("Push subscription failed:", error);
     setIsSubscribed(false);
@@ -497,7 +545,7 @@ export const MoreMenu = ({
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
   const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
   const [reactionEmojisLoading, setReactionEmojisLoading] = useState(true);
-  const [notificationPreference, setNotificationPreference] = useState("OFF");
+  const [notificationPreference, setNotificationPreference] = useState(null);
 
   const {
     isSubscribed,
@@ -574,38 +622,65 @@ export const MoreMenu = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSwitchDeviceInstructions]);
 
-  const initalizePushNotifications = async () => {
+  const setupPushNotifications = useCallback(async () => {
     try {
-      if (isSubscribed) {
+      setIsSubscriptionLoading(true);
+      const permission = await requestNotificationPermission();
+
+      if (permission === "granted") {
         await requestPushSubscription(
           groupId,
           user.id,
-          pushPermission,
+          permission,
           setIsSubscribed,
           setIsSubscriptionLoading,
-          true
+          false
         );
-      } else {
-        const permission = await requestNotificationPermission();
-
-        if (permission === "granted") {
-          await requestPushSubscription(
-            groupId,
-            user.id,
-            permission,
-            setIsSubscribed,
-            setIsSubscriptionLoading,
-            false
-          );
-        } else {
-          console.error("Permission not granted:", permission);
-        }
       }
     } catch (error) {
-      console.error("Error initializing push notifications:", error);
-      alert(`Error: ${error.message}`);
+      console.error("Error setting up push notifications:", error);
+      setIsSubscriptionLoading(false);
     }
-  };
+  }, [
+    groupId,
+    user.id,
+    requestNotificationPermission,
+    setIsSubscribed,
+    setIsSubscriptionLoading
+  ]);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (notificationPreference === null) {
+      const serverPreference = user.notificationPreference || "OFF";
+      // Only reset PUSH to OFF if permission is explicitly denied
+      if (serverPreference === "PUSH" && isPWA && pushPermission === "denied") {
+        fetch(
+          `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              notificationType: "OFF"
+            })
+          }
+        );
+        setNotificationPreference("OFF");
+      } else {
+        setNotificationPreference(serverPreference);
+      }
+    }
+  }, [
+    visible,
+    user.notificationPreference,
+    notificationPreference,
+    pushPermission,
+    groupId,
+    user.id,
+    isPWA
+  ]);
 
   const sendTestNotification = async () => {
     await fetch(
@@ -750,50 +825,131 @@ export const MoreMenu = ({
           <Section>
             <SectionHeader>
               <SectionLabel>Notifications</SectionLabel>
+              {isCheckingSubscription ||
+                (isSubscriptionLoading && <Spinner size="small" />)}
             </SectionHeader>
             <SegmentedController
               options={["Off", "Push", "SMS"]}
               selectedOption={notificationPreference}
-              setSelectedOption={setNotificationPreference}
+              setSelectedOption={async (option) => {
+                const serverOption = option.toUpperCase();
+                const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+                setIsSubscriptionLoading(true);
+                try {
+                  if (serverOption === "PUSH") {
+                    if (!isIOS || isPWA) {
+                      const permission = await requestNotificationPermission();
+                      if (permission === "granted") {
+                        await requestPushSubscription(
+                          groupId,
+                          user.id,
+                          permission,
+                          setIsSubscribed,
+                          setIsSubscriptionLoading,
+                          false
+                        );
+                      } else {
+                        setIsSubscriptionLoading(false);
+                      }
+                    } else {
+                      setIsSubscriptionLoading(false);
+                    }
+                  } else if (
+                    notificationPreference === "PUSH" &&
+                    isSubscribed
+                  ) {
+                    await requestPushSubscription(
+                      groupId,
+                      user.id,
+                      pushPermission,
+                      setIsSubscribed,
+                      setIsSubscriptionLoading,
+                      true
+                    );
+                  }
+
+                  await fetch(
+                    `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify({
+                        notificationType: serverOption
+                      })
+                    }
+                  );
+                  setNotificationPreference(serverOption);
+                  if (serverOption !== "PUSH" || (isIOS && !isPWA)) {
+                    setIsSubscriptionLoading(false);
+                  }
+                } catch (error) {
+                  console.error(
+                    "Error updating notification preference:",
+                    error
+                  );
+                  setIsSubscriptionLoading(false);
+                }
+              }}
+              isLoading={isCheckingSubscription || isSubscriptionLoading}
             />
             {notificationPreference === "PUSH" && (
               <Section>
-                {isPWA || "Notification" in window ? (
-                  <>
+                {"Notification" in window || isPWA ? (
+                  isSubscribed && pushPermission === "granted" ? (
                     <Button
                       type="text"
                       size="small"
                       stretch="fill"
-                      isLoading={
-                        isCheckingSubscription || isSubscriptionLoading
-                      }
-                      label={
-                        isCheckingSubscription
-                          ? "Checking notifications..."
-                          : isSubscribed
-                          ? "Disable push notifications"
-                          : "Enable push notifications"
-                      }
-                      onClick={initalizePushNotifications}
+                      label="Send test notification"
+                      onClick={sendTestNotification}
                     />
-                    {isSubscribed && (
-                      <Button
-                        type="text"
-                        size="small"
-                        stretch="fill"
-                        label="Send test notification"
-                        onClick={sendTestNotification}
-                      />
-                    )}
-                  </>
+                  ) : pushPermission === "denied" ? (
+                    <Button
+                      type="text"
+                      size="small"
+                      prominence="secondary"
+                      stretch="fill"
+                      label="Push notifications blocked - check browser settings"
+                      disabled={true}
+                    />
+                  ) : isSubscriptionLoading ? (
+                    <Button
+                      type="text"
+                      size="small"
+                      prominence="secondary"
+                      stretch="fill"
+                      label="Setting up push notifications..."
+                      disabled={true}
+                    />
+                  ) : (
+                    <Button
+                      type="text"
+                      size="small"
+                      prominence="secondary"
+                      stretch="fill"
+                      label="Enable push notifications"
+                      onClick={setupPushNotifications}
+                    />
+                  )
+                ) : !isPWA && deviceType === "mobile" ? (
+                  <Button
+                    type="text"
+                    size="small"
+                    prominence="secondary"
+                    stretch="fill"
+                    label="Add to home screen for push notifications"
+                    disabled={true}
+                  />
                 ) : (
                   <Button
                     type="text"
                     size="small"
                     prominence="secondary"
                     stretch="fill"
-                    label="Add to home screen"
-                    onClick={sendTestNotification}
+                    label="Push notifications not supported in this browser"
+                    disabled={true}
                   />
                 )}
               </Section>

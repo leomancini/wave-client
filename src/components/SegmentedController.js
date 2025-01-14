@@ -11,6 +11,13 @@ const SegmentedControllerContainer = styled.div`
   gap: 0.5rem;
   background: rgba(0, 0, 0, ${(props) => (props.isLoading ? "0.05" : "0.05")});
   box-sizing: border-box;
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+      opacity: 0.5;
+      cursor: not-allowed;
+    `}
 `;
 
 const Option = styled.div`
@@ -21,25 +28,25 @@ const Option = styled.div`
   justify-content: center;
   height: 2.25rem;
   border-radius: 2rem;
-  cursor: ${(props) => (props.isSelected ? "default" : "pointer")};
+  cursor: ${(props) =>
+    props.disabled ? "not-allowed" : props.isSelected ? "default" : "pointer"};
   transition: all 0.2s;
   user-select: none;
 
-  &:active {
-    background: rgba(0, 0, 0, ${(props) => (props.isSelected ? "1" : "0.075")});
-    transform: scale(${(props) => (props.isSelected ? "1" : "0.9")});
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      background: rgba(
-        0,
-        0,
-        0,
-        ${(props) => (props.isSelected ? "1" : "0.075")}
-      );
+  ${(props) =>
+    !props.disabled &&
+    `
+    &:active {
+      background: rgba(0, 0, 0, ${props.isSelected ? "1" : "0.075"});
+      transform: scale(${props.isSelected ? "1" : "0.9"});
     }
-  }
+
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(0, 0, 0, ${props.isSelected ? "1" : "0.075"});
+      }
+    }
+  `}
 `;
 
 const OptionLabel = styled.div`
@@ -54,15 +61,19 @@ export const SegmentedController = ({
   isLoading = false
 }) => {
   return (
-    <SegmentedControllerContainer isLoading={isLoading}>
+    <SegmentedControllerContainer isLoading={isLoading} disabled={isLoading}>
       {options.map((label, index) => {
-        const isSelected = label.toUpperCase() === selectedOption.toUpperCase();
+        const isSelected =
+          label?.toUpperCase() === selectedOption?.toUpperCase();
         return (
           <Option
             key={`banner-message-${index}`}
             isSelected={isSelected}
+            disabled={isLoading}
             onClick={() => {
-              setSelectedOption(label.toUpperCase());
+              if (!isLoading) {
+                setSelectedOption(label?.toUpperCase());
+              }
             }}
           >
             <OptionLabel isSelected={isSelected}>{label}</OptionLabel>

@@ -133,6 +133,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           return;
         } else {
           setUser(userData);
+          console.log(userData);
           setPage(1);
 
           const promises = [
@@ -180,7 +181,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           }
         }
 
-        return { valid: true, id: userId, name: validateData.userName };
+        return validateData;
       }
     } catch (error) {
       console.error("Error validating user:", error);
