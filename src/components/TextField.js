@@ -13,8 +13,8 @@ const TextFieldContainer = styled.div`
 const Input = styled(TextareaAutosize)`
   background: rgba(0, 0, 0, 0.05);
   border: none;
-  border-radius: 1.25rem;
-  padding: 0.625rem 5rem 0.75rem 1rem;
+  border-radius: 2rem;
+  padding: 0.75rem 5rem 0.75rem 1rem;
   font-size: 1rem;
   height: 2.5rem;
   line-height: 1.25rem;

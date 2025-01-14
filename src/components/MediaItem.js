@@ -159,8 +159,8 @@ const AddReactionButtons = styled.div`
   box-sizing: border-box;
   flex-shrink: 0;
   padding: 0;
-  height: 2.625rem;
-  min-height: 2.625rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
 `;
 
 const AddReactionButton = styled.button`
@@ -177,8 +177,8 @@ const AddReactionButton = styled.button`
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: 2rem;
   font-size: 1.25rem;
-  height: 2.625rem;
-  min-height: 2.625rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
   line-height: 1.25rem;
   cursor: pointer;
   transition: all 0.2s;

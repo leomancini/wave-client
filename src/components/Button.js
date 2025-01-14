@@ -15,9 +15,9 @@ const StyledButton = styled.button`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
-  min-height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
-  max-height: ${(props) => (props.$size === "small" ? "3rem" : "4rem")};
+  height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
+  min-height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
+  max-height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
   display: flex;
   align-items: center;
   cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
