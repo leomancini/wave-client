@@ -47,6 +47,15 @@ const Input = styled(TextareaAutosize)`
       -moz-user-select: none !important;
       -ms-user-select: none !important;
       user-select: none !important;
+      background: rgba(0, 0, 0, 0.025);
+      
+      &:active, &:focus {
+        background: rgba(0, 0, 0, 0.025);
+      }
+
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.25);
+      }
     `}
 
   ${({ additionalStyles }) => additionalStyles || ""}
@@ -88,9 +97,12 @@ export const TextField = ({
   multiLine = false,
   handleChange,
   disabled = false,
-  additionalStyles = ""
+  additionalStyles = "",
+  clearValueOnSubmit = true
 }) => {
   const [value, setValue] = useState(initialValue);
+  const [previousValue, setPreviousValue] = useState(initialValue);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   return (
     <TextFieldContainer>
@@ -102,6 +114,7 @@ export const TextField = ({
         onSelect={(e) => e.preventDefault()}
         onChange={(e) => {
           setValue(e.target.value);
+          setIsSubmitted(false);
 
           if (handleChange) {
             handleChange(e.target.value);
@@ -113,7 +126,13 @@ export const TextField = ({
 
             if (buttonLabel) {
               onSubmit(value);
+              setIsSubmitted(true);
+            }
+
+            if (clearValueOnSubmit) {
               setValue("");
+            } else {
+              setPreviousValue(value);
             }
           }
         }}
@@ -121,16 +140,25 @@ export const TextField = ({
         additionalStyles={additionalStyles}
         readOnly={disabled}
       />
-      {value && buttonLabel && (
-        <Button
-          onClick={() => {
-            onSubmit(value);
-            setValue("");
-          }}
-        >
-          {buttonLabel}
-        </Button>
-      )}
+      {(previousValue || value) &&
+        buttonLabel &&
+        !isSubmitted &&
+        value !== previousValue && (
+          <Button
+            onClick={() => {
+              onSubmit(value);
+              setIsSubmitted(true);
+
+              if (clearValueOnSubmit) {
+                setValue("");
+              } else {
+                setPreviousValue(value);
+              }
+            }}
+          >
+            {buttonLabel}
+          </Button>
+        )}
     </TextFieldContainer>
   );
 };

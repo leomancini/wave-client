@@ -485,6 +485,7 @@ export const MoreMenu = ({
     isSwitchingNotificationPreference,
     setIsSwitchingNotificationPreference
   ] = useState(false);
+  const [isSubmitingPhoneNumber, setIsSubmitingPhoneNumber] = useState(false);
 
   const {
     isSubscribed,
@@ -697,6 +698,30 @@ export const MoreMenu = ({
     }
   };
 
+  const handlePhoneNumberSubmit = async (phoneNumber) => {
+    setIsSubmitingPhoneNumber(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/phone-number`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ phoneNumber })
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update reactions");
+      }
+    } catch (error) {
+      console.error("Error updating phone number:", error);
+      setIsSubmitingPhoneNumber(false);
+    } finally {
+      setIsSubmitingPhoneNumber(false);
+    }
+  };
+
   return (
     <Container visible={visible} isResizing={isResizing} isPWA={isPWA}>
       <Header>
@@ -789,9 +814,10 @@ export const MoreMenu = ({
           <Section>
             <SectionHeader>
               <SectionLabel>Notifications</SectionLabel>
-              {(isCheckingSubscription ||
+              {(isSwitchingNotificationPreference ||
+                isCheckingSubscription ||
                 isSubscriptionLoading ||
-                isSwitchingNotificationPreference) && <Spinner size="small" />}
+                isSubmitingPhoneNumber) && <Spinner size="small" />}
             </SectionHeader>
             <SegmentedController
               options={["Off", "Push", "SMS"]}
@@ -914,6 +940,10 @@ export const MoreMenu = ({
                       placeholder="Add your phone number..."
                       buttonLabel="↑"
                       multiLine={false}
+                      onSubmit={handlePhoneNumberSubmit}
+                      initialValue={user.phoneNumber}
+                      clearValueOnSubmit={false}
+                      disabled={isSubmitingPhoneNumber}
                     />
                   </Section>
                 )}
