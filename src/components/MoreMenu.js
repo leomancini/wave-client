@@ -432,30 +432,14 @@ const requestPushSubscription = async (
       applicationServerKey: convertedVapidKey
     });
 
-    alert(subscription);
+    alert(JSON.stringify(subscription, null, 2));
 
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subscription: {
-            endpoint: subscription.endpoint,
-            keys: {
-              p256dh: btoa(
-                String.fromCharCode(
-                  ...new Uint8Array(subscription.getKey("p256dh"))
-                )
-              ),
-              auth: btoa(
-                String.fromCharCode(
-                  ...new Uint8Array(subscription.getKey("auth"))
-                )
-              )
-            }
-          }
-        })
+        body: JSON.stringify(subscription)
       }
     );
 
