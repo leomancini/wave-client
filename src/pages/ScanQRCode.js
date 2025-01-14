@@ -86,7 +86,7 @@ const ErrorMessage = styled.div`
   transition: opacity 0.2s ease-in-out;
 
   ${(props) =>
-    props.$visible &&
+    props.visible &&
     `
       opacity: 1;
     `}
@@ -179,7 +179,7 @@ export const ScanQRCode = () => {
   };
 
   return (
-    <Page $fullHeight>
+    <Page fullHeight>
       <ScannerContainer>
         {hasPermission === null ? (
           <EmptyCard>
@@ -204,7 +204,7 @@ export const ScanQRCode = () => {
             ) : (
               <VideoContainer id="qr-reader" />
             )}
-            <ErrorMessage $visible={data && !isValidUrl(data)}>
+            <ErrorMessage visible={data && !isValidUrl(data)}>
               <p>Sorry, that's not a valid Wave QR code.</p>
             </ErrorMessage>
           </Container>

@@ -2,6 +2,8 @@ import React, { useEffect, useState, createContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import styled from "styled-components";
 import { ConfigProvider } from "./contexts/ConfigContext";
+import { StyleSheetManager } from "styled-components";
+import isPropValid from "@emotion/is-prop-valid";
 
 import { useDetectDeviceType } from "./utilities/detectDeviceType";
 
@@ -44,13 +46,13 @@ const StatusBarShadow = styled.div`
   height: 0.5rem;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, ${(props) => Math.min(props.$intensity * 0.1, 0.1)}) 0%,
-    rgba(0, 0, 0, ${(props) => Math.min(props.$intensity * 0.05, 0.05)}) 50%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.1, 0.1)}) 0%,
+    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.05, 0.05)}) 50%,
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
   z-index: 99999;
-  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  opacity: ${(props) => (props.visible ? 1 : 0)};
   transition: opacity 0.2s ease-in-out;
 `;
 
@@ -82,6 +84,18 @@ const Pages = {
     component: ScanQRCode
   }
 };
+
+const customProps = new Set([
+  "visible",
+  "isResizing",
+  "isPWA",
+  "prominence",
+  "size",
+  "stretch"
+  // Add other custom props your app uses
+]);
+
+const shouldForwardProp = (prop) => isPropValid(prop) && !customProps.has(prop);
 
 function App() {
   const [title, setTitle] = useState("WAVE");
@@ -258,43 +272,45 @@ function App() {
   };
 
   return (
-    <ConfigProvider>
-      <AppContext.Provider value={{ isPWA }}>
-        <NotificationContext.Provider
-          value={{
-            isSubscribed,
-            setIsSubscribed,
-            isCheckingSubscription,
-            pushPermission,
-            setPushPermission,
-            isSubscriptionLoading,
-            setIsSubscriptionLoading,
-            requestNotificationPermission
-          }}
-        >
-          <BrowserRouter basename="/">
-            {deviceType === "mobile" ? (
-              <>
-                <StatusBarBackground />
-                <StatusBarShadow
-                  $visible={!isAtTop}
-                  $intensity={scrollIntensity}
-                />
-              </>
-            ) : null}
-            <Container>
-              {page === Pages.Home.id && <Home />}
-              {page === Pages.CreateGroup.id && <CreateGroup />}
-              {page === Pages.ViewGroup.id && (
-                <ViewGroup groupId={groupId} userId={userId} />
-              )}
-              {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
-              {page === Pages.ScanQRCode.id && <ScanQRCode />}
-            </Container>
-          </BrowserRouter>
-        </NotificationContext.Provider>
-      </AppContext.Provider>
-    </ConfigProvider>
+    <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+      <ConfigProvider>
+        <AppContext.Provider value={{ isPWA }}>
+          <NotificationContext.Provider
+            value={{
+              isSubscribed,
+              setIsSubscribed,
+              isCheckingSubscription,
+              pushPermission,
+              setPushPermission,
+              isSubscriptionLoading,
+              setIsSubscriptionLoading,
+              requestNotificationPermission
+            }}
+          >
+            <BrowserRouter basename="/">
+              {deviceType === "mobile" ? (
+                <>
+                  <StatusBarBackground />
+                  <StatusBarShadow
+                    visible={!isAtTop}
+                    intensity={scrollIntensity}
+                  />
+                </>
+              ) : null}
+              <Container>
+                {page === Pages.Home.id && <Home />}
+                {page === Pages.CreateGroup.id && <CreateGroup />}
+                {page === Pages.ViewGroup.id && (
+                  <ViewGroup groupId={groupId} userId={userId} />
+                )}
+                {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+                {page === Pages.ScanQRCode.id && <ScanQRCode />}
+              </Container>
+            </BrowserRouter>
+          </NotificationContext.Provider>
+        </AppContext.Provider>
+      </ConfigProvider>
+    </StyleSheetManager>
   );
 }
 

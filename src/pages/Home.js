@@ -48,10 +48,6 @@ const GroupListItem = styled.div`
   transform-origin: center center;
   will-change: transform;
   user-select: none;
-
-  &:active {
-    transform: ${(props) => (props.$isLoading ? "none" : "scale(0.95)")};
-  }
 `;
 
 const GroupName = styled.div`

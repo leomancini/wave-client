@@ -28,18 +28,18 @@ const Input = styled(TextareaAutosize)`
   &:active,
   &:focus {
     background: ${(props) =>
-      props.$disabled ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.075)"};
+      props.disabled ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.075)"};
     outline: none;
   }
 
   &::selection {
     background: ${(props) =>
-      props.$disabled ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 1)"};
-    color: ${(props) => (props.$disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
+      props.disabled ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 1)"};
+    color: ${(props) => (props.disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
   }
 
-  ${({ $disabled }) =>
-    $disabled &&
+  ${({ disabled }) =>
+    disabled &&
     `
       color: rgba(0, 0, 0, 0.25);
       cursor: not-allowed;
@@ -49,7 +49,7 @@ const Input = styled(TextareaAutosize)`
       user-select: none !important;
     `}
 
-  ${({ $additionalStyles }) => $additionalStyles || ""}
+  ${({ additionalStyles }) => additionalStyles || ""}
 `;
 
 const Button = styled.button`
@@ -118,7 +118,7 @@ export const TextField = ({
           }
         }}
         disabled={disabled}
-        $additionalStyles={additionalStyles}
+        additionalStyles={additionalStyles}
         readOnly={disabled}
       />
       {value && buttonLabel && (

@@ -33,7 +33,7 @@ const Container = styled.div`
   position: fixed;
   top: 0;
   padding-bottom: ${(props) =>
-    props.$isPWA ? "0" : "env(safe-area-inset-bottom)"};
+    props.isPWA ? "0" : "env(safe-area-inset-bottom)"};
   padding-top: env(safe-area-inset-top);
   width: 100%;
   max-width: 32rem;
@@ -57,7 +57,7 @@ const Container = styled.div`
 
   transform: translate3d(calc(-100% - 2rem), 0, 0);
   transition: ${(props) =>
-    props.$isResizing ? "none" : "transform 0.4s ease-in-out"};
+    props.isResizing ? "none" : "transform 0.4s ease-in-out"};
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   opacity: 1;
   visibility: visible;
@@ -67,7 +67,7 @@ const Container = styled.div`
     visibility: hidden;
     transform: translate3d(-4rem, 0, 0);
     transition: ${(props) =>
-      props.$isResizing
+      props.isResizing
         ? "none"
         : "transform 0.4s ease-in-out, opacity 0.3s ease-out, visibility 0s linear 0.4s"};
     box-shadow: unset;
@@ -79,18 +79,18 @@ const Container = styled.div`
   }
 
   ${(props) =>
-    props.$visible &&
+    props.visible &&
     `
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-    transition: ${props.$isResizing ? "none" : "transform 0.4s ease-in-out"};
+    transition: ${props.isResizing ? "none" : "transform 0.4s ease-in-out"};
 
     @media (min-width: 32rem) {
       transform: translate3d(0, 0, 0);
       opacity: 1;
       visibility: visible;
       transition: ${
-        props.$isResizing
+        props.isResizing
           ? "none"
           : "transform 0.4s ease-in-out, opacity 0.3s ease-out, visibility 0s linear"
       };
@@ -116,7 +116,7 @@ const Header = styled.div`
 const HeaderContent = styled.div`
   display: flex;
   align-items: center;
-  justify-content: ${(props) => props.$justifyContent};
+  justify-content: ${(props) => props.justifyContent};
   width: 100%;
 `;
 
@@ -476,7 +476,7 @@ const requestPushSubscription = async (
 };
 
 export const MoreMenu = ({
-  $visible,
+  visible,
   setIsMoreMenuVisible,
   groupId,
   users,
@@ -518,7 +518,7 @@ export const MoreMenu = ({
   }, [config]);
 
   useEffect(() => {
-    if (!$visible && contentRef.current) {
+    if (!visible && contentRef.current) {
       const timeoutId = setTimeout(() => {
         if (contentRef.current) {
           contentRef.current.scrollTop = 0;
@@ -526,15 +526,15 @@ export const MoreMenu = ({
       }, 200);
       return () => clearTimeout(timeoutId);
     }
-  }, [$visible]);
+  }, [visible]);
 
   useEffect(() => {
-    if ($visible) {
+    if (visible) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-  }, [$visible]);
+  }, [visible]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -659,10 +659,10 @@ export const MoreMenu = ({
   };
 
   return (
-    <Container $visible={$visible} $isResizing={isResizing} $isPWA={isPWA}>
+    <Container visible={visible} isResizing={isResizing} isPWA={isPWA}>
       <Header>
         <HeaderContent
-          $justifyContent={
+          justifyContent={
             showSwitchDeviceInstructions ? "flex-start" : "space-between"
           }
         >
@@ -671,7 +671,7 @@ export const MoreMenu = ({
               type="icon-small"
               size="large"
               stretch="fit"
-              $prominence="tertiary"
+              prominence="tertiary"
               icon={faArrowLeft}
               onClick={() => setShowSwitchDeviceInstructions(false)}
               style={{ marginLeft: "-1.25rem" }}
@@ -687,7 +687,7 @@ export const MoreMenu = ({
               type="icon-small"
               size="large"
               stretch="fit"
-              $prominence="tertiary"
+              prominence="tertiary"
               icon={faXmark}
               onClick={() => setIsMoreMenuVisible(false)}
               style={{ marginRight: "-1.25rem" }}
@@ -764,7 +764,7 @@ export const MoreMenu = ({
                       type="text"
                       size="small"
                       stretch="fill"
-                      $isLoading={
+                      isLoading={
                         isCheckingSubscription || isSubscriptionLoading
                       }
                       label={
@@ -775,7 +775,6 @@ export const MoreMenu = ({
                           : "Enable push notifications"
                       }
                       onClick={initalizePushNotifications}
-                      disabled={isCheckingSubscription}
                     />
                     {isSubscribed && (
                       <Button
@@ -791,7 +790,7 @@ export const MoreMenu = ({
                   <Button
                     type="text"
                     size="small"
-                    $prominence="secondary"
+                    prominence="secondary"
                     stretch="fill"
                     label="Add to home screen"
                     onClick={sendTestNotification}
@@ -962,7 +961,7 @@ export const MoreMenu = ({
                 <Button
                   type="text"
                   size="small"
-                  $prominence="primary"
+                  prominence="primary"
                   stretch="fill"
                   label={`Invite someone`}
                   onClick={showInvitationShareSheet}
@@ -978,7 +977,7 @@ export const MoreMenu = ({
                   type="text"
                   size="small"
                   stretch="fill"
-                  $prominence="secondary"
+                  prominence="secondary"
                   label={`Login on a ${
                     deviceType === "mobile" ? "computer" : "phone"
                   }`}

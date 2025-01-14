@@ -31,14 +31,14 @@ const ImageContainer = styled.div`
   height: 100%;
   transition: opacity 0.5s;
 
-  ${({ $isUploadedThisPageLoad }) =>
-    $isUploadedThisPageLoad &&
+  ${({ isUploadedThisPageLoad }) =>
+    isUploadedThisPageLoad &&
     `
       opacity: 0.5;
     `}
 
-  ${({ $isDoneUploading }) =>
-    $isDoneUploading &&
+  ${({ isDoneUploading }) =>
+    isDoneUploading &&
     `
       opacity: 1;
     `}
@@ -50,13 +50,13 @@ const Image = styled.img`
   top: 0;
   left: 0;
   z-index: 1;
-  opacity: ${(props) => (props.$isUploadedThisPageLoad ? 1 : 0)};
+  opacity: ${(props) => (props.isUploadedThisPageLoad ? 1 : 0)};
   transition: opacity 0.5s, filter 0.5s;
   filter: blur(8px);
 
-  ${({ $isUploadedThisPageLoad, $isDoneUploading }) =>
-    $isUploadedThisPageLoad
-      ? $isDoneUploading &&
+  ${({ isUploadedThisPageLoad, isDoneUploading }) =>
+    isUploadedThisPageLoad
+      ? isDoneUploading &&
         `
       filter: blur(0px);
     `
@@ -114,8 +114,8 @@ const Time = styled.p`
   color: rgba(0, 0, 0, 0.5);
   transition: color 1s;
 
-  ${({ $isUnread }) =>
-    $isUnread &&
+  ${({ isUnread }) =>
+    isUnread &&
     `
       color: rgba(0, 122, 255, 1);
     `}
@@ -131,8 +131,8 @@ const UnreadIndicator = styled.div`
   opacity: 0;
   transition: opacity 1s;
 
-  ${({ $visible }) =>
-    $visible &&
+  ${({ visible }) =>
+    visible &&
     `
       opacity: 1;
     `}
@@ -238,8 +238,8 @@ const Reactions = styled.div`
   min-height: 1.25rem;
   padding: 0 0.5rem;
 
-  ${({ $isEmpty }) =>
-    $isEmpty &&
+  ${({ isEmpty }) =>
+    isEmpty &&
     `
       display: none;
     `}
@@ -562,14 +562,14 @@ export const MediaItem = forwardRef(
           }}
         >
           <ImageContainer
-            $isUploadedThisPageLoad={isUploadedThisPageLoad}
-            $isDoneUploading={isDoneUploading}
+            isUploadedThisPageLoad={isUploadedThisPageLoad}
+            isDoneUploading={isDoneUploading}
           >
             <Image
               src={imageUrl}
               alt={item.metadata.itemId}
-              $isUploadedThisPageLoad={isUploadedThisPageLoad}
-              $isDoneUploading={isDoneUploading}
+              isUploadedThisPageLoad={isUploadedThisPageLoad}
+              isDoneUploading={isDoneUploading}
               onLoad={handleImageLoad}
             />
             {!isUploadedThisPageLoad && (
@@ -592,8 +592,8 @@ export const MediaItem = forwardRef(
             {isUploadedThisPageLoad === undefined ||
             (isUploadedThisPageLoad && isDoneUploading) ? (
               <>
-                <UnreadIndicator $visible={isUnread} />
-                <Time $isUnread={isUnread}>
+                <UnreadIndicator visible={isUnread} />
+                <Time isUnread={isUnread}>
                   {formatDateTime(item.metadata.uploadDate)}
                 </Time>
               </>
@@ -604,7 +604,7 @@ export const MediaItem = forwardRef(
           </TimeAndUnreadIndicator>
         </Details>
         <ReactionsContainer>
-          <Reactions $isEmpty={Object.keys(reactions).length === 0}>
+          <Reactions isEmpty={Object.keys(reactions).length === 0}>
             {Object.entries(
               reactions.reduce((acc, reaction) => {
                 if (!acc[reaction.reaction]) {

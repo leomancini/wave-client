@@ -8,7 +8,7 @@ export const Page = styled.div`
   max-width: 32rem;
 
   ${(props) =>
-    props.$fullHeight &&
+    props.fullHeight &&
     ` 
       height: calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       justify-content: center;

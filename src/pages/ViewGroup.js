@@ -29,8 +29,8 @@ const PageContainer = styled.div`
   width: 100%;
   top: 0;
   gap: 2rem;
-  pointer-events: ${(props) => (props.$moreMenuVisible ? "none" : "auto")};
-  position: ${(props) => (props.$moreMenuVisible ? "fixed" : "initial")};
+  pointer-events: ${(props) => (props.moreMenuVisible ? "none" : "auto")};
+  position: ${(props) => (props.moreMenuVisible ? "fixed" : "initial")};
   z-index: 1;
 `;
 
@@ -48,9 +48,9 @@ const PageContainerInteractionBlocker = styled.div`
   right: 0;
   bottom: 0;
   background: transparent;
-  pointer-events: ${(props) => (props.$visible ? "all" : "none")};
+  pointer-events: ${(props) => (props.visible ? "all" : "none")};
   z-index: 2;
-  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  opacity: ${(props) => (props.visible ? 1 : 0)};
 `;
 
 export const ViewGroup = ({ groupId, userId }) => {
@@ -487,7 +487,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   if (isInitialLoad && isLoading) {
     return (
-      <Page $fullHeight>
+      <Page fullHeight>
         <Spinner size="x-large" />
       </Page>
     );
@@ -495,7 +495,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   if (!user.valid) {
     return (
-      <Page $fullHeight>
+      <Page fullHeight>
         <EmptyCard>
           <p>Sorry, something went wrong.</p>
         </EmptyCard>
@@ -506,7 +506,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   return (
     <Page>
       <MoreMenu
-        $visible={isMoreMenuVisible}
+        visible={isMoreMenuVisible}
         groupId={groupId}
         users={users}
         user={user}
@@ -515,14 +515,14 @@ export const ViewGroup = ({ groupId, userId }) => {
         setIsMoreMenuVisible={handleMenuToggle}
         style={{ zIndex: 3 }}
       />
-      <PageContainerInteractionBlocker $visible={isMoreMenuVisible} />
+      <PageContainerInteractionBlocker visible={isMoreMenuVisible} />
       <PageContainer>
         <ButtonContainer>
           <Button
             type="icon-small"
             size="large"
             stretch="fit"
-            $prominence="secondary"
+            prominence="secondary"
             icon={faBars}
             onClick={handleMenuToggle}
           />

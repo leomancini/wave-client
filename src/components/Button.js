@@ -15,13 +15,13 @@ const StyledButton = styled.button`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
-  min-height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
-  max-height: ${(props) => (props.$size === "small" ? "2.75rem" : "4rem")};
+  height: ${(props) => (props.size === "small" ? "2.75rem" : "4rem")};
+  min-height: ${(props) => (props.size === "small" ? "2.75rem" : "4rem")};
+  max-height: ${(props) => (props.size === "small" ? "2.75rem" : "4rem")};
   display: flex;
   align-items: center;
-  cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
-  pointer-events: ${(props) => (props.$disabled ? "none" : "auto")};
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
   outline: none;
   box-sizing: border-box;
   transition: all 0.2s;
@@ -37,10 +37,10 @@ const StyledButton = styled.button`
   user-select: none;
 
   &:active {
-    transform: ${(props) => (props.$disabled ? "none" : "scale(0.9)")};
-    background: rgba(0, 0, 0, ${(props) => (props.$disabled ? 0.5 : 0.75)});
+    transform: ${(props) => (props.disabled ? "none" : "scale(0.9)")};
+    background: rgba(0, 0, 0, ${(props) => (props.disabled ? 0.5 : 0.75)});
     color: ${(props) => {
-      switch (props.$prominence) {
+      switch (props.prominence) {
         case "primary":
           return "rgba(255, 255, 255, 1)";
         case "secondary":
@@ -53,31 +53,31 @@ const StyledButton = styled.button`
     }};
   }
 
-  width: ${(props) => (props.$stretch === "fit" ? "auto" : "100%")};
+  width: ${(props) => (props.stretch === "fit" ? "auto" : "100%")};
   min-width: ${(props) =>
-    props.$stretch === "fit"
-      ? props.$size === "small"
+    props.stretch === "fit"
+      ? props.size === "small"
         ? "3rem"
         : "4rem"
       : "auto"};
   padding: ${(props) =>
-    props.$stretch === "fit"
-      ? props.$type === "icon" || props.$type === "icon-small"
+    props.stretch === "fit"
+      ? props.type === "icon" || props.type === "icon-small"
         ? "0"
         : "0 2rem"
       : "0"};
 
   span {
     ${(props) => {
-      switch (props.$type) {
+      switch (props.type) {
         case "text":
           return `
-            font-size: ${props.$size === "large" ? "1.25rem" : "1rem"};
+            font-size: ${props.size === "large" ? "1.25rem" : "1rem"};
             font-weight: bold;
           `;
         case "icon":
           return `
-            font-size: ${props.$size === "large" ? "1.5rem" : "1.25rem"};
+            font-size: ${props.size === "large" ? "1.5rem" : "1.25rem"};
           `;
         case "icon-small":
           return `
@@ -85,7 +85,7 @@ const StyledButton = styled.button`
           `;
         default:
           return `
-            font-size: ${props.$size === "large" ? "1.25rem" : "1rem"};
+            font-size: ${props.size === "large" ? "1.25rem" : "1rem"};
             font-weight: bold;
           `;
       }
@@ -95,19 +95,19 @@ const StyledButton = styled.button`
   ${(props) => {
     const background = {
       primary: {
-        default: `rgba(0, 0, 0, ${props.$disabled ? 0.5 : 1})`,
-        hover: `rgba(0, 0, 0, ${props.$disabled ? 0.25 : 1})`,
-        active: `rgba(0, 0, 0, ${props.$disabled ? 0.25 : 0.75})`
+        default: `rgba(0, 0, 0, ${props.disabled ? 0.5 : 1})`,
+        hover: `rgba(0, 0, 0, ${props.disabled ? 0.25 : 1})`,
+        active: `rgba(0, 0, 0, ${props.disabled ? 0.25 : 0.75})`
       },
       secondary: {
-        default: `rgba(0, 0, 0, ${props.$disabled ? 1 : 0.05})`,
-        hover: `rgba(0, 0, 0, ${props.$disabled ? 0.025 : 0.1})`,
-        active: `rgba(0, 0, 0, ${props.$disabled ? 0.025 : 0.15})`
+        default: `rgba(0, 0, 0, ${props.disabled ? 1 : 0.05})`,
+        hover: `rgba(0, 0, 0, ${props.disabled ? 0.025 : 0.1})`,
+        active: `rgba(0, 0, 0, ${props.disabled ? 0.025 : 0.15})`
       },
       destructive: {
-        default: `rgba(255, 0, 0, ${props.$disabled ? 0.5 : 1})`,
-        hover: `rgba(225, 0, 0, ${props.$disabled ? 0.5 : 1})`,
-        active: `rgba(200, 0, 0, ${props.$disabled ? 0.5 : 1})`
+        default: `rgba(255, 0, 0, ${props.disabled ? 0.5 : 1})`,
+        hover: `rgba(225, 0, 0, ${props.disabled ? 0.5 : 1})`,
+        active: `rgba(200, 0, 0, ${props.disabled ? 0.5 : 1})`
       },
       tertiary: {
         default: "rgba(0, 0, 0, 0)",
@@ -116,7 +116,7 @@ const StyledButton = styled.button`
       }
     };
 
-    const prominence = props.$prominence || "primary";
+    const prominence = props.prominence || "primary";
 
     return `
       background: ${background[prominence].default};
@@ -155,15 +155,14 @@ const StyledButton = styled.button`
   input[type="file"] {
     position: absolute;
     opacity: 0;
-    cursor: ${(props) => (props.$disabled ? "default" : "pointer")};
+    cursor: ${(props) => (props.disabled ? "default" : "pointer")};
     width: 100%;
     height: 100%;
   }
 
-  ${({ $disabled }) =>
-    $disabled &&
+  ${({ disabled }) =>
+    disabled &&
     `
-      background: red;
       opacity: 0.5;
 
     `}
@@ -182,9 +181,9 @@ export const Button = ({
   ...props
 }) => {
   const getContent = () => {
-    if (props.$isLoading) {
+    if (isLoading) {
       return (
-        <Spinner $theme="light" size={size === "large" ? "large" : "medium"} />
+        <Spinner theme="light" size={size === "large" ? "large" : "medium"} />
       );
     }
 
@@ -202,13 +201,13 @@ export const Button = ({
 
   return (
     <StyledButton
-      $type={type}
-      $size={size}
-      $stretch={stretch}
-      $prominence={prominence}
-      $label={label}
-      $icon={icon}
-      $disabled={disabled || isLoading}
+      type={type}
+      size={size}
+      stretch={stretch}
+      prominence={prominence}
+      label={label}
+      icon={icon}
+      disabled={disabled || isLoading}
       {...props}
     >
       {getContent()}

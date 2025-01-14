@@ -59,12 +59,12 @@ const Messages = styled.div`
   margin-bottom: 0.5rem;
 
   ${(props) =>
-    props.$alignment === "center"
+    props.alignment === "center"
       ? `
         justify-content: center;
         align-items: center;
       `
-      : props.$alignment === "left"
+      : props.alignment === "left"
       ? `
         justify-content: flex-start;
         align-items: flex-start;
@@ -90,7 +90,7 @@ export const Banner = ({
       <Label>
         <strong>{label}</strong> {date}
       </Label>
-      <Messages $alignment={messagesAlignment}>
+      <Messages alignment={messagesAlignment}>
         {messages.map((message, index) => (
           <p
             key={`banner-message-${index}`}

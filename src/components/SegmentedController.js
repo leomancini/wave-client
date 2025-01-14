@@ -9,30 +9,25 @@ const SegmentedControllerContainer = styled.div`
   border-radius: 2rem;
   padding: 0.25rem;
   gap: 0.5rem;
-  background: rgba(0, 0, 0, ${(props) => (props.$isLoading ? "0.05" : "0.05")});
+  background: rgba(0, 0, 0, ${(props) => (props.isLoading ? "0.05" : "0.05")});
   box-sizing: border-box;
 `;
 
 const Option = styled.div`
   flex: 1;
-  background: rgba(0, 0, 0, ${(props) => (props.$isSelected ? "1" : "0")});
+  background: rgba(0, 0, 0, ${(props) => (props.isSelected ? "1" : "0")});
   display: flex;
   align-items: center;
   justify-content: center;
   height: 2.25rem;
   border-radius: 2rem;
-  cursor: ${(props) => (props.$isSelected ? "default" : "pointer")};
+  cursor: ${(props) => (props.isSelected ? "default" : "pointer")};
   transition: all 0.2s;
   user-select: none;
 
   &:active {
-    background: rgba(
-      0,
-      0,
-      0,
-      ${(props) => (props.$isSelected ? "1" : "0.075")}
-    );
-    transform: scale(${(props) => (props.$isSelected ? "1" : "0.9")});
+    background: rgba(0, 0, 0, ${(props) => (props.isSelected ? "1" : "0.075")});
+    transform: scale(${(props) => (props.isSelected ? "1" : "0.9")});
   }
 
   @media (hover: hover) {
@@ -41,7 +36,7 @@ const Option = styled.div`
         0,
         0,
         0,
-        ${(props) => (props.$isSelected ? "1" : "0.075")}
+        ${(props) => (props.isSelected ? "1" : "0.075")}
       );
     }
   }
@@ -49,7 +44,7 @@ const Option = styled.div`
 
 const OptionLabel = styled.div`
   font-weight: bold;
-  color: ${(props) => (props.$isSelected ? "#fff" : "rgba(0, 0, 0, 0.75)")};
+  color: ${(props) => (props.isSelected ? "#fff" : "rgba(0, 0, 0, 0.75)")};
 `;
 
 export const SegmentedController = ({
@@ -59,18 +54,18 @@ export const SegmentedController = ({
   isLoading = false
 }) => {
   return (
-    <SegmentedControllerContainer $isLoading={isLoading}>
+    <SegmentedControllerContainer isLoading={isLoading}>
       {options.map((label, index) => {
         const isSelected = label.toUpperCase() === selectedOption.toUpperCase();
         return (
           <Option
             key={`banner-message-${index}`}
-            $isSelected={isSelected}
+            isSelected={isSelected}
             onClick={() => {
               setSelectedOption(label.toUpperCase());
             }}
           >
-            <OptionLabel $isSelected={isSelected}>{label}</OptionLabel>
+            <OptionLabel isSelected={isSelected}>{label}</OptionLabel>
           </Option>
         );
       })}

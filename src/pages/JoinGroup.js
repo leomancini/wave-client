@@ -93,7 +93,7 @@ export const JoinGroup = ({ groupId }) => {
             e.preventDefault();
             handleSubmit();
           }}
-          $isLoading={isSubmitting}
+          isLoading={isSubmitting}
           size="small"
           type="text"
           label="Join"

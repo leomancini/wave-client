@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const Spinner = styled.div`
-  ${({ $size }) => {
-    switch ($size) {
+  ${({ size }) => {
+    switch (size) {
       case "x-large":
         return `
           width: 3rem;
@@ -41,10 +41,10 @@ export const Spinner = styled.div`
   vertical-align: middle;
   border-style: solid;
   margin: 0;
-  border-color: ${({ $theme }) =>
-    $theme === "light" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"};
-  border-top-color: ${({ $theme }) =>
-    $theme === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"};
+  border-color: ${({ theme }) =>
+    theme === "light" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"};
+  border-top-color: ${({ theme }) =>
+    theme === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"};
 
   border-radius: 50%;
   animation: spin 0.5s ease-in infinite;
