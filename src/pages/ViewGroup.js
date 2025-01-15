@@ -291,9 +291,13 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     optimisticallyUploadedMediaItems.forEach((tempMediaItem) => {
       const file = tempMediaItem.file;
-      const media = new File([file], `${groupId}-${userId}-${file.name}`, {
-        type: file.type
-      });
+      const media = new File(
+        [file],
+        `${groupId}-${tempMediaItem.metadata.itemId}`,
+        {
+          type: file.type
+        }
+      );
       formData.append("media", media);
       formData.append("itemId", tempMediaItem.metadata.itemId);
     });
