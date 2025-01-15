@@ -36,28 +36,19 @@ const ImageContainer = styled.div`
   filter: blur(8px);
   transform: scale(1.125);
   transform-origin: center;
-
-  ${({ isUploadedThisPageLoad, isDoneUploading }) => {
-    return (
-      isUploadedThisPageLoad &&
-      isDoneUploading &&
-      `
-        opacity: 0.5;
-    `
-    );
-  }}
+  opacity: ${(isUploadedThisPageLoad) => (isUploadedThisPageLoad ? 0.5 : 1)};
 
   ${({ isUploadedThisPageLoad, isDoneUploading, isImageLoaded }) => {
     const isVisible = isUploadedThisPageLoad ? isDoneUploading : isImageLoaded;
     return (
       isVisible &&
       `
-      opacity: 1;
-      transform: scale(1);
-      filter: blur(0px);
-    `
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  `
     );
-  }}
+  }};
 `;
 
 const Image = styled.img`
@@ -69,15 +60,9 @@ const Image = styled.img`
 `;
 
 const Thumbnail = styled.img`
-  width: 100%;
-  opacity: 0;
+  width: 100%
+  opacity: ${(isThumbnailLoaded) => (isThumbnailLoaded ? 1 : 0)};
   transition: opacity 0.2s;
-
-  ${({ isThumbnailLoaded }) =>
-    isThumbnailLoaded &&
-    `
-        opacity: 1;
-    `}
 `;
 
 const ImageSpinnerContainer = styled.div`
