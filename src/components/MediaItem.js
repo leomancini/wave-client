@@ -564,8 +564,6 @@ export const MediaItem = forwardRef(
             <Image
               src={imageUrl}
               alt={item.metadata.itemId}
-              isUploadedThisPageLoad={isUploadedThisPageLoad}
-              isDoneUploading={isDoneUploading}
               onLoad={() => setIsImageLoaded(true)}
             />
             {!isUploadedThisPageLoad && (
