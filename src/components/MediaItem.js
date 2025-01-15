@@ -54,17 +54,21 @@ const Image = styled.img`
   left: 0;
   z-index: 1;
   opacity: ${(props) => (props.isUploadedThisPageLoad ? 1 : 0)};
-  transition: opacity 0.5s, filter 0.5s;
+  transition: opacity 0.5s, filter 0.5s, transform 0.5s;
   filter: blur(8px);
+  transform: scale(1.125);
+  transform-origin: center;
 
   ${({ isUploadedThisPageLoad, isDoneUploading }) =>
     isUploadedThisPageLoad
       ? isDoneUploading &&
         `
       filter: blur(0px);
+      transform: scale(1);
     `
       : `
       &.loaded {
+        transform: scale(1);
         filter: blur(0px);
         opacity: 1;
       }
