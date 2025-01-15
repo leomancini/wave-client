@@ -64,7 +64,6 @@ const PageContainerInteractionBlocker = styled.div`
 
 export const ViewGroup = ({ groupId, userId }) => {
   const { setConfig } = useConfig();
-  const [, setSelectedFile] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [page, setPage] = useState(1);
@@ -242,20 +241,10 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     if (files.length === 0) return;
 
-    if (files.length === 1) {
-      setSelectedFile(files[0]);
-    }
-
     const uploadQueue = Array.from(files);
 
-    const uploadNextFile = async () => {
-      if (uploadQueue.length === 0) {
-        setIsUploading(false);
-        return;
-      }
-
-      const file = uploadQueue.shift();
-
+    // Create an array to hold promises for all uploads
+    const uploadPromises = uploadQueue.map(async (file) => {
       const dimensions = await new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
@@ -291,6 +280,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         reactions: []
       };
 
+      // Add the optimistically uploaded item to the mediaItems state
       setMediaItems((prev) => [optimisticallyUploadedMediaItem, ...prev]);
 
       const formData = new FormData();
@@ -322,6 +312,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           throw new Error(`Upload failed with status: ${response.status}`);
         }
 
+        // Update the mediaItems state to mark the item as done uploading
         setMediaItems((currentMediaItems) => {
           return currentMediaItems.map((item) => {
             if (
@@ -343,12 +334,12 @@ export const ViewGroup = ({ groupId, userId }) => {
           )
         );
         alert("Sorry, something went wrong.");
-      } finally {
-        uploadNextFile();
       }
-    };
+    });
 
-    uploadNextFile();
+    // Wait for all uploads to complete
+    await Promise.all(uploadPromises);
+    setIsUploading(false);
   };
 
   const lastMediaElementRef = useCallback(
