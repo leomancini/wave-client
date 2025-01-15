@@ -270,7 +270,7 @@ const ReactionSpinnerContainer = styled.div`
   justify-content: center;
   width: 1.25rem;
   height: 1.25rem;
-  margin-top: 0.375rem;
+  margin-top: 0.125rem;
 `;
 
 let lastClickTime = 0;
