@@ -36,7 +36,8 @@ const ImageContainer = styled.div`
   filter: blur(8px);
   transform: scale(1.125);
   transform-origin: center;
-  opacity: ${(isUploadedThisPageLoad) => (isUploadedThisPageLoad ? 0.5 : 1)};
+  opacity: ${({ isUploadedThisPageLoad }) =>
+    isUploadedThisPageLoad ? 0.5 : 1};
   backface-visibility: hidden;
   -webkit-font-smoothing: subpixel-antialiased;
   will-change: transform;
@@ -68,7 +69,7 @@ const Image = styled.img`
 
 const Thumbnail = styled.img`
   width: 100%
-  opacity: ${(isThumbnailLoaded) => (isThumbnailLoaded ? 1 : 0)};
+  opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
   transition: opacity 0.2s;
 `;
 
