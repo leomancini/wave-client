@@ -32,16 +32,27 @@ const ImageContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  transition: filter 0.5s, transform 0.5s;
+  transition: opacity 0.5s, filter 0.5s, transform 0.5s;
   filter: blur(8px);
   transform: scale(1.125);
   transform-origin: center;
+
+  ${({ isUploadedThisPageLoad, isDoneUploading }) => {
+    return (
+      isUploadedThisPageLoad &&
+      isDoneUploading &&
+      `
+        opacity: 0.5;
+    `
+    );
+  }}
 
   ${({ isUploadedThisPageLoad, isDoneUploading, isImageLoaded }) => {
     const isVisible = isUploadedThisPageLoad ? isDoneUploading : isImageLoaded;
     return (
       isVisible &&
       `
+      opacity: 1;
       transform: scale(1);
       filter: blur(0px);
     `
@@ -59,6 +70,14 @@ const Image = styled.img`
 
 const Thumbnail = styled.img`
   width: 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  ${({ isThumbnailLoaded }) =>
+    isThumbnailLoaded &&
+    `
+        opacity: 1;
+    `}
 `;
 
 const ImageSpinnerContainer = styled.div`
@@ -436,6 +455,7 @@ export const MediaItem = forwardRef(
     const { config } = useConfig();
     const [reactions, setReactions] = useState(item.reactions || []);
     const [touchStartY, setTouchStartY] = useState(null);
+    const [isThumbnailLoaded, setIsThumbnailLoaded] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [reactionEmojis, setReactionEmojis] = useState(config.reactions);
     const scrollThreshold = 10;
@@ -493,10 +513,6 @@ export const MediaItem = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
-    const handleImageLoad = (e) => {
-      setIsImageLoaded(true);
-    };
-
     return (
       <Container>
         <Media
@@ -550,13 +566,14 @@ export const MediaItem = forwardRef(
               alt={item.metadata.itemId}
               isUploadedThisPageLoad={isUploadedThisPageLoad}
               isDoneUploading={isDoneUploading}
-              onLoad={handleImageLoad}
+              onLoad={() => setIsImageLoaded(true)}
             />
             {!isUploadedThisPageLoad && (
               <Thumbnail
                 src={thumbnailUrl}
                 alt={item.metadata.itemId}
-                onLoad={(e) => e.target.classList.add("loaded")}
+                onLoad={() => setIsThumbnailLoaded(true)}
+                isThumbnailLoaded={isThumbnailLoaded}
               />
             )}
           </ImageContainer>
