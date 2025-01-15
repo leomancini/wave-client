@@ -1,13 +1,15 @@
-import styled from "styled-components";
 import { useState, useRef, useEffect, useContext, useCallback } from "react";
+import styled from "styled-components";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
-import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { NotificationContext, AppContext } from "../App";
 import { useConfig } from "../contexts/ConfigContext";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { useDetectDeviceType } from "../utilities/detectDeviceType";
+
+import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 import { Button } from "./Button";
 import { Separator } from "./Separator";
@@ -15,7 +17,6 @@ import { Spinner } from "./Spinner";
 import { TextField } from "./TextField";
 import { SegmentedController } from "./SegmentedController";
 import { InlineEmptyCard } from "./EmptyCard";
-import { NotificationContext, AppContext } from "../App";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);

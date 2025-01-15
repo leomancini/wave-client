@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { Button } from "./Button";
+
 const BannerContainer = styled.div`
   border-radius: 2rem;
   min-height: 4rem;
@@ -10,10 +12,21 @@ const BannerContainer = styled.div`
   align-items: center;
   flex-direction: column;
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
-    0px 2px 4px rgba(0, 122, 255, 0.25);
   gap: 0.75rem;
   margin-bottom: 0.5rem;
+
+  ${(props) =>
+    props.prominence === "announcement"
+      ? `
+        box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
+          0px 2px 4px rgba(0, 122, 255, 0.25);
+      `
+      : props.prominence === "standard"
+      ? `
+        box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2),
+          0px 2px 4px rgba(0, 0, 0, 0.1);
+      `
+      : ""}
 
   p,
   strong {
@@ -79,17 +92,21 @@ const Footer = styled.div`
 `;
 
 export const Banner = ({
+  prominence = "standard",
   label,
   date,
   messages,
   footer,
-  messagesAlignment
+  button,
+  messagesAlignment = "center"
 }) => {
   return (
-    <BannerContainer>
-      <Label>
-        <strong>{label}</strong> {date}
-      </Label>
+    <BannerContainer prominence={prominence}>
+      {label && (
+        <Label>
+          <strong>{label}</strong> {date}
+        </Label>
+      )}
       <Messages alignment={messagesAlignment}>
         {messages.map((message, index) => (
           <p
@@ -99,6 +116,8 @@ export const Banner = ({
         ))}
       </Messages>
       {footer && <Footer>{footer}</Footer>}
+      {/* TODO: Remove disabled when button actions are ready */}
+      {button && <Button disabled size="small" label={button}></Button>}
     </BannerContainer>
   );
 };

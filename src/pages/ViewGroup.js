@@ -1,9 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useContext
+} from "react";
 import styled from "styled-components";
-import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
+
+import { NotificationContext, AppContext } from "../App";
 import { useConfig } from "../contexts/ConfigContext";
+
+import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
@@ -11,6 +20,7 @@ import { MediaItem } from "../components/MediaItem";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { EmptyCard } from "../components/EmptyCard";
+import { Banner } from "../components/Banner";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -72,6 +82,10 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  const { isSubscribed, isSubscriptionLoading } =
+    useContext(NotificationContext);
+  const { isPWA } = useContext(AppContext);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -501,6 +515,12 @@ export const ViewGroup = ({ groupId, userId }) => {
     );
   }
 
+  const shouldShowPushNotificationBanner =
+    user.notificationPreference === "PUSH" &&
+    isPWA &&
+    !isSubscriptionLoading &&
+    !isSubscribed;
+
   return (
     <Page>
       <MoreMenu
@@ -541,6 +561,12 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        {shouldShowPushNotificationBanner && (
+          <Banner
+            messages={["Get notified about new activity!"]}
+            button="Enable push notifications"
+          />
+        )}
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
