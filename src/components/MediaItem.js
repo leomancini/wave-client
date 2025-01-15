@@ -32,19 +32,21 @@ const ImageContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  transition: opacity 0.5s;
+  transition: filter 0.5s, transform 0.5s;
+  filter: blur(8px);
+  transform: scale(1.125);
+  transform-origin: center;
 
-  ${({ isUploadedThisPageLoad }) =>
-    isUploadedThisPageLoad &&
+  ${({ isUploadedThisPageLoad, isDoneUploading, isImageLoaded }) => {
+    const isVisible = isUploadedThisPageLoad ? isDoneUploading : isImageLoaded;
+    return (
+      isVisible &&
+      `
+      transform: scale(1);
+      filter: blur(0px);
     `
-      opacity: 0.5;
-    `}
-
-  ${({ isDoneUploading }) =>
-    isDoneUploading &&
-    `
-      opacity: 1;
-    `}
+    );
+  }}
 `;
 
 const Image = styled.img`
@@ -53,39 +55,10 @@ const Image = styled.img`
   top: 0;
   left: 0;
   z-index: 1;
-  opacity: ${(props) => (props.isUploadedThisPageLoad ? 1 : 0)};
-  transition: opacity 0.5s, filter 0.5s, transform 0.5s;
-  filter: blur(8px);
-  transform: scale(1.125);
-  transform-origin: center;
-
-  ${({ isUploadedThisPageLoad, isDoneUploading }) =>
-    isUploadedThisPageLoad
-      ? isDoneUploading &&
-        `
-      filter: blur(0px);
-      transform: scale(1);
-    `
-      : `
-      &.loaded {
-        transform: scale(1);
-        filter: blur(0px);
-        opacity: 1;
-      }
-    `}
 `;
 
 const Thumbnail = styled.img`
   width: 100%;
-  filter: blur(8px);
-  transform: scale(1.125);
-  transform-origin: center;
-  opacity: 0;
-  transition: opacity 0.5s;
-
-  &.loaded {
-    opacity: 1;
-  }
 `;
 
 const ImageSpinnerContainer = styled.div`
@@ -522,7 +495,6 @@ export const MediaItem = forwardRef(
 
     const handleImageLoad = (e) => {
       setIsImageLoaded(true);
-      e.target.classList.add("loaded");
     };
 
     return (
@@ -571,6 +543,7 @@ export const MediaItem = forwardRef(
           <ImageContainer
             isUploadedThisPageLoad={isUploadedThisPageLoad}
             isDoneUploading={isDoneUploading}
+            isImageLoaded={isImageLoaded}
           >
             <Image
               src={imageUrl}
