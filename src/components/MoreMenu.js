@@ -698,6 +698,70 @@ export const MoreMenu = ({
     }
   };
 
+  const handleSwitchNotificationPreference = async (option) => {
+    const serverOption = option.toUpperCase();
+    if (serverOption === notificationPreference) {
+      return;
+    }
+    setIsSwitchingNotificationPreference(true);
+
+    try {
+      if (serverOption === "PUSH") {
+        if (isPWA) {
+          const permission = await requestNotificationPermission();
+          if (permission === "granted") {
+            await requestPushSubscription(
+              groupId,
+              user.id,
+              permission,
+              setIsSubscribed,
+              setIsSubscriptionLoading,
+              false
+            );
+          } else {
+            setIsSubscriptionLoading(false);
+          }
+        } else {
+          setIsSubscriptionLoading(false);
+        }
+      } else if (notificationPreference === "PUSH" && isSubscribed) {
+        await requestPushSubscription(
+          groupId,
+          user.id,
+          pushPermission,
+          setIsSubscribed,
+          setIsSubscriptionLoading,
+          true
+        );
+      }
+
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            notificationType: serverOption
+          })
+        }
+      );
+
+      setNotificationPreference(serverOption);
+
+      if (serverOption !== "PUSH" || !isPWA) {
+        setIsSubscriptionLoading(false);
+      }
+    } catch (error) {
+      console.error("Error updating notification preference:", error);
+
+      setIsSubscriptionLoading(false);
+    }
+
+    setIsSwitchingNotificationPreference(false);
+  };
+
   const handlePhoneNumberSubmit = async (phoneNumber) => {
     setIsSubmitingPhoneNumber(true);
     try {
@@ -822,71 +886,7 @@ export const MoreMenu = ({
             <SegmentedController
               options={["Off", "Push", "SMS"]}
               selectedOption={notificationPreference}
-              setSelectedOption={async (option) => {
-                setIsSwitchingNotificationPreference(true);
-                const serverOption = option.toUpperCase();
-                try {
-                  if (serverOption === "PUSH") {
-                    if (isPWA) {
-                      const permission = await requestNotificationPermission();
-                      if (permission === "granted") {
-                        await requestPushSubscription(
-                          groupId,
-                          user.id,
-                          permission,
-                          setIsSubscribed,
-                          setIsSubscriptionLoading,
-                          false
-                        );
-                      } else {
-                        setIsSubscriptionLoading(false);
-                      }
-                    } else {
-                      setIsSubscriptionLoading(false);
-                    }
-                  } else if (
-                    notificationPreference === "PUSH" &&
-                    isSubscribed
-                  ) {
-                    await requestPushSubscription(
-                      groupId,
-                      user.id,
-                      pushPermission,
-                      setIsSubscribed,
-                      setIsSubscriptionLoading,
-                      true
-                    );
-                  }
-
-                  await fetch(
-                    `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json"
-                      },
-                      body: JSON.stringify({
-                        notificationType: serverOption
-                      })
-                    }
-                  );
-
-                  setNotificationPreference(serverOption);
-
-                  if (serverOption !== "PUSH" || !isPWA) {
-                    setIsSubscriptionLoading(false);
-                  }
-                } catch (error) {
-                  console.error(
-                    "Error updating notification preference:",
-                    error
-                  );
-
-                  setIsSubscriptionLoading(false);
-                }
-
-                setIsSwitchingNotificationPreference(false);
-              }}
+              setSelectedOption={handleSwitchNotificationPreference}
               isLoading={
                 isCheckingSubscription ||
                 isSubscriptionLoading ||
