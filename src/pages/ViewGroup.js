@@ -246,99 +246,109 @@ export const ViewGroup = ({ groupId, userId }) => {
       setSelectedFile(files[0]);
     }
 
-    const optimisticallyUploadedMediaItems = await Promise.all(
-      Array.from(files).map(async (file) => {
-        const dimensions = await new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            resolve({
-              width: img.width,
-              height: img.height
-            });
-            URL.revokeObjectURL(img.src);
-          };
-          img.src = URL.createObjectURL(file);
-        });
+    const uploadQueue = Array.from(files);
 
-        const itemId = `${Date.now()}-${userId}-${Math.floor(
-          Math.random() * 10000000000
-        )}`;
+    const uploadNextFile = async () => {
+      if (uploadQueue.length === 0) {
+        setIsUploading(false);
+        return;
+      }
 
-        return {
-          file,
-          metadata: {
-            itemId,
-            uploadDate: new Date().toISOString(),
-            uploaderId: userId,
-            dimensions
-          },
-          uploader: {
-            name: user.name
-          },
-          isUploadedThisPageLoad: true,
-          isDoneUploading: false,
-          skipThumbnail: true,
-          localUrl: URL.createObjectURL(file),
-          comments: [],
-          reactions: []
+      const file = uploadQueue.shift();
+
+      const dimensions = await new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          resolve({
+            width: img.width,
+            height: img.height
+          });
+          URL.revokeObjectURL(img.src);
         };
-      })
-    );
+        img.src = URL.createObjectURL(file);
+      });
 
-    setMediaItems((prev) => [...optimisticallyUploadedMediaItems, ...prev]);
+      const itemId = `${Date.now()}-${userId}-${Math.floor(
+        Math.random() * 10000000000
+      )}`;
 
-    const formData = new FormData();
+      const optimisticallyUploadedMediaItem = {
+        file,
+        metadata: {
+          itemId,
+          uploadDate: new Date().toISOString(),
+          uploaderId: userId,
+          dimensions
+        },
+        uploader: {
+          name: user.name
+        },
+        isUploadedThisPageLoad: true,
+        isDoneUploading: false,
+        skipThumbnail: true,
+        localUrl: URL.createObjectURL(file),
+        comments: [],
+        reactions: []
+      };
 
-    optimisticallyUploadedMediaItems.forEach((tempMediaItem) => {
-      const file = tempMediaItem.file;
+      setMediaItems((prev) => [optimisticallyUploadedMediaItem, ...prev]);
+
+      const formData = new FormData();
       const media = new File(
         [file],
-        `${groupId}-${tempMediaItem.metadata.itemId}`,
+        `${groupId}-${optimisticallyUploadedMediaItem.metadata.itemId}`,
         {
           type: file.type
         }
       );
       formData.append("media", media);
-      formData.append("itemId", tempMediaItem.metadata.itemId);
-    });
-
-    formData.append("group", groupId);
-    formData.append("uploaderId", userId);
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
-        method: "POST",
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed with status: ${response.status}`);
-      }
-
-      optimisticallyUploadedMediaItems.forEach((item) => {
-        URL.revokeObjectURL(item.localUrl);
-      });
-
-      setMediaItems((currentMediaItems) => {
-        return currentMediaItems.map((item) => {
-          if (item.isUploadedThisPageLoad) {
-            item.isDoneUploading = true;
-          }
-          return item;
-        });
-      });
-    } catch (error) {
-      console.error("Upload error:", error);
-      setMediaItems((prev) =>
-        prev.filter((item) => !item.isUploadedThisPageLoad)
+      formData.append(
+        "itemId",
+        optimisticallyUploadedMediaItem.metadata.itemId
       );
-      optimisticallyUploadedMediaItems.forEach((item) => {
-        URL.revokeObjectURL(item.localUrl);
-      });
-      alert("Sorry, something went wrong.");
-    } finally {
-      setIsUploading(false);
-    }
+      formData.append("group", groupId);
+      formData.append("uploaderId", userId);
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/upload`,
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Upload failed with status: ${response.status}`);
+        }
+
+        setMediaItems((currentMediaItems) => {
+          return currentMediaItems.map((item) => {
+            if (
+              item.metadata.itemId ===
+              optimisticallyUploadedMediaItem.metadata.itemId
+            ) {
+              item.isDoneUploading = true;
+            }
+            return item;
+          });
+        });
+      } catch (error) {
+        console.error("Upload error:", error);
+        setMediaItems((prev) =>
+          prev.filter(
+            (item) =>
+              item.metadata.itemId !==
+              optimisticallyUploadedMediaItem.metadata.itemId
+          )
+        );
+        alert("Sorry, something went wrong.");
+      } finally {
+        uploadNextFile();
+      }
+    };
+
+    uploadNextFile();
   };
 
   const lastMediaElementRef = useCallback(
