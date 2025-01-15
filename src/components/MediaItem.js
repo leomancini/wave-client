@@ -13,6 +13,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 1rem;
+  width: 100%;
 
   p {
     margin: 0;
@@ -68,7 +69,7 @@ const Image = styled.img`
 `;
 
 const Thumbnail = styled.img`
-  width: 100%
+  width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
   transition: opacity 0.2s;
 `;

@@ -48,6 +48,7 @@ const MediaGrid = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  align-items: center;
 `;
 
 const PageContainerInteractionBlocker = styled.div`
