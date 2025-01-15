@@ -37,6 +37,13 @@ const ImageContainer = styled.div`
   transform: scale(1.125);
   transform-origin: center;
   opacity: ${(isUploadedThisPageLoad) => (isUploadedThisPageLoad ? 0.5 : 1)};
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  will-change: transform;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  box-sizing: border-box;
+  user-select: none;
 
   ${({ isUploadedThisPageLoad, isDoneUploading, isImageLoaded }) => {
     const isVisible = isUploadedThisPageLoad ? isDoneUploading : isImageLoaded;
