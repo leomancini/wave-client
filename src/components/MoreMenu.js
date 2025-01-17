@@ -917,7 +917,9 @@ export const MoreMenu = ({
             )}
           </SectionContent>
         </Section>
-        {(groupId === "LOCALHOST" || groupId === "LEOTEST") && (
+        {(groupId === "LOCALHOST" ||
+          groupId === "LEOTEST" ||
+          groupId === "LEO_TEST_2") && (
           <Section>
             <SectionHeader>
               <SectionLabel>Notifications</SectionLabel>
