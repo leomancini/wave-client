@@ -4,6 +4,7 @@
   
   # First allow static files through
   RewriteCond %{REQUEST_URI} !^/static/
+  RewriteCond %{REQUEST_URI} !^/icons/
   RewriteCond %{REQUEST_URI} !\.(?:css|js|json|jpg|jpeg|gif|png|ico|woff|woff2|ttf|svg|eot)$ [NC]
   
   # Then check for actual files and directories
