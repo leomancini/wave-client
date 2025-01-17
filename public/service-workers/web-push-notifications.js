@@ -52,10 +52,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", function (event) {
-  console.log("Push event received:", event);
-
   if (!event.data) {
-    console.log("No data in push event");
     return;
   }
 
@@ -63,10 +60,8 @@ self.addEventListener("push", function (event) {
     let data;
     try {
       data = event.data.json();
-      console.log("Push data:", data);
     } catch (e) {
       data = { message: event.data.text() };
-      console.log("Push text:", data);
     }
 
     const options = {
@@ -91,11 +86,9 @@ self.addEventListener("push", function (event) {
       ]
     };
 
-    console.log("Showing notification with options:", options);
     event.waitUntil(
       self.registration
         .showNotification(data.title || "Push Notification", options)
-        .then(() => console.log("Notification shown successfully"))
         .catch((error) => console.error("Error showing notification:", error))
     );
   } catch (error) {

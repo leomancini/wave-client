@@ -393,12 +393,37 @@ const requestPushSubscription = async (
     setIsSubscriptionLoading(true);
 
     const registrations = await navigator.serviceWorker.getRegistrations();
-    const registration = registrations.find((reg) =>
+    let registration = registrations.find((reg) =>
       reg.scope.includes("/service-workers/")
     );
 
+    // If we're unsubscribing and there's no registration, we can just return
+    if (isUnsubscribing && !registration) {
+      setIsSubscribed(false);
+      return { success: true };
+    }
+
+    // Register service worker if it doesn't exist and we're not unsubscribing
+    if (!registration && !isUnsubscribing) {
+      registration = await navigator.serviceWorker.register(
+        "/service-workers/web-push-notifications.js",
+        { scope: "/service-workers/" }
+      );
+
+      // Wait for the service worker to be activated
+      if (registration.installing) {
+        await new Promise((resolve) => {
+          registration.installing.addEventListener("statechange", (e) => {
+            if (e.target.state === "activated") {
+              resolve();
+            }
+          });
+        });
+      }
+    }
+
     if (!registration) {
-      throw new Error("Service worker not found");
+      throw new Error("Service worker registration failed");
     }
 
     const existingSubscription =
@@ -749,14 +774,25 @@ export const MoreMenu = ({
         }
       );
 
+      // Store notification preference in localStorage
+      localStorage.setItem("notificationPreference", serverOption);
       setNotificationPreference(serverOption);
 
       if (serverOption !== "PUSH" || !isPWA) {
         setIsSubscriptionLoading(false);
       }
+
+      // If we're disabling push notifications, unregister the service worker
+      if (serverOption !== "PUSH") {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          if (registration.scope.includes("/service-workers/")) {
+            await registration.unregister();
+          }
+        }
+      }
     } catch (error) {
       console.error("Error updating notification preference:", error);
-
       setIsSubscriptionLoading(false);
     }
 

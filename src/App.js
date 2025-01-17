@@ -202,6 +202,15 @@ function App() {
           return;
         }
 
+        // Only proceed with service worker registration if push notifications are enabled
+        const notificationPreference = localStorage.getItem(
+          "notificationPreference"
+        );
+        if (notificationPreference !== "PUSH") {
+          if (mounted) setIsCheckingSubscription(false);
+          return;
+        }
+
         if (mounted) setIsCheckingSubscription(true);
 
         const existingRegistrations =
