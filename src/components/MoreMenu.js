@@ -523,6 +523,8 @@ export const MoreMenu = ({
     requestNotificationPermission
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
+  const allowPushNotifications =
+    isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
 
   useEffect(() => {
     if (config?.reactions) {
@@ -617,7 +619,7 @@ export const MoreMenu = ({
 
   useEffect(() => {
     const checkSubscriptionStatus = async () => {
-      if (!visible || !isPWA) return;
+      if (!visible || !allowPushNotifications) return;
 
       try {
         const registrations = await navigator.serviceWorker.getRegistrations();
@@ -639,13 +641,17 @@ export const MoreMenu = ({
     };
 
     checkSubscriptionStatus();
-  }, [visible, isPWA, setIsSubscribed, isSubscriptionLoading]);
+  }, [visible, allowPushNotifications, setIsSubscribed, isSubscriptionLoading]);
 
   useEffect(() => {
     if (!visible) return;
     if (notificationPreference === null) {
       const serverPreference = user.notificationPreference || "OFF";
-      if (serverPreference === "PUSH" && isPWA && pushPermission === "denied") {
+      if (
+        serverPreference === "PUSH" &&
+        allowPushNotifications &&
+        pushPermission === "denied"
+      ) {
         fetch(
           `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
           {
@@ -670,7 +676,7 @@ export const MoreMenu = ({
     pushPermission,
     groupId,
     user.id,
-    isPWA
+    allowPushNotifications
   ]);
 
   const sendTestNotification = async () => {
@@ -733,7 +739,7 @@ export const MoreMenu = ({
 
     try {
       if (serverOption === "PUSH") {
-        if (isPWA) {
+        if (allowPushNotifications) {
           const permission = await requestNotificationPermission();
           if (permission === "granted") {
             await requestPushSubscription(
@@ -778,7 +784,7 @@ export const MoreMenu = ({
       localStorage.setItem("notificationPreference", serverOption);
       setNotificationPreference(serverOption);
 
-      if (serverOption !== "PUSH" || !isPWA) {
+      if (serverOption !== "PUSH" || !allowPushNotifications) {
         setIsSubscriptionLoading(false);
       }
 
@@ -936,7 +942,7 @@ export const MoreMenu = ({
                   !isCheckingSubscription &&
                   !isSubscriptionLoading && (
                     <Section>
-                      {isPWA ? (
+                      {allowPushNotifications ? (
                         isSubscribed && pushPermission === "granted" ? (
                           <Button
                             type="text"
