@@ -14,7 +14,7 @@ import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./Button";
 import { Separator } from "./Separator";
 import { Spinner } from "./Spinner";
-import { TextField } from "./TextField";
+import VerifyPhoneNumber from "./VerifyPhoneNumber";
 import { SegmentedController } from "./SegmentedController";
 import { InlineEmptyCard } from "./EmptyCard";
 
@@ -805,30 +805,6 @@ export const MoreMenu = ({
     setIsSwitchingNotificationPreference(false);
   };
 
-  const handlePhoneNumberSubmit = async (phoneNumber) => {
-    setIsSubmitingPhoneNumber(true);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/phone-number`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ phoneNumber })
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update reactions");
-      }
-    } catch (error) {
-      console.error("Error updating phone number:", error);
-      setIsSubmitingPhoneNumber(false);
-    } finally {
-      setIsSubmitingPhoneNumber(false);
-    }
-  };
-
   return (
     <Container visible={visible} isResizing={isResizing} isPWA={isPWA}>
       <Header>
@@ -981,15 +957,7 @@ export const MoreMenu = ({
                   )}
                 {notificationPreference === "SMS" && (
                   <Section>
-                    <TextField
-                      placeholder="Add your phone number..."
-                      buttonLabel="↑"
-                      multiLine={false}
-                      onSubmit={handlePhoneNumberSubmit}
-                      initialValue={user.phoneNumber}
-                      clearValueOnSubmit={false}
-                      disabled={isSubmitingPhoneNumber}
-                    />
+                    <VerifyPhoneNumber groupId={groupId} user={user} />
                   </Section>
                 )}
               </>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef, useEffect } from "react";
 import styled from "styled-components";
 
 import TextareaAutosize from "react-textarea-autosize";
@@ -89,77 +89,101 @@ const Button = styled.button`
   }
 `;
 
-export const TextField = ({
-  id,
-  initialValue = "",
-  placeholder,
-  onSubmit,
-  buttonLabel,
-  multiLine = false,
-  handleChange,
-  disabled = false,
-  additionalStyles = "",
-  clearValueOnSubmit = true
-}) => {
-  const [value, setValue] = useState(initialValue);
-  const [previousValue, setPreviousValue] = useState(initialValue);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+export const TextField = forwardRef(
+  (
+    {
+      initialValue = "",
+      id,
+      placeholder,
+      multiLine = false,
+      handleChange,
+      disabled = false,
+      additionalStyles = "",
+      clearValueOnSubmit = true,
+      buttonLabel,
+      onSubmit,
+      verifyPhoneNumber = false,
+      onChange,
+      value: externalValue,
+      maxLength,
+      valueIsValid = true,
+      ...props
+    },
+    ref
+  ) => {
+    const [value, setValue] = useState(initialValue);
+    const [previousValue, setPreviousValue] = useState(initialValue);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
-  return (
-    <TextFieldContainer>
-      <Input
-        id={id}
-        value={value}
-        placeholder={placeholder}
-        maxRows={multiLine ? 99999 : 1}
-        onSelect={(e) => e.preventDefault()}
-        onChange={(e) => {
-          setValue(e.target.value);
-          setIsSubmitted(false);
+    useEffect(() => {
+      setValue(initialValue);
+      setPreviousValue(initialValue);
+    }, [initialValue]);
 
-          if (handleChange) {
-            handleChange(e.target.value);
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
+    const currentValue = value;
 
-            if (buttonLabel) {
-              onSubmit(value);
-              setIsSubmitted(true);
+    return (
+      <TextFieldContainer>
+        <Input
+          ref={ref}
+          id={id}
+          value={currentValue}
+          placeholder={placeholder}
+          maxRows={multiLine ? 99999 : 1}
+          onSelect={(e) => e.preventDefault()}
+          onChange={(e) => {
+            if (onChange) {
+              onChange(e.target.value);
             }
 
-            if (clearValueOnSubmit) {
-              setValue("");
-            } else {
-              setPreviousValue(value);
+            setValue(e.target.value);
+            setIsSubmitted(false);
+            if (handleChange) {
+              handleChange(e.target.value);
             }
-          }
-        }}
-        disabled={disabled}
-        additionalStyles={additionalStyles}
-        readOnly={disabled}
-      />
-      {(previousValue || value) &&
-        buttonLabel &&
-        !isSubmitted &&
-        value !== previousValue && (
-          <Button
-            onClick={() => {
-              onSubmit(value);
-              setIsSubmitted(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+
+              if (buttonLabel) {
+                onSubmit(value);
+                setIsSubmitted(true);
+              }
 
               if (clearValueOnSubmit) {
                 setValue("");
               } else {
                 setPreviousValue(value);
               }
-            }}
-          >
-            {buttonLabel}
-          </Button>
-        )}
-    </TextFieldContainer>
-  );
-};
+            }
+          }}
+          disabled={disabled}
+          additionalStyles={additionalStyles}
+          readOnly={disabled}
+          maxLength={maxLength}
+        />
+        {(previousValue || value) &&
+          buttonLabel &&
+          !isSubmitted &&
+          value !== previousValue &&
+          valueIsValid && (
+            <Button
+              onClick={() => {
+                onSubmit(value);
+                setIsSubmitted(true);
+
+                if (clearValueOnSubmit) {
+                  setValue("");
+                } else {
+                  setPreviousValue(value);
+                }
+              }}
+            >
+              {buttonLabel}
+            </Button>
+          )}
+      </TextFieldContainer>
+    );
+  }
+);
