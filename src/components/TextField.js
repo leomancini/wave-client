@@ -124,6 +124,7 @@ export const TextField = forwardRef(
       value: externalValue,
       maxLength,
       valueIsValid = true,
+      inputMode = "text",
       ...props
     },
     ref
@@ -161,6 +162,12 @@ export const TextField = forwardRef(
           maxRows={multiLine ? 99999 : 1}
           onSelect={(e) => e.preventDefault()}
           isLoading={isLoading}
+          inputMode={inputMode}
+          pattern={
+            inputMode === "numeric" || inputMode === "tel"
+              ? "[0-9]*"
+              : undefined
+          }
           onChange={(e) => {
             if (onChange) {
               onChange(e.target.value);

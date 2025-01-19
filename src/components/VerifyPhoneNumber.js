@@ -163,11 +163,6 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       ? formatPhoneNumber(phoneNumberValue)
       : initialPhoneNumberValue) === userPhoneNumber;
 
-  // TODO: Only allow numbers to be typed into phone number input
-  // TODO: Set keyboard to number pad for phone number input
-  // TODO: Only allow numbers to be typed into verification code input
-  // TODO: Set keyboard to number pad for verification code input
-
   return shouldShowVerificationCodeInput ? (
     <TextField
       placeholder="Enter verification code..."
@@ -179,6 +174,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       onChange={setVerificationCodeValue}
       maxLength={6}
       valueIsValid={verificationCodeValue.length === 6}
+      inputMode="numeric"
       accessory={
         !isSubmittingVerificationCode &&
         !verificationCodeValue &&
@@ -188,6 +184,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
   ) : (
     <Input
       country="US"
+      inputMode="tel"
       value={phoneNumberValue}
       initialValue={initialPhoneNumberValue}
       onChange={setPhoneNumberValue}
