@@ -21,7 +21,10 @@ const Input = styled(TextareaAutosize)`
   height: 2.5rem;
   line-height: 1.25rem;
   resize: none;
-  transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition: ${({ animationsEnabled }) =>
+    animationsEnabled
+      ? "background 0.2s ease-in-out, color 0.2s ease-in-out"
+      : "none"};
 
   &::placeholder {
     color: rgba(0, 0, 0, 0.5);
@@ -125,6 +128,7 @@ export const TextField = forwardRef(
       maxLength,
       valueIsValid = true,
       inputMode = "text",
+      animationsEnabled = true,
       ...props
     },
     ref
@@ -199,6 +203,7 @@ export const TextField = forwardRef(
           additionalStyles={additionalStyles}
           readOnly={disabled}
           maxLength={maxLength}
+          animationsEnabled={animationsEnabled}
         />
         {isLoading && (
           <SpinnerContainer>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { styled } from "styled-components";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -58,6 +58,16 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
   );
   const [verificationCodeValue, setVerificationCodeValue] = useState("");
   const [verificationCodeError, setVerificationCodeError] = useState(false);
+
+  // Create a ref for the verification-code field
+  const verificationCodeRef = useRef(null);
+
+  // Focus the verification code field when it is shown
+  useEffect(() => {
+    if (shouldShowVerificationCodeInput && verificationCodeRef.current) {
+      verificationCodeRef.current.focus();
+    }
+  }, [shouldShowVerificationCodeInput]);
 
   const phoneNumberIsValid = phoneNumberValue
     ? isValidPhoneNumber(phoneNumberValue.toString())
@@ -165,9 +175,11 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
 
   return shouldShowVerificationCodeInput ? (
     <TextField
+      ref={verificationCodeRef}
       placeholder="Enter verification code..."
       buttonLabel={<FontAwesomeIcon icon={faCheck} />}
       onSubmit={onVerificationCodeSubmit}
+      clearValueOnSubmit={false}
       disabled={isSubmittingVerificationCode}
       isLoading={isSubmittingVerificationCode}
       value={verificationCodeValue}
@@ -199,6 +211,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       valueIsValid={phoneNumberIsValid || !phoneNumberValue}
       setShouldShowButton={setShouldShowPhoneNumberSubmitButton}
       accessory={
+        phoneNumberValue &&
         shouldShowVerifiedLabel && <VerifiedLabel>Verified</VerifiedLabel>
       }
     />
