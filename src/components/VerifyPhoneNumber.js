@@ -216,7 +216,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       valueIsValid={phoneNumberIsValid || !phoneNumberValue}
       setShouldShowButton={setShouldShowPhoneNumberSubmitButton}
       accessory={
-        phoneNumberValue &&
+        (phoneNumberValue || initialPhoneNumberValue) &&
         shouldShowVerifiedLabel && <VerifiedLabel>Verified</VerifiedLabel>
       }
     />
