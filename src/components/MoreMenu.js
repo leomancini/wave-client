@@ -511,7 +511,6 @@ export const MoreMenu = ({
     isSwitchingNotificationPreference,
     setIsSwitchingNotificationPreference
   ] = useState(false);
-  const [isSubmitingPhoneNumber, setIsSubmitingPhoneNumber] = useState(false);
 
   const {
     isSubscribed,
@@ -901,8 +900,7 @@ export const MoreMenu = ({
               <SectionLabel>Notifications</SectionLabel>
               {(isSwitchingNotificationPreference ||
                 isCheckingSubscription ||
-                isSubscriptionLoading ||
-                isSubmitingPhoneNumber) && <Spinner size="small" />}
+                isSubscriptionLoading) && <Spinner size="small" />}
             </SectionHeader>
             <SegmentedController
               options={["Off", "Push", "SMS"]}

@@ -49,8 +49,8 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       placeholder="Add your phone number..."
       buttonLabel={<FontAwesomeIcon icon={faCheck} />}
       disabled={isSubmittingPhoneNumber}
+      isLoading={isSubmittingPhoneNumber}
       clearValueOnSubmit={false}
-      // maxLength={14}
       valueIsValid={phoneNumberIsValid || !value}
     />
   );

@@ -2,6 +2,7 @@ import { useState, forwardRef, useEffect } from "react";
 import styled from "styled-components";
 
 import TextareaAutosize from "react-textarea-autosize";
+import { Spinner } from "./Spinner";
 
 const TextFieldContainer = styled.div`
   display: flex;
@@ -62,6 +63,12 @@ const Input = styled(TextareaAutosize)`
   ${({ additionalStyles }) => additionalStyles || ""}
 `;
 
+const SpinnerContainer = styled.div`
+  position: absolute;
+  right: 1rem;
+  top: 0.675rem;
+`;
+
 const Button = styled.button`
   background: rgba(0, 0, 0, 1);
   width: 3.5rem;
@@ -95,6 +102,7 @@ export const TextField = forwardRef(
       initialValue = "",
       id,
       placeholder,
+      isLoading,
       multiLine = false,
       handleChange,
       disabled = false,
@@ -131,6 +139,7 @@ export const TextField = forwardRef(
           placeholder={placeholder}
           maxRows={multiLine ? 99999 : 1}
           onSelect={(e) => e.preventDefault()}
+          isLoading={isLoading}
           onChange={(e) => {
             if (onChange) {
               onChange(e.target.value);
@@ -163,6 +172,11 @@ export const TextField = forwardRef(
           readOnly={disabled}
           maxLength={maxLength}
         />
+        {isLoading && (
+          <SpinnerContainer>
+            <Spinner size="small" />
+          </SpinnerContainer>
+        )}
         {(previousValue || value) &&
           buttonLabel &&
           !isSubmitted &&
