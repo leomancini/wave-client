@@ -1,5 +1,5 @@
 import { useState, forwardRef, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import TextareaAutosize from "react-textarea-autosize";
 import { Spinner } from "./Spinner";
@@ -12,14 +12,14 @@ const TextFieldContainer = styled.div`
   width: 100%;
 `;
 
-const Input = styled(TextareaAutosize)`
+const InputBase = css`
   background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 2rem;
   padding: 0.75rem 5rem 0.75rem 1rem;
   font-size: 1rem;
-  height: 2.5rem;
   line-height: 1.25rem;
+  box-sizing: border-box;
   resize: none;
   transition: ${({ animationsEnabled }) =>
     animationsEnabled
@@ -45,7 +45,7 @@ const Input = styled(TextareaAutosize)`
 
   ${({ disabled }) =>
     disabled &&
-    `
+    css`
       color: rgba(0, 0, 0, 0.25);
       cursor: not-allowed;
       -webkit-user-select: none !important;
@@ -53,8 +53,9 @@ const Input = styled(TextareaAutosize)`
       -ms-user-select: none !important;
       user-select: none !important;
       background: rgba(0, 0, 0, 0.04);
-      
-      &:active, &:focus {
+
+      &:active,
+      &:focus {
         background: rgba(0, 0, 0, 0.04);
       }
 
@@ -63,7 +64,17 @@ const Input = styled(TextareaAutosize)`
       }
     `}
 
-  ${({ additionalStyles }) => additionalStyles || ""}
+  ${({ additionalStyles }) => additionalStyles}
+`;
+
+const Input = styled.input`
+  ${InputBase}
+  height: 2.75rem;
+`;
+
+const TextArea = styled(TextareaAutosize)`
+  ${InputBase}
+  min-height: 2.75rem;
 `;
 
 const SpinnerContainer = styled.div`
@@ -128,6 +139,7 @@ export const TextField = forwardRef(
       maxLength,
       valueIsValid = true,
       inputMode = "text",
+      autocomplete = "off",
       animationsEnabled = true,
       ...props
     },
@@ -158,53 +170,103 @@ export const TextField = forwardRef(
 
     return (
       <TextFieldContainer>
-        <Input
-          ref={ref}
-          id={id}
-          value={currentValue}
-          placeholder={placeholder}
-          maxRows={multiLine ? 99999 : 1}
-          onSelect={(e) => e.preventDefault()}
-          isLoading={isLoading}
-          inputMode={inputMode}
-          pattern={
-            inputMode === "numeric" || inputMode === "tel"
-              ? "[0-9]*"
-              : undefined
-          }
-          onChange={(e) => {
-            if (onChange) {
-              onChange(e.target.value);
+        {multiLine ? (
+          <TextArea
+            ref={ref}
+            id={id}
+            value={currentValue}
+            placeholder={placeholder}
+            maxRows={99999}
+            onSelect={(e) => e.preventDefault()}
+            isLoading={isLoading}
+            inputMode={inputMode}
+            pattern={
+              inputMode === "numeric" || inputMode === "tel"
+                ? "[0-9]*"
+                : undefined
             }
-
-            setValue(e.target.value);
-            setIsSubmitted(false);
-            if (handleChange) {
-              handleChange(e.target.value);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-
-              if (buttonLabel) {
-                onSubmit(value);
-                setIsSubmitted(true);
+            onChange={(e) => {
+              if (onChange) {
+                onChange(e.target.value);
               }
 
-              if (clearValueOnSubmit) {
-                setValue("");
-              } else {
-                setPreviousValue(value);
+              setValue(e.target.value);
+              setIsSubmitted(false);
+              if (handleChange) {
+                handleChange(e.target.value);
               }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+
+                if (buttonLabel) {
+                  onSubmit(value);
+                  setIsSubmitted(true);
+                }
+
+                if (clearValueOnSubmit) {
+                  setValue("");
+                } else {
+                  setPreviousValue(value);
+                }
+              }
+            }}
+            disabled={disabled}
+            additionalStyles={additionalStyles}
+            readOnly={disabled}
+            maxLength={maxLength}
+            animationsEnabled={animationsEnabled}
+          />
+        ) : (
+          <Input
+            ref={ref}
+            id={id}
+            value={currentValue}
+            placeholder={placeholder}
+            onSelect={(e) => e.preventDefault()}
+            isLoading={isLoading}
+            inputMode={inputMode}
+            pattern={
+              inputMode === "numeric" || inputMode === "tel"
+                ? "[0-9]*"
+                : undefined
             }
-          }}
-          disabled={disabled}
-          additionalStyles={additionalStyles}
-          readOnly={disabled}
-          maxLength={maxLength}
-          animationsEnabled={animationsEnabled}
-        />
+            onChange={(e) => {
+              if (onChange) {
+                onChange(e.target.value);
+              }
+
+              setValue(e.target.value);
+              setIsSubmitted(false);
+              if (handleChange) {
+                handleChange(e.target.value);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+
+                if (buttonLabel) {
+                  onSubmit(value);
+                  setIsSubmitted(true);
+                }
+
+                if (clearValueOnSubmit) {
+                  setValue("");
+                } else {
+                  setPreviousValue(value);
+                }
+              }
+            }}
+            disabled={disabled}
+            additionalStyles={additionalStyles}
+            readOnly={disabled}
+            maxLength={maxLength}
+            animationsEnabled={animationsEnabled}
+            autocomplete={autocomplete}
+          />
+        )}
         {isLoading && (
           <SpinnerContainer>
             <Spinner size="small" />

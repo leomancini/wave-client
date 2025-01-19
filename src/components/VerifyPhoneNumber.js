@@ -193,6 +193,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       valueIsValid={verificationCodeValue.length === 6}
       inputMode="numeric"
       animationsEnabled={verificationCodeInputAnimationsEnabled}
+      autocomplete="one-time-code"
       accessory={
         !isSubmittingVerificationCode &&
         !verificationCodeValue &&
