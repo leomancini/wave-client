@@ -52,14 +52,14 @@ const Input = styled(TextareaAutosize)`
       -moz-user-select: none !important;
       -ms-user-select: none !important;
       user-select: none !important;
-      background: rgba(0, 0, 0, 0.025);
+      background: rgba(0, 0, 0, 0.04);
       
       &:active, &:focus {
-        background: rgba(0, 0, 0, 0.025);
+        background: rgba(0, 0, 0, 0.04);
       }
 
       &::placeholder {
-        color: rgba(0, 0, 0, 0.25);
+        color: rgba(0, 0, 0, 0.04);
       }
     `}
 
