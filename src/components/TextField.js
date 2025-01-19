@@ -69,6 +69,14 @@ const SpinnerContainer = styled.div`
   top: 0.675rem;
 `;
 
+const AccessoryContainer = styled.div`
+  position: absolute;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+`;
+
 const Button = styled.button`
   background: rgba(0, 0, 0, 1);
   width: 3.5rem;
@@ -82,7 +90,7 @@ const Button = styled.button`
   position: absolute;
   cursor: pointer;
   right: 0.25rem;
-  height: 2.125rem;
+  height: 2.25rem;
   bottom: 0.25rem;
   outline: none;
   -webkit-user-select: none;
@@ -103,6 +111,7 @@ export const TextField = forwardRef(
       id,
       placeholder,
       isLoading,
+      accessory,
       multiLine = false,
       handleChange,
       disabled = false,
@@ -122,11 +131,23 @@ export const TextField = forwardRef(
     const [value, setValue] = useState(initialValue);
     const [previousValue, setPreviousValue] = useState(initialValue);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [shouldShowButton, setShouldShowButton] = useState(false);
 
     useEffect(() => {
       setValue(initialValue);
       setPreviousValue(initialValue);
     }, [initialValue]);
+
+    useEffect(() => {
+      const shouldShowButton =
+        (previousValue || value) &&
+        buttonLabel &&
+        !isSubmitted &&
+        value !== previousValue &&
+        valueIsValid;
+
+      setShouldShowButton(shouldShowButton);
+    }, [previousValue, value, buttonLabel, isSubmitted, valueIsValid]);
 
     const currentValue = value;
 
@@ -177,26 +198,25 @@ export const TextField = forwardRef(
             <Spinner size="small" />
           </SpinnerContainer>
         )}
-        {(previousValue || value) &&
-          buttonLabel &&
-          !isSubmitted &&
-          value !== previousValue &&
-          valueIsValid && (
-            <Button
-              onClick={() => {
-                onSubmit(value);
-                setIsSubmitted(true);
+        {accessory && !shouldShowButton && (
+          <AccessoryContainer>{accessory}</AccessoryContainer>
+        )}
+        {shouldShowButton && (
+          <Button
+            onClick={() => {
+              onSubmit(value);
+              setIsSubmitted(true);
 
-                if (clearValueOnSubmit) {
-                  setValue("");
-                } else {
-                  setPreviousValue(value);
-                }
-              }}
-            >
-              {buttonLabel}
-            </Button>
-          )}
+              if (clearValueOnSubmit) {
+                setValue("");
+              } else {
+                setPreviousValue(value);
+              }
+            }}
+          >
+            {buttonLabel}
+          </Button>
+        )}
       </TextFieldContainer>
     );
   }
