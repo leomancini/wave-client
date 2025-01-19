@@ -59,13 +59,17 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
   const [verificationCodeValue, setVerificationCodeValue] = useState("");
   const [verificationCodeError, setVerificationCodeError] = useState(false);
 
-  // Create a ref for the verification-code field
-  const verificationCodeRef = useRef(null);
+  const [
+    verificationCodeInputAnimationsEnabled,
+    setVerificationCodeInputAnimationsEnabled
+  ] = useState(false);
 
-  // Focus the verification code field when it is shown
+  const verificationCodeInputRef = useRef(null);
+
   useEffect(() => {
-    if (shouldShowVerificationCodeInput && verificationCodeRef.current) {
-      verificationCodeRef.current.focus();
+    if (shouldShowVerificationCodeInput && verificationCodeInputRef.current) {
+      verificationCodeInputRef.current.focus();
+      setVerificationCodeInputAnimationsEnabled(true);
     }
   }, [shouldShowVerificationCodeInput]);
 
@@ -175,7 +179,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
 
   return shouldShowVerificationCodeInput ? (
     <TextField
-      ref={verificationCodeRef}
+      ref={verificationCodeInputRef}
       placeholder="Enter verification code..."
       buttonLabel={<FontAwesomeIcon icon={faCheck} />}
       onSubmit={onVerificationCodeSubmit}
@@ -187,6 +191,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       maxLength={6}
       valueIsValid={verificationCodeValue.length === 6}
       inputMode="numeric"
+      animationsEnabled={verificationCodeInputAnimationsEnabled}
       accessory={
         !isSubmittingVerificationCode &&
         !verificationCodeValue &&
