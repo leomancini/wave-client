@@ -190,6 +190,8 @@ export const TextField = forwardRef(
                 ? "[0-9]*"
                 : undefined
             }
+            data-1p-ignore
+            autoComplete={autocomplete}
             onChange={(e) => {
               if (onChange) {
                 onChange(e.target.value);
@@ -237,6 +239,8 @@ export const TextField = forwardRef(
                 ? "[0-9]*"
                 : undefined
             }
+            data-1p-ignore
+            autoComplete={autocomplete}
             onChange={(e) => {
               if (onChange) {
                 onChange(e.target.value);
@@ -269,7 +273,6 @@ export const TextField = forwardRef(
             readOnly={disabled}
             maxLength={maxLength}
             animationsEnabled={animationsEnabled}
-            autocomplete={autocomplete}
           />
         )}
         {isLoading && (
