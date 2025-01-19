@@ -171,6 +171,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
   };
 
   const shouldShowVerifiedLabel =
+    !isSubmittingPhoneNumber &&
     !shouldShowPhoneNumberSubmitButton &&
     isPhoneNumberVerified &&
     (phoneNumberValue
