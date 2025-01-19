@@ -168,7 +168,7 @@ const AddReactionButton = styled.button`
   outline: none;
   border: none;
   background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 2rem;
+  border-radius: 1.375rem;
   font-size: 1.25rem;
   height: 2.75rem;
   min-height: 2.75rem;

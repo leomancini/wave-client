@@ -15,7 +15,7 @@ const TextFieldContainer = styled.div`
 const InputBase = css`
   background: rgba(0, 0, 0, 0.05);
   border: none;
-  border-radius: 2rem;
+  border-radius: 1.375rem;
   padding: 0.75rem 5rem 0.75rem 1rem;
   font-size: 1rem;
   line-height: 1.25rem;

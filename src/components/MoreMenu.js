@@ -303,7 +303,7 @@ const ReactionButton = styled.button`
   outline: none;
   border: none;
   background-color: white;
-  border-radius: 2rem;
+  border-radius: 1.375rem;
   font-size: 1.25rem;
   height: 2.75rem;
   line-height: 1.25rem;
