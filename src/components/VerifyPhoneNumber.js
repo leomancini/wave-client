@@ -206,6 +206,15 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       initialValue={initialPhoneNumberValue}
       onChange={setPhoneNumberValue}
       onSubmit={onPhoneNumberSubmit}
+      onSubmitSuccess={() => {
+        if (verificationCodeInputRef.current) {
+          try {
+            verificationCodeInputRef.current.focus();
+          } catch (e) {
+            console.log("Could not auto-focus input - this is expected on iOS");
+          }
+        }
+      }}
       inputComponent={TextField}
       verifyPhoneNumber={true}
       placeholder="Add your phone number..."
