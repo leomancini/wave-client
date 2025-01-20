@@ -77,6 +77,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
   const [statsIsLoading, setStatsIsLoading] = useState(true);
+  const [notificationPreference, setNotificationPreference] = useState(null);
   const observer = useRef();
   const [readItems, setReadItems] = useState(new Set());
   const [processingItems, setProcessingItems] = useState(new Set());
@@ -193,6 +194,12 @@ export const ViewGroup = ({ groupId, userId }) => {
       document.title = `${groupId} – ${user.name}`;
     }
   }, [groupId, user]);
+
+  useEffect(() => {
+    if (user.valid) {
+      setNotificationPreference(user.notificationPreference);
+    }
+  }, [user.valid, user.notificationPreference]);
 
   const validateUser = async (groupId, userId) => {
     try {
@@ -549,7 +556,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   }
 
   const shouldShowPushNotificationBanner =
-    user.notificationPreference === "PUSH" &&
+    notificationPreference === "PUSH" &&
     isPWA &&
     !isSubscribed &&
     pushPermission !== "denied";
@@ -565,6 +572,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         statsIsLoading={statsIsLoading}
         setIsMoreMenuVisible={handleMenuToggle}
         style={{ zIndex: 3 }}
+        onNotificationPreferenceChange={setNotificationPreference}
       />
       <PageContainerInteractionBlocker visible={isMoreMenuVisible} />
       <PageContainer>

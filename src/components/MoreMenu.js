@@ -375,7 +375,8 @@ export const MoreMenu = ({
   users,
   user,
   stats,
-  statsIsLoading
+  statsIsLoading,
+  onNotificationPreferenceChange
 }) => {
   const { config } = useConfig();
   const contentRef = useRef(null);
@@ -442,6 +443,9 @@ export const MoreMenu = ({
       );
 
       setNotificationPreference(selectedOption);
+      if (onNotificationPreferenceChange) {
+        onNotificationPreferenceChange(selectedOption);
+      }
 
       if (selectedOption !== "PUSH" || !allowPushNotifications) {
         setIsSubscriptionLoading(false);
@@ -560,8 +564,14 @@ export const MoreMenu = ({
           }
         );
         setNotificationPreference("OFF");
+        if (onNotificationPreferenceChange) {
+          onNotificationPreferenceChange("OFF");
+        }
       } else {
         setNotificationPreference(serverPreference);
+        if (onNotificationPreferenceChange) {
+          onNotificationPreferenceChange(serverPreference);
+        }
       }
     }
   }, [
@@ -571,7 +581,8 @@ export const MoreMenu = ({
     pushPermission,
     groupId,
     user.id,
-    allowPushNotifications
+    allowPushNotifications,
+    onNotificationPreferenceChange
   ]);
 
   const sendTestNotification = async () => {
