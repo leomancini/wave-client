@@ -11,6 +11,7 @@ const SegmentedControllerContainer = styled.div`
   gap: 0.5rem;
   background: rgba(0, 0, 0, ${(props) => (props.isLoading ? "0.05" : "0.05")});
   box-sizing: border-box;
+  transition: all 0.2s;
 
   ${({ disabled }) =>
     disabled &&
@@ -51,6 +52,7 @@ const Option = styled.div`
 
 const OptionLabel = styled.div`
   font-weight: bold;
+  transition: all 0.2s;
   color: ${(props) => (props.isSelected ? "#fff" : "rgba(0, 0, 0, 0.75)")};
 `;
 
