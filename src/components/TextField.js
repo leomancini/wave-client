@@ -54,25 +54,23 @@ const InputBase = css`
   ${({ disabled }) =>
     disabled &&
     css`
+      background: rgba(0, 0, 0, 0.025);
       color: rgba(0, 0, 0, 0.25);
       cursor: not-allowed;
       -webkit-user-select: none !important;
       -moz-user-select: none !important;
       -ms-user-select: none !important;
       user-select: none !important;
-      background: rgba(0, 0, 0, 0.05);
 
       &:active,
       &:focus {
-        background: rgba(0, 0, 0, 0.05);
+        background: rgba(0, 0, 0, 0.025);
       }
 
       &::placeholder {
-        color: rgba(0, 0, 0, 0.25);
+        color: rgba(0, 0, 0, 0.2);
       }
     `}
-
-  ${({ additionalStyles }) => additionalStyles}
 `;
 
 const Input = styled.input`
@@ -223,7 +221,6 @@ export const TextField = forwardRef(
               }
             }}
             disabled={disabled}
-            additionalStyles={additionalStyles}
             readOnly={disabled}
             maxLength={maxLength}
             animationsEnabled={animationsEnabled}
@@ -272,7 +269,6 @@ export const TextField = forwardRef(
               }
             }}
             disabled={disabled}
-            additionalStyles={additionalStyles}
             readOnly={disabled}
             maxLength={maxLength}
             animationsEnabled={animationsEnabled}

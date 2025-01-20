@@ -215,11 +215,10 @@ const AddReactionButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.75;
     background: rgba(0, 0, 0, 0.025);
     cursor: not-allowed;
     color: inherit;
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.4);
   }
 `;
 

@@ -157,7 +157,6 @@ export const Comments = ({ item, groupId, user, disabled }) => {
         buttonLabel="↑"
         multiLine={true}
         disabled={disabled}
-        additionalStyles={disabled && "opacity: 0.75;"}
       />
     </Container>
   );
