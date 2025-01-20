@@ -88,9 +88,16 @@ export const ViewGroup = ({ groupId, userId }) => {
     isSubscriptionLoading,
     isCheckingSubscription,
     setupPushNotifications,
-    pushPermission
+    pushPermission,
+    checkSubscriptionStatus
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
+
+  useEffect(() => {
+    if (user.valid && user.notificationPreference === "PUSH") {
+      checkSubscriptionStatus();
+    }
+  }, [user.valid, user.notificationPreference, checkSubscriptionStatus]);
 
   useEffect(() => {
     const fetchConfig = async () => {

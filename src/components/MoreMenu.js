@@ -404,7 +404,8 @@ export const MoreMenu = ({
     isSubscriptionLoading,
     setIsSubscriptionLoading,
     setupPushNotifications,
-    unsubscribePushNotifications
+    unsubscribePushNotifications,
+    checkSubscriptionStatus
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
   const allowPushNotifications =
@@ -534,30 +535,9 @@ export const MoreMenu = ({
   }, [showSwitchDeviceInstructions]);
 
   useEffect(() => {
-    const checkSubscriptionStatus = async () => {
-      if (!visible || !allowPushNotifications) return;
-
-      try {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        const registration = registrations.find((reg) =>
-          reg.scope.includes("/service-workers/")
-        );
-
-        if (!registration) {
-          setIsSubscribed(false);
-          return;
-        }
-
-        const subscription = await registration.pushManager.getSubscription();
-        setIsSubscribed(!!subscription && !!subscription.endpoint);
-      } catch (error) {
-        console.error("Error checking subscription status:", error);
-        setIsSubscribed(false);
-      }
-    };
-
+    if (!visible || !allowPushNotifications) return;
     checkSubscriptionStatus();
-  }, [visible, allowPushNotifications, setIsSubscribed, isSubscriptionLoading]);
+  }, [visible, allowPushNotifications, checkSubscriptionStatus]);
 
   useEffect(() => {
     if (!visible) return;
