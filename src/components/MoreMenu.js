@@ -425,11 +425,8 @@ export const MoreMenu = ({
         } else {
           setIsSubscriptionLoading(false);
         }
-      } else if (
-        (selectedOption === "OFF" || selectedOption === "SMS") &&
-        notificationPreference === "PUSH" &&
-        isSubscribed
-      ) {
+      } else {
+        alert("TURNING OFF PUSH");
         await unsubscribePushNotifications(groupId, user.id);
         await fetch(
           `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${user.id}`,
