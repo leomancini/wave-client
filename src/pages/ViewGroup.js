@@ -588,7 +588,9 @@ export const ViewGroup = ({ groupId, userId }) => {
         </ButtonContainer>
         {shouldShowPushNotificationBanner && (
           <Banner
-            messages={["Get notified about new activity!"]}
+            messages={[
+              "Get notified about new posts, reactions, and comments!"
+            ]}
             button="Enable push notifications"
             onButtonClick={() => setupPushNotifications(groupId, userId)}
             isLoading={

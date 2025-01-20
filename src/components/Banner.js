@@ -28,18 +28,6 @@ const BannerContainer = styled.div`
       `
       : ""}
 
-  p,
-  strong {
-    margin: 0;
-    line-height: 1.25rem;
-    font-size: 1rem;
-    text-align: center;
-  }
-
-  p {
-    font-weight: medium;
-  }
-
   strong {
     font-weight: bold;
   }
@@ -51,7 +39,6 @@ const Label = styled.div`
   border-radius: 2rem;
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
-  font-weight: medium;
   margin-bottom: 0.5rem;
 
   strong {
@@ -69,20 +56,28 @@ const Messages = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin: 0.25rem 0 0.75rem 0;
+  padding: 0 1.5rem;
 
   ${(props) =>
     props.alignment === "center"
       ? `
         justify-content: center;
         align-items: center;
+        text-align: center;
       `
       : props.alignment === "left"
       ? `
         justify-content: flex-start;
         align-items: flex-start;
+        text-align: left;
       `
       : ""}
+`;
+
+const Message = styled.div`
+  line-height: 1.25rem;
+  font-size: 1rem;
 `;
 
 const Footer = styled.div`
@@ -111,7 +106,7 @@ export const Banner = ({
       )}
       <Messages alignment={messagesAlignment}>
         {messages.map((message, index) => (
-          <p
+          <Message
             key={`banner-message-${index}`}
             dangerouslySetInnerHTML={{ __html: message }}
           />
