@@ -426,7 +426,6 @@ export const MoreMenu = ({
           setIsSubscriptionLoading(false);
         }
       } else {
-        alert("TURNING OFF PUSH");
         await unsubscribePushNotifications(groupId, user.id);
         await fetch(
           `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${user.id}`,
