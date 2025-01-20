@@ -569,6 +569,7 @@ export const ViewGroup = ({ groupId, userId }) => {
             messages={["Get notified about new activity!"]}
             button="Enable push notifications"
             onButtonClick={() => setupPushNotifications(groupId, userId)}
+            isLoading={isSubscriptionLoading}
           />
         )}
         <MediaGrid>

@@ -99,7 +99,8 @@ export const Banner = ({
   footer,
   button,
   messagesAlignment = "center",
-  onButtonClick
+  onButtonClick,
+  isLoading = false
 }) => {
   return (
     <BannerContainer prominence={prominence}>
@@ -117,7 +118,14 @@ export const Banner = ({
         ))}
       </Messages>
       {footer && <Footer>{footer}</Footer>}
-      {button && <Button size="small" label={button} onClick={onButtonClick} />}
+      {button && (
+        <Button
+          size="small"
+          label={button}
+          onClick={onButtonClick}
+          isLoading={isLoading}
+        />
+      )}
     </BannerContainer>
   );
 };
