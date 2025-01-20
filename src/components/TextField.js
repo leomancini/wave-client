@@ -22,10 +22,6 @@ const InputBase = css`
   box-sizing: border-box;
   resize: none;
   -webkit-appearance: none;
-  -webkit-autofill {
-    -webkit-box-shadow: 0 0 0 30px rgba(0, 0, 0, 0.05) inset !important;
-    -webkit-text-fill-color: inherit !important;
-  }
   transition: ${({ animationsEnabled }) =>
     animationsEnabled
       ? "background 0.2s ease-in-out, color 0.2s ease-in-out"
@@ -46,6 +42,14 @@ const InputBase = css`
     background: ${(props) =>
       props.disabled ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 1)"};
     color: ${(props) => (props.disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
+  }
+
+  /* Handle the autofilled background/text color here */
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px red inset !important;
+    -webkit-text-fill-color: inherit !important;
   }
 
   ${({ disabled }) =>
