@@ -568,6 +568,14 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        {`isSubscriptionLoading: ${isSubscriptionLoading}`}
+        <br />
+        {`isCheckingSubscription: ${isCheckingSubscription}`}
+        <br />
+        {`isSubscribed: ${isSubscribed}`}
+        <br />
+        {`pushPermission: ${pushPermission}`}
+        <br />
         {shouldShowPushNotificationBanner && (
           <Banner
             messages={["Get notified about new activity!"]}
