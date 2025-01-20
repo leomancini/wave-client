@@ -523,7 +523,7 @@ export const MediaItem = forwardRef(
               handleMediaItemClick(e, item.metadata.itemId, setReactions, {
                 groupId,
                 user,
-                reaction: "❤️"
+                reaction: config.reactions[0]
               });
             }
           }}
@@ -543,7 +543,7 @@ export const MediaItem = forwardRef(
               handleMediaItemClick(e, item.metadata.itemId, setReactions, {
                 groupId,
                 user,
-                reaction: "❤️"
+                reaction: config.reactions[0]
               });
             }
             setTouchStartY(null);

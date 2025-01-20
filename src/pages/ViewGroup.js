@@ -244,7 +244,6 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     const uploadQueue = Array.from(files);
 
-    // Create an array to hold promises for all uploads
     const uploadPromises = uploadQueue.map(async (file) => {
       const dimensions = await new Promise((resolve) => {
         const img = new Image();
@@ -281,7 +280,6 @@ export const ViewGroup = ({ groupId, userId }) => {
         reactions: []
       };
 
-      // Add the optimistically uploaded item to the mediaItems state
       setMediaItems((prev) => [optimisticallyUploadedMediaItem, ...prev]);
 
       const formData = new FormData();
@@ -313,7 +311,6 @@ export const ViewGroup = ({ groupId, userId }) => {
           throw new Error(`Upload failed with status: ${response.status}`);
         }
 
-        // Update the mediaItems state to mark the item as done uploading
         setMediaItems((currentMediaItems) => {
           return currentMediaItems.map((item) => {
             if (
@@ -338,7 +335,6 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     });
 
-    // Wait for all uploads to complete
     await Promise.all(uploadPromises);
     setIsUploading(false);
   };
