@@ -5,6 +5,7 @@ body {
   -webkit-text-size-adjust: none;
   -webkit-user-select: none;
   user-select: none;
+  min-height: 100vh;
 }
 
 body {
