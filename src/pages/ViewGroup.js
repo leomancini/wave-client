@@ -522,10 +522,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   }
 
   const shouldShowPushNotificationBanner =
-    user.notificationPreference === "PUSH" &&
-    isPWA &&
-    !isSubscriptionLoading &&
-    !isSubscribed;
+    user.notificationPreference === "PUSH" && isPWA && !isSubscribed;
 
   return (
     <Page>
