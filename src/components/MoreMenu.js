@@ -845,32 +845,30 @@ export const MoreMenu = ({
                               />
                             )
                           ) : (
-                            !user.pushNotificationsEnabled && (
-                              <>
-                                <InlineEmptyCard>
-                                  To enable push notifications,
-                                  <br />
-                                  {deviceType === "mobile"
-                                    ? "add WAVE to your home screen."
-                                    : "open WAVE on your phone."}
-                                </InlineEmptyCard>
-                                {deviceType !== "mobile" && (
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    prominence="secondary"
-                                    label={`Login on a ${
-                                      deviceType === "mobile"
-                                        ? "computer"
-                                        : "phone"
-                                    }`}
-                                    onClick={() =>
-                                      setShowSwitchDeviceInstructions(true)
-                                    }
-                                  />
-                                )}
-                              </>
-                            )
+                            <>
+                              <InlineEmptyCard>
+                                To enable push notifications,
+                                <br />
+                                {deviceType === "mobile"
+                                  ? "add WAVE to your home screen."
+                                  : "open WAVE on your phone."}
+                              </InlineEmptyCard>
+                              {deviceType !== "mobile" && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  prominence="secondary"
+                                  label={`Login on a ${
+                                    deviceType === "mobile"
+                                      ? "computer"
+                                      : "phone"
+                                  }`}
+                                  onClick={() =>
+                                    setShowSwitchDeviceInstructions(true)
+                                  }
+                                />
+                              )}
+                            </>
                           )}
                         </>
                       )}
