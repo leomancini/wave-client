@@ -872,7 +872,8 @@ export const MoreMenu = ({
                         </Section>
                       )}
                     <br />
-                    isSubscribed: {isSubscribed}
+                    pushNotificationsEnabled:{" "}
+                    {user.pushNotificationsEnabled ? "true" : "false"}
                     <br />
                     pushPermission: {pushPermission}
                     {notificationPreference === "SMS" && (
