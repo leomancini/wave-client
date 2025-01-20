@@ -94,10 +94,21 @@ export const ViewGroup = ({ groupId, userId }) => {
   const { isPWA } = useContext(AppContext);
 
   useEffect(() => {
-    if (user.valid && user.notificationPreference === "PUSH") {
+    if (
+      user.valid &&
+      user.notificationPreference === "PUSH" &&
+      !isSubscribed &&
+      !isSubscriptionLoading
+    ) {
       checkSubscriptionStatus();
     }
-  }, [user.valid, user.notificationPreference, checkSubscriptionStatus]);
+  }, [
+    user.valid,
+    user.notificationPreference,
+    checkSubscriptionStatus,
+    isSubscribed,
+    isSubscriptionLoading
+  ]);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -588,7 +599,11 @@ export const ViewGroup = ({ groupId, userId }) => {
             messages={["Get notified about new activity!"]}
             button="Enable push notifications"
             onButtonClick={() => setupPushNotifications(groupId, userId)}
-            isLoading={isSubscriptionLoading || isCheckingSubscription}
+            isLoading={
+              isSubscriptionLoading ||
+              isCheckingSubscription ||
+              (pushPermission === "granted" && !isSubscribed)
+            }
           />
         )}
         <MediaGrid>
