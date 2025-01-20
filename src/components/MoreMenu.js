@@ -398,7 +398,6 @@ export const MoreMenu = ({
 
   const {
     isSubscribed,
-    setIsSubscribed,
     isCheckingSubscription,
     pushPermission,
     isSubscriptionLoading,

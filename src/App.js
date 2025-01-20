@@ -164,7 +164,10 @@ function App() {
         return false;
       }
 
-      setIsCheckingSubscription(true);
+      // Don't set checking state if we're just doing a quick re-check
+      if (!isCheckingSubscription) {
+        setIsCheckingSubscription(true);
+      }
 
       const existingRegistrations =
         await navigator.serviceWorker.getRegistrations();
@@ -179,8 +182,11 @@ function App() {
       }
 
       if ("Notification" in window) {
-        setPushPermission(Notification.permission);
-        if (Notification.permission !== "granted") {
+        const currentPermission = Notification.permission;
+        if (currentPermission !== pushPermission) {
+          setPushPermission(currentPermission);
+        }
+        if (currentPermission !== "granted") {
           setIsSubscribed(false);
           setIsCheckingSubscription(false);
           return false;
@@ -189,7 +195,11 @@ function App() {
 
       const subscription = await registration.pushManager.getSubscription();
       const isValid = !!subscription && !!subscription.endpoint;
-      setIsSubscribed(isValid);
+
+      // Only update state if it's changed
+      if (isValid !== isSubscribed) {
+        setIsSubscribed(isValid);
+      }
       setIsCheckingSubscription(false);
       return isValid;
     } catch (error) {
@@ -202,17 +212,25 @@ function App() {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId = null;
+
     const checkStatus = async () => {
-      if (mounted) await checkSubscriptionStatus();
+      if (!mounted) return;
+      await checkSubscriptionStatus();
+
+      // Schedule next check
+      if (mounted) {
+        timeoutId = setTimeout(checkStatus, 60000); // Check every minute
+      }
     };
 
     checkStatus();
-    // Set up an interval to periodically check subscription status
-    const intervalId = setInterval(checkStatus, 60000); // Check every minute
 
     return () => {
       mounted = false;
-      clearInterval(intervalId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
 
