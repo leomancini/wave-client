@@ -408,9 +408,8 @@ export const MoreMenu = ({
     checkSubscriptionStatus
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
-  // const allowPushNotifications =
-  //   isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
-  const allowPushNotifications = false;
+  const allowPushNotifications =
+    isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
 
   const handleSwitchNotificationPreference = async (option) => {
     const selectedOption = option.toUpperCase();
@@ -537,7 +536,7 @@ export const MoreMenu = ({
   }, [showSwitchDeviceInstructions]);
 
   useEffect(() => {
-    if (!visible || !allowPushNotifications) return;
+    if (!visible) return;
     checkSubscriptionStatus();
   }, [visible, allowPushNotifications, checkSubscriptionStatus]);
 
