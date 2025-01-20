@@ -842,7 +842,7 @@ export const MoreMenu = ({
                               />
                             )
                           ) : (
-                            pushPermission !== "granted" && (
+                            !user.pushNotificationsEnabled && (
                               <>
                                 <InlineEmptyCard>
                                   To enable push notifications,

@@ -112,24 +112,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   ]);
 
   useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/config/${groupId}`
-        );
-        const data = await response.json();
-        setConfig(data);
-      } catch (error) {
-        console.error("Error fetching config:", error);
-      }
-    };
-
-    if (user.valid && groupId) {
-      fetchConfig();
-    }
-  }, [user, groupId, setConfig]);
-
-  useEffect(() => {
     const MENU_ANIMATION_DURATION = 400;
     const ADDITIONAL_BUFFER = 200;
 
@@ -173,15 +155,17 @@ export const ViewGroup = ({ groupId, userId }) => {
           setUser(userData);
           setPage(1);
 
-          const promises = [
-            fetch(`${process.env.REACT_APP_API_URL}/config/${groupId}`)
-              .then((response) => response.json())
-              .then((data) => setConfig(data))
-              .catch((error) => console.error("Error fetching config:", error)),
-            fetchMediaItems(groupId, userId, 1, false)
-          ];
-
-          await Promise.all(promises);
+          try {
+            const [configData] = await Promise.all([
+              fetch(`${process.env.REACT_APP_API_URL}/config/${groupId}`).then(
+                (response) => response.json()
+              ),
+              fetchMediaItems(groupId, userId, 1, false)
+            ]);
+            setConfig(configData);
+          } catch (error) {
+            console.error("Error fetching initial data:", error);
+          }
         }
       };
 
