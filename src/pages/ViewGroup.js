@@ -543,7 +543,8 @@ export const ViewGroup = ({ groupId, userId }) => {
     notificationPreference === "PUSH" &&
     isPWA &&
     !isSubscribed &&
-    pushPermission !== "denied";
+    pushPermission !== "denied" &&
+    !user.pushNotificationsEnabled;
 
   return (
     <Page>
