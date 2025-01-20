@@ -156,70 +156,83 @@ function App() {
     }
   }, []);
 
-  const checkSubscriptionStatus = async () => {
-    try {
-      if (!("serviceWorker" in navigator)) {
-        setIsCheckingSubscription(false);
-        setIsSubscribed(false);
-        return false;
-      }
-
-      // Don't set checking state if we're just doing a quick re-check
-      if (!isCheckingSubscription) {
-        setIsCheckingSubscription(true);
-      }
-
-      const existingRegistrations =
-        await navigator.serviceWorker.getRegistrations();
-      let registration = existingRegistrations.find((reg) =>
-        reg.scope.includes("/service-workers/")
-      );
-
-      if (!registration) {
-        setIsSubscribed(false);
-        setIsCheckingSubscription(false);
-        return false;
-      }
-
-      if ("Notification" in window) {
-        const currentPermission = Notification.permission;
-        if (currentPermission !== pushPermission) {
-          setPushPermission(currentPermission);
+  const checkSubscriptionStatus = React.useCallback(
+    async (skipLoadingState = false) => {
+      try {
+        if (!("serviceWorker" in navigator)) {
+          setIsCheckingSubscription(false);
+          setIsSubscribed(false);
+          return false;
         }
-        if (currentPermission !== "granted") {
+
+        // Only show loading state for manual checks
+        if (!skipLoadingState) {
+          setIsCheckingSubscription(true);
+        }
+
+        const existingRegistrations =
+          await navigator.serviceWorker.getRegistrations();
+        let registration = existingRegistrations.find((reg) =>
+          reg.scope.includes("/service-workers/")
+        );
+
+        if (!registration) {
           setIsSubscribed(false);
           setIsCheckingSubscription(false);
           return false;
         }
-      }
 
-      const subscription = await registration.pushManager.getSubscription();
-      const isValid = !!subscription && !!subscription.endpoint;
+        if ("Notification" in window) {
+          const currentPermission = Notification.permission;
+          if (currentPermission !== pushPermission) {
+            setPushPermission(currentPermission);
+          }
+          if (currentPermission !== "granted") {
+            setIsSubscribed(false);
+            setIsCheckingSubscription(false);
+            return false;
+          }
+        }
 
-      // Only update state if it's changed
-      if (isValid !== isSubscribed) {
-        setIsSubscribed(isValid);
+        const subscription = await registration.pushManager.getSubscription();
+        const isValid = !!subscription && !!subscription.endpoint;
+
+        // Only update state if it's changed
+        if (isValid !== isSubscribed) {
+          setIsSubscribed(isValid);
+        }
+        setIsCheckingSubscription(false);
+        return isValid;
+      } catch (error) {
+        console.error("Error checking subscription status:", error);
+        setIsSubscribed(false);
+        setIsCheckingSubscription(false);
+        return false;
       }
-      setIsCheckingSubscription(false);
-      return isValid;
-    } catch (error) {
-      console.error("Error checking subscription status:", error);
-      setIsSubscribed(false);
-      setIsCheckingSubscription(false);
-      return false;
-    }
-  };
+    },
+    [
+      isSubscribed,
+      pushPermission,
+      setIsCheckingSubscription,
+      setIsSubscribed,
+      setPushPermission
+    ]
+  );
 
   useEffect(() => {
     let mounted = true;
     let timeoutId = null;
+    let checkInProgress = false;
 
     const checkStatus = async () => {
-      if (!mounted) return;
-      await checkSubscriptionStatus();
+      if (!mounted || checkInProgress) return;
 
-      // Schedule next check
-      if (mounted) {
+      checkInProgress = true;
+      await checkSubscriptionStatus(true); // Skip loading state for automatic checks
+      checkInProgress = false;
+
+      // Schedule next check only if still mounted and not already scheduled
+      if (mounted && !timeoutId) {
         timeoutId = setTimeout(checkStatus, 60000); // Check every minute
       }
     };
@@ -230,9 +243,10 @@ function App() {
       mounted = false;
       if (timeoutId) {
         clearTimeout(timeoutId);
+        timeoutId = null;
       }
     };
-  }, []);
+  }, [checkSubscriptionStatus]);
 
   const requestNotificationPermission = async () => {
     try {
@@ -254,99 +268,106 @@ function App() {
     }
   };
 
-  const setupPushNotifications = async (groupId, userId) => {
-    try {
-      setIsSubscriptionLoading(true);
-      const permission = await requestNotificationPermission();
-      if (permission === "granted") {
+  const setupPushNotifications = React.useCallback(
+    async (groupId, userId) => {
+      try {
+        setIsSubscriptionLoading(true);
+        const permission = await requestNotificationPermission();
+        if (permission === "granted") {
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          let registration = registrations.find((reg) =>
+            reg.scope.includes("/service-workers/")
+          );
+
+          if (!registration) {
+            registration = await navigator.serviceWorker.register(
+              "/service-workers/web-push-notifications.js",
+              { scope: "/service-workers/" }
+            );
+
+            if (registration.installing) {
+              await new Promise((resolve) => {
+                registration.installing.addEventListener("statechange", (e) => {
+                  if (e.target.state === "activated") {
+                    resolve();
+                  }
+                });
+              });
+            }
+          }
+
+          if (!registration) {
+            throw new Error("Service worker registration failed");
+          }
+
+          const existingSubscription =
+            await registration.pushManager.getSubscription();
+          if (existingSubscription) {
+            await existingSubscription.unsubscribe();
+          }
+
+          const convertedVapidKey = urlBase64ToUint8Array(
+            process.env.REACT_APP_VAPID_PUBLIC_KEY
+          );
+
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+          });
+
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(subscription)
+            }
+          );
+
+          await response.json();
+          await checkSubscriptionStatus();
+        }
+      } catch (error) {
+        console.error("Error setting up push notifications:", error);
+        setIsSubscribed(false);
+      } finally {
+        setIsSubscriptionLoading(false);
+      }
+    },
+    [checkSubscriptionStatus, requestNotificationPermission]
+  );
+
+  const unsubscribePushNotifications = React.useCallback(
+    async (groupId, userId) => {
+      try {
+        setIsSubscriptionLoading(true);
         const registrations = await navigator.serviceWorker.getRegistrations();
-        let registration = registrations.find((reg) =>
+        const registration = registrations.find((reg) =>
           reg.scope.includes("/service-workers/")
         );
 
-        if (!registration) {
-          registration = await navigator.serviceWorker.register(
-            "/service-workers/web-push-notifications.js",
-            { scope: "/service-workers/" }
-          );
-
-          if (registration.installing) {
-            await new Promise((resolve) => {
-              registration.installing.addEventListener("statechange", (e) => {
-                if (e.target.state === "activated") {
-                  resolve();
-                }
-              });
-            });
+        if (registration) {
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            await subscription.unsubscribe();
+            await fetch(
+              `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
+              { method: "POST" }
+            );
           }
+          await registration.unregister();
         }
-
-        if (!registration) {
-          throw new Error("Service worker registration failed");
-        }
-
-        const existingSubscription =
-          await registration.pushManager.getSubscription();
-        if (existingSubscription) {
-          await existingSubscription.unsubscribe();
-        }
-
-        const convertedVapidKey = urlBase64ToUint8Array(
-          process.env.REACT_APP_VAPID_PUBLIC_KEY
-        );
-
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: convertedVapidKey
-        });
-
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(subscription)
-          }
-        );
-
-        await response.json();
         await checkSubscriptionStatus();
+      } catch (error) {
+        console.error("Error unsubscribing from push notifications:", error);
+        setIsSubscribed(false);
+      } finally {
+        setIsSubscriptionLoading(false);
       }
-    } catch (error) {
-      console.error("Error setting up push notifications:", error);
-      setIsSubscribed(false);
-    } finally {
-      setIsSubscriptionLoading(false);
-    }
-  };
-
-  const unsubscribePushNotifications = async (groupId, userId) => {
-    try {
-      setIsSubscriptionLoading(true);
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      const registration = registrations.find((reg) =>
-        reg.scope.includes("/service-workers/")
-      );
-
-      if (registration) {
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) {
-          await subscription.unsubscribe();
-          await fetch(
-            `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
-            { method: "POST" }
-          );
-        }
-        await registration.unregister();
-      }
-      await checkSubscriptionStatus();
-    } catch (error) {
-      console.error("Error unsubscribing from push notifications:", error);
-      setIsSubscribed(false);
-    } finally {
-      setIsSubscriptionLoading(false);
-    }
-  };
+    },
+    [checkSubscriptionStatus]
+  );
 
   return (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>
