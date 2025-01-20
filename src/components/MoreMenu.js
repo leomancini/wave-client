@@ -778,13 +778,19 @@ export const MoreMenu = ({
                           />
                         )
                       ) : (
-                        <InlineEmptyCard>
-                          To enable push notifications,
-                          <br /> add to your home screen.
-                        </InlineEmptyCard>
+                        !isSubscribed && (
+                          <InlineEmptyCard>
+                            To enable push notifications,
+                            <br /> add to your home screen.
+                          </InlineEmptyCard>
+                        )
                       )}
                     </Section>
                   )}
+                <br />
+                isSubscribed: {isSubscribed}
+                <br />
+                pushPermission: {pushPermission}
                 {notificationPreference === "SMS" && (
                   <Section>
                     <VerifyPhoneNumber groupId={groupId} user={user} />
