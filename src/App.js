@@ -5,8 +5,6 @@ import { ConfigProvider } from "./contexts/ConfigContext";
 import { StyleSheetManager } from "styled-components";
 import isPropValid from "@emotion/is-prop-valid";
 
-import { useDetectDeviceType } from "./utilities/detectDeviceType";
-
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
@@ -26,34 +24,6 @@ const Container = styled.div`
   padding-top: calc(env(safe-area-inset-top) + 1rem);
   min-height: 100%;
   box-sizing: border-box;
-`;
-
-const StatusBarBackground = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  background-color: white;
-  z-index: 99999;
-`;
-
-const StatusBarShadow = styled.div`
-  position: fixed;
-  top: env(safe-area-inset-top);
-  left: 0;
-  right: 0;
-  height: 0.5rem;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.1, 0.1)}) 0%,
-    rgba(0, 0, 0, ${(props) => Math.min(props.intensity * 0.05, 0.05)}) 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 99999;
-  opacity: ${(props) => (props.visible ? 1 : 0)};
-  transition: opacity 0.2s ease-in-out;
 `;
 
 const Pages = {
@@ -101,10 +71,6 @@ function App() {
   const [groupId, setGroupId] = useState("");
   const [userId, setUserId] = useState("");
   const [page, setPage] = useState("");
-  const [isAtTop, setIsAtTop] = useState(true);
-  const [scrollIntensity, setScrollIntensity] = useState(1);
-  const deviceType = useDetectDeviceType();
-
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
   const [pushPermission, setPushPermission] = useState(
@@ -175,21 +141,6 @@ function App() {
       const pageId = urlParts[0];
       setPageAndTitle(pageId || Pages.Home.id);
     }
-  }, []);
-
-  useEffect(() => {
-    let frameId;
-
-    const checkScroll = () => {
-      const scrollY = window.scrollY;
-      setIsAtTop(scrollY < 12);
-      setScrollIntensity(Math.min(scrollY / 100, 1));
-      frameId = requestAnimationFrame(checkScroll);
-    };
-
-    frameId = requestAnimationFrame(checkScroll);
-
-    return () => cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {
@@ -296,15 +247,6 @@ function App() {
             }}
           >
             <BrowserRouter basename="/">
-              {deviceType === "mobile" ? (
-                <>
-                  <StatusBarBackground />
-                  <StatusBarShadow
-                    visible={!isAtTop}
-                    intensity={scrollIntensity}
-                  />
-                </>
-              ) : null}
               <Container>
                 {page === Pages.Home.id && <Home />}
                 {page === Pages.CreateGroup.id && <CreateGroup />}
