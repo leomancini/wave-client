@@ -42,5 +42,5 @@ export const InlineEmptyCard = styled.div`
   text-align: center;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(0, 0, 0, 0.5);
 `;

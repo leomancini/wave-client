@@ -408,8 +408,9 @@ export const MoreMenu = ({
     checkSubscriptionStatus
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
-  const allowPushNotifications =
-    isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
+  // const allowPushNotifications =
+  //   isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
+  const allowPushNotifications = false;
 
   const handleSwitchNotificationPreference = async (option) => {
     const selectedOption = option.toUpperCase();
@@ -673,133 +674,6 @@ export const MoreMenu = ({
         <HeaderShadow />
       </Header>
       <Content ref={contentRef}>
-        <Section>
-          <SectionHeader>
-            <SectionLabel>Reactions</SectionLabel>
-            {reactionEmojisLoading && <Spinner size="small" />}
-          </SectionHeader>
-          <SectionContent>
-            <ReactionButtons>
-              {reactionEmojis?.map((reaction, index) => (
-                <ReactionButton
-                  key={`reaction-emoji-slot-${index}-${reaction}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (index !== reactionEmojiSlotIndex) {
-                      setEmojiPickerVisible(true);
-                      setReactionEmojiSlotIndex(index);
-                    } else {
-                      setEmojiPickerVisible(false);
-                      setReactionEmojiSlotIndex(null);
-                    }
-                  }}
-                  disabled={reactionEmojisLoading}
-                  selected={index === reactionEmojiSlotIndex}
-                >
-                  {reaction}
-                </ReactionButton>
-              ))}
-            </ReactionButtons>
-            {emojiPickerVisible && (
-              <EmojiPickerContainer>
-                <Picker
-                  data={data}
-                  dynamicWidth={true}
-                  theme="light"
-                  previewPosition="none"
-                  maxFrequentRows="0"
-                  emojiSize={32}
-                  emojiButtonSize={48}
-                  emojiButtonRadius="0.5rem"
-                  searchPosition="static"
-                  onEmojiSelect={handleEmojiSelect}
-                  onClickOutside={() => {
-                    setEmojiPickerVisible(false);
-                    setReactionEmojiSlotIndex(null);
-                  }}
-                />
-              </EmojiPickerContainer>
-            )}
-          </SectionContent>
-        </Section>
-        {(groupId === "LOCALHOST" ||
-          groupId === "LEOTEST" ||
-          groupId === "LEO_TEST_2") && (
-          <Section>
-            <SectionHeader>
-              <SectionLabel>Notifications</SectionLabel>
-              {(isSwitchingNotificationPreference ||
-                isCheckingSubscription ||
-                isSubscriptionLoading) && <Spinner size="small" />}
-            </SectionHeader>
-            <SegmentedController
-              options={["Off", "Push", "SMS"]}
-              selectedOption={notificationPreference}
-              setSelectedOption={handleSwitchNotificationPreference}
-              isLoading={
-                isCheckingSubscription ||
-                isSubscriptionLoading ||
-                isSwitchingNotificationPreference
-              }
-            />
-            {!isSwitchingNotificationPreference && (
-              <>
-                {notificationPreference === "PUSH" &&
-                  !isCheckingSubscription &&
-                  !isSubscriptionLoading && (
-                    <Section>
-                      {allowPushNotifications ? (
-                        isSubscribed && pushPermission === "granted" ? (
-                          <Button
-                            type="text"
-                            size="small"
-                            stretch="fill"
-                            label="Send test notification"
-                            onClick={sendTestNotification}
-                          />
-                        ) : pushPermission === "denied" ? (
-                          <InlineEmptyCard>
-                            Push notifications blocked, check browser settings.
-                          </InlineEmptyCard>
-                        ) : isSubscriptionLoading ? (
-                          <InlineEmptyCard>
-                            Setting up push notifications...
-                          </InlineEmptyCard>
-                        ) : (
-                          <Button
-                            type="text"
-                            size="small"
-                            prominence="secondary"
-                            stretch="fill"
-                            label="Enable push notifications"
-                            onClick={() =>
-                              setupPushNotifications(groupId, user.id)
-                            }
-                          />
-                        )
-                      ) : (
-                        !isSubscribed && (
-                          <InlineEmptyCard>
-                            To enable push notifications,
-                            <br /> add to your home screen.
-                          </InlineEmptyCard>
-                        )
-                      )}
-                    </Section>
-                  )}
-                <br />
-                isSubscribed: {isSubscribed}
-                <br />
-                pushPermission: {pushPermission}
-                {notificationPreference === "SMS" && (
-                  <Section>
-                    <VerifyPhoneNumber groupId={groupId} user={user} />
-                  </Section>
-                )}
-              </>
-            )}
-          </Section>
-        )}
         {showSwitchDeviceInstructions ? (
           <>
             {deviceType === "mobile" ? (
@@ -863,6 +737,154 @@ export const MoreMenu = ({
           </>
         ) : (
           <>
+            <Section>
+              <SectionHeader>
+                <SectionLabel>Reactions</SectionLabel>
+                {reactionEmojisLoading && <Spinner size="small" />}
+              </SectionHeader>
+              <SectionContent>
+                <ReactionButtons>
+                  {reactionEmojis?.map((reaction, index) => (
+                    <ReactionButton
+                      key={`reaction-emoji-slot-${index}-${reaction}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (index !== reactionEmojiSlotIndex) {
+                          setEmojiPickerVisible(true);
+                          setReactionEmojiSlotIndex(index);
+                        } else {
+                          setEmojiPickerVisible(false);
+                          setReactionEmojiSlotIndex(null);
+                        }
+                      }}
+                      disabled={reactionEmojisLoading}
+                      selected={index === reactionEmojiSlotIndex}
+                    >
+                      {reaction}
+                    </ReactionButton>
+                  ))}
+                </ReactionButtons>
+                {emojiPickerVisible && (
+                  <EmojiPickerContainer>
+                    <Picker
+                      data={data}
+                      dynamicWidth={true}
+                      theme="light"
+                      previewPosition="none"
+                      maxFrequentRows="0"
+                      emojiSize={32}
+                      emojiButtonSize={48}
+                      emojiButtonRadius="0.5rem"
+                      searchPosition="static"
+                      onEmojiSelect={handleEmojiSelect}
+                      onClickOutside={() => {
+                        setEmojiPickerVisible(false);
+                        setReactionEmojiSlotIndex(null);
+                      }}
+                    />
+                  </EmojiPickerContainer>
+                )}
+              </SectionContent>
+            </Section>
+            {(groupId === "LOCALHOST" ||
+              groupId === "LEOTEST" ||
+              groupId === "LEO_TEST_2") && (
+              <Section>
+                <SectionHeader>
+                  <SectionLabel>Notifications</SectionLabel>
+                  {(isSwitchingNotificationPreference ||
+                    isCheckingSubscription ||
+                    isSubscriptionLoading) && <Spinner size="small" />}
+                </SectionHeader>
+                <SegmentedController
+                  options={["Off", "Push", "SMS"]}
+                  selectedOption={notificationPreference}
+                  setSelectedOption={handleSwitchNotificationPreference}
+                  isLoading={
+                    isCheckingSubscription ||
+                    isSubscriptionLoading ||
+                    isSwitchingNotificationPreference
+                  }
+                />
+                {!isSwitchingNotificationPreference && (
+                  <>
+                    {notificationPreference === "PUSH" &&
+                      !isCheckingSubscription &&
+                      !isSubscriptionLoading && (
+                        <Section>
+                          {allowPushNotifications ? (
+                            isSubscribed && pushPermission === "granted" ? (
+                              <Button
+                                type="text"
+                                size="small"
+                                stretch="fill"
+                                label="Send test notification"
+                                onClick={sendTestNotification}
+                              />
+                            ) : pushPermission === "denied" ? (
+                              <InlineEmptyCard>
+                                Push notifications blocked, check browser
+                                settings.
+                              </InlineEmptyCard>
+                            ) : isSubscriptionLoading ? (
+                              <InlineEmptyCard>
+                                Setting up push notifications...
+                              </InlineEmptyCard>
+                            ) : (
+                              <Button
+                                type="text"
+                                size="small"
+                                prominence="secondary"
+                                stretch="fill"
+                                label="Enable push notifications"
+                                onClick={() =>
+                                  setupPushNotifications(groupId, user.id)
+                                }
+                              />
+                            )
+                          ) : (
+                            pushPermission !== "granted" && (
+                              <>
+                                <InlineEmptyCard>
+                                  To enable push notifications,
+                                  <br />
+                                  {deviceType === "mobile"
+                                    ? "add WAVE to your home screen."
+                                    : "open WAVE on your phone."}
+                                </InlineEmptyCard>
+                                {deviceType !== "mobile" && (
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    prominence="secondary"
+                                    label={`Login on a ${
+                                      deviceType === "mobile"
+                                        ? "computer"
+                                        : "phone"
+                                    }`}
+                                    onClick={() =>
+                                      setShowSwitchDeviceInstructions(true)
+                                    }
+                                  />
+                                )}
+                              </>
+                            )
+                          )}
+                        </Section>
+                      )}
+                    <br />
+                    isSubscribed: {isSubscribed}
+                    <br />
+                    pushPermission: {pushPermission}
+                    {notificationPreference === "SMS" && (
+                      <Section>
+                        <VerifyPhoneNumber groupId={groupId} user={user} />
+                      </Section>
+                    )}
+                  </>
+                )}
+              </Section>
+            )}
             <Section>
               <SectionHeader>
                 <SectionLabel>Stats</SectionLabel>
