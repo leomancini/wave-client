@@ -87,7 +87,8 @@ export const ViewGroup = ({ groupId, userId }) => {
     isSubscribed,
     isSubscriptionLoading,
     isCheckingSubscription,
-    setupPushNotifications
+    setupPushNotifications,
+    pushPermission
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
 
@@ -522,7 +523,10 @@ export const ViewGroup = ({ groupId, userId }) => {
   }
 
   const shouldShowPushNotificationBanner =
-    user.notificationPreference === "PUSH" && isPWA && !isSubscribed;
+    user.notificationPreference === "PUSH" &&
+    isPWA &&
+    !isSubscribed &&
+    !pushPermission === "denied";
 
   return (
     <Page>
