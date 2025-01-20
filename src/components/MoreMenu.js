@@ -411,14 +411,14 @@ export const MoreMenu = ({
     isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
 
   const handleSwitchNotificationPreference = async (option) => {
-    const serverOption = option.toUpperCase();
-    if (serverOption === notificationPreference) {
+    const selectedOption = option.toUpperCase();
+    if (selectedOption === notificationPreference) {
       return;
     }
     setIsSwitchingNotificationPreference(true);
 
     try {
-      if (serverOption === "PUSH") {
+      if (selectedOption === "PUSH") {
         if (allowPushNotifications) {
           await setupPushNotifications(groupId, user.id);
         } else {
@@ -436,16 +436,14 @@ export const MoreMenu = ({
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            notificationType: serverOption
+            notificationType: selectedOption
           })
         }
       );
 
-      // Store notification preference in localStorage
-      localStorage.setItem("notificationPreference", serverOption);
-      setNotificationPreference(serverOption);
+      setNotificationPreference(selectedOption);
 
-      if (serverOption !== "PUSH" || !allowPushNotifications) {
+      if (selectedOption !== "PUSH" || !allowPushNotifications) {
         setIsSubscriptionLoading(false);
       }
     } catch (error) {

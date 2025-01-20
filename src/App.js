@@ -156,71 +156,64 @@ function App() {
     }
   }, []);
 
+  const checkSubscriptionStatus = async () => {
+    try {
+      if (!("serviceWorker" in navigator)) {
+        setIsCheckingSubscription(false);
+        setIsSubscribed(false);
+        return false;
+      }
+
+      setIsCheckingSubscription(true);
+
+      const existingRegistrations =
+        await navigator.serviceWorker.getRegistrations();
+      let registration = existingRegistrations.find((reg) =>
+        reg.scope.includes("/service-workers/")
+      );
+
+      if (!registration) {
+        setIsSubscribed(false);
+        setIsCheckingSubscription(false);
+        return false;
+      }
+
+      if ("Notification" in window) {
+        setPushPermission(Notification.permission);
+        if (Notification.permission !== "granted") {
+          setIsSubscribed(false);
+          setIsCheckingSubscription(false);
+          return false;
+        }
+      }
+
+      const subscription = await registration.pushManager.getSubscription();
+      const isValid = !!subscription && !!subscription.endpoint;
+      setIsSubscribed(isValid);
+      setIsCheckingSubscription(false);
+      return isValid;
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      setIsSubscribed(false);
+      setIsCheckingSubscription(false);
+      return false;
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
-
-    const registerServiceWorker = async () => {
-      try {
-        if (!("serviceWorker" in navigator)) {
-          if (mounted) setIsCheckingSubscription(false);
-          return;
-        }
-
-        // Only proceed with service worker registration if push notifications are enabled
-        const notificationPreference = localStorage.getItem(
-          "notificationPreference"
-        );
-        if (notificationPreference !== "PUSH") {
-          if (mounted) setIsCheckingSubscription(false);
-          return;
-        }
-
-        if (mounted) setIsCheckingSubscription(true);
-
-        const existingRegistrations =
-          await navigator.serviceWorker.getRegistrations();
-        let registration = existingRegistrations.find((reg) =>
-          reg.scope.includes("/service-workers/")
-        );
-
-        if (!registration) {
-          registration = await navigator.serviceWorker.register(
-            "/service-workers/web-push-notifications.js",
-            { scope: "/service-workers/" }
-          );
-
-          if (registration.installing) {
-            await new Promise((resolve) => {
-              registration.installing.addEventListener("statechange", (e) => {
-                if (e.target.state === "activated") {
-                  resolve();
-                }
-              });
-            });
-          }
-        }
-
-        if ("Notification" in window) {
-          setPushPermission(Notification.permission);
-        }
-
-        const subscription = await registration.pushManager.getSubscription();
-        if (mounted) {
-          setIsSubscribed(!!subscription);
-          setIsCheckingSubscription(false);
-        }
-      } catch (error) {
-        console.error("Service worker registration failed:", error);
-        if (mounted) setIsCheckingSubscription(false);
-      }
+    const checkStatus = async () => {
+      if (mounted) await checkSubscriptionStatus();
     };
 
-    registerServiceWorker();
+    checkStatus();
+    // Set up an interval to periodically check subscription status
+    const intervalId = setInterval(checkStatus, 60000); // Check every minute
 
     return () => {
       mounted = false;
+      clearInterval(intervalId);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const requestNotificationPermission = async () => {
@@ -299,12 +292,7 @@ function App() {
         );
 
         await response.json();
-
-        const currentSubscription =
-          await registration.pushManager.getSubscription();
-        setIsSubscribed(
-          !!currentSubscription && !!currentSubscription.endpoint
-        );
+        await checkSubscriptionStatus();
       }
     } catch (error) {
       console.error("Error setting up push notifications:", error);
@@ -316,6 +304,7 @@ function App() {
 
   const unsubscribePushNotifications = async (groupId, userId) => {
     try {
+      setIsSubscriptionLoading(true);
       const registrations = await navigator.serviceWorker.getRegistrations();
       const registration = registrations.find((reg) =>
         reg.scope.includes("/service-workers/")
@@ -332,9 +321,12 @@ function App() {
         }
         await registration.unregister();
       }
-      setIsSubscribed(false);
+      await checkSubscriptionStatus();
     } catch (error) {
       console.error("Error unsubscribing from push notifications:", error);
+      setIsSubscribed(false);
+    } finally {
+      setIsSubscriptionLoading(false);
     }
   };
 
@@ -353,7 +345,8 @@ function App() {
               setIsSubscriptionLoading,
               requestNotificationPermission,
               setupPushNotifications,
-              unsubscribePushNotifications
+              unsubscribePushNotifications,
+              checkSubscriptionStatus
             }}
           >
             <BrowserRouter basename="/">
