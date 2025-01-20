@@ -810,7 +810,7 @@ export const MoreMenu = ({
                     {notificationPreference === "PUSH" &&
                       !isCheckingSubscription &&
                       !isSubscriptionLoading && (
-                        <Section>
+                        <>
                           {allowPushNotifications ? (
                             isSubscribed && pushPermission === "granted" ? (
                               <Button
@@ -869,12 +869,10 @@ export const MoreMenu = ({
                               </>
                             )
                           )}
-                        </Section>
+                        </>
                       )}
                     {notificationPreference === "SMS" && (
-                      <Section>
-                        <VerifyPhoneNumber groupId={groupId} user={user} />
-                      </Section>
+                      <VerifyPhoneNumber groupId={groupId} user={user} />
                     )}
                   </>
                 )}
