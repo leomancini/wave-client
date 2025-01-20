@@ -248,7 +248,7 @@ function App() {
     };
   }, [checkSubscriptionStatus]);
 
-  const requestNotificationPermission = async () => {
+  const requestNotificationPermission = React.useCallback(async () => {
     try {
       setIsSubscriptionLoading(true);
 
@@ -266,7 +266,7 @@ function App() {
     } finally {
       setIsSubscriptionLoading(false);
     }
-  };
+  }, [setPushPermission, setIsSubscriptionLoading]);
 
   const setupPushNotifications = React.useCallback(
     async (groupId, userId) => {
