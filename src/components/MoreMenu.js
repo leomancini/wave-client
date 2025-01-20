@@ -425,7 +425,10 @@ export const MoreMenu = ({
         } else {
           setIsSubscriptionLoading(false);
         }
-      } else if (notificationPreference === "PUSH" && isSubscribed) {
+      } else if (
+        (selectedOption === "OFF" || selectedOption === "SMS") &&
+        isSubscribed
+      ) {
         await unsubscribePushNotifications(groupId, user.id);
       }
 
