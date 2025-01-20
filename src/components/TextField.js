@@ -60,15 +60,15 @@ const InputBase = css`
       -moz-user-select: none !important;
       -ms-user-select: none !important;
       user-select: none !important;
-      background: rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.05);
 
       &:active,
       &:focus {
-        background: rgba(0, 0, 0, 0.04);
+        background: rgba(0, 0, 0, 0.05);
       }
 
       &::placeholder {
-        color: rgba(0, 0, 0, 0.04);
+        color: rgba(0, 0, 0, 0.25);
       }
     `}
 
