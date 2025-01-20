@@ -536,7 +536,7 @@ export const MoreMenu = ({
   }, [showSwitchDeviceInstructions]);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || !allowPushNotifications) return;
     checkSubscriptionStatus();
   }, [visible, allowPushNotifications, checkSubscriptionStatus]);
 
