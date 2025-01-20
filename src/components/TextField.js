@@ -44,11 +44,10 @@ const InputBase = css`
     color: ${(props) => (props.disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
   }
 
-  /* Handle the autofilled background/text color here */
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px red inset !important;
+    -webkit-box-shadow: 0 0 0 30px #ececec inset !important;
     -webkit-text-fill-color: inherit !important;
   }
 
