@@ -871,11 +871,6 @@ export const MoreMenu = ({
                           )}
                         </Section>
                       )}
-                    <br />
-                    pushNotificationsEnabled:{" "}
-                    {user.pushNotificationsEnabled ? "true" : "false"}
-                    <br />
-                    pushPermission: {pushPermission}
                     {notificationPreference === "SMS" && (
                       <Section>
                         <VerifyPhoneNumber groupId={groupId} user={user} />
