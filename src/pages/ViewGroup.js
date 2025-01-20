@@ -443,6 +443,14 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     }
 
+    if (isMoreMenuVisible) {
+      validateUser(groupId, userId).then((userData) => {
+        if (userData.valid) {
+          setUser(userData);
+        }
+      });
+    }
+
     setIsMoreMenuVisible(!isMoreMenuVisible);
   };
 
