@@ -478,13 +478,11 @@ export const MoreMenu = ({
 
   useEffect(() => {
     if (visible) {
-      // Save current scroll position
       const scrollPos = window.scrollY;
       document.body.style.position = "fixed";
       document.body.style.width = "100%";
       document.body.style.top = `-${scrollPos}px`;
     } else {
-      // Restore scroll position
       const scrollY = document.body.style.top;
       document.body.style.position = "";
       document.body.style.width = "";
