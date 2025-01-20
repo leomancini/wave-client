@@ -98,7 +98,8 @@ export const Banner = ({
   messages,
   footer,
   button,
-  messagesAlignment = "center"
+  messagesAlignment = "center",
+  onButtonClick
 }) => {
   return (
     <BannerContainer prominence={prominence}>
@@ -116,8 +117,7 @@ export const Banner = ({
         ))}
       </Messages>
       {footer && <Footer>{footer}</Footer>}
-      {/* TODO: Remove disabled when button actions are ready */}
-      {button && <Button disabled size="small" label={button}></Button>}
+      {button && <Button size="small" label={button} onClick={onButtonClick} />}
     </BannerContainer>
   );
 };
