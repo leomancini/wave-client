@@ -41,7 +41,7 @@ async function renewSubscription() {
       throw new Error(data.error || "Failed to renew subscription");
     }
   } catch (error) {
-    console.error("Error renewing push subscription:", error);
+    // Silent error handling
   }
 }
 
@@ -52,9 +52,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("push", function (event) {
-  if (!event.data) {
-    return;
-  }
+  if (!event.data) return;
 
   try {
     let data;
@@ -87,12 +85,13 @@ self.addEventListener("push", function (event) {
     };
 
     event.waitUntil(
-      self.registration
-        .showNotification(data.title || "Push Notification", options)
-        .catch((error) => console.error("Error showing notification:", error))
+      self.registration.showNotification(
+        data.title || "Push Notification",
+        options
+      )
     );
   } catch (error) {
-    console.error("Error processing push event:", error);
+    // Silent error handling
   }
 });
 

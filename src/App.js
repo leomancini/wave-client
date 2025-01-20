@@ -66,6 +66,19 @@ const customProps = new Set([
 
 const shouldForwardProp = (prop) => isPropValid(prop) && !customProps.has(prop);
 
+const urlBase64ToUint8Array = (base64String) => {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
 function App() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState("");
@@ -230,6 +243,101 @@ function App() {
     }
   };
 
+  const setupPushNotifications = async (groupId, userId) => {
+    try {
+      setIsSubscriptionLoading(true);
+      const permission = await requestNotificationPermission();
+      if (permission === "granted") {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        let registration = registrations.find((reg) =>
+          reg.scope.includes("/service-workers/")
+        );
+
+        if (!registration) {
+          registration = await navigator.serviceWorker.register(
+            "/service-workers/web-push-notifications.js",
+            { scope: "/service-workers/" }
+          );
+
+          if (registration.installing) {
+            await new Promise((resolve) => {
+              registration.installing.addEventListener("statechange", (e) => {
+                if (e.target.state === "activated") {
+                  resolve();
+                }
+              });
+            });
+          }
+        }
+
+        if (!registration) {
+          throw new Error("Service worker registration failed");
+        }
+
+        const existingSubscription =
+          await registration.pushManager.getSubscription();
+        if (existingSubscription) {
+          await existingSubscription.unsubscribe();
+        }
+
+        const convertedVapidKey = urlBase64ToUint8Array(
+          process.env.REACT_APP_VAPID_PUBLIC_KEY
+        );
+
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidKey
+        });
+
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(subscription)
+          }
+        );
+
+        await response.json();
+
+        const currentSubscription =
+          await registration.pushManager.getSubscription();
+        setIsSubscribed(
+          !!currentSubscription && !!currentSubscription.endpoint
+        );
+      }
+    } catch (error) {
+      console.error("Error setting up push notifications:", error);
+      setIsSubscribed(false);
+    } finally {
+      setIsSubscriptionLoading(false);
+    }
+  };
+
+  const unsubscribePushNotifications = async (groupId, userId) => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const registration = registrations.find((reg) =>
+        reg.scope.includes("/service-workers/")
+      );
+
+      if (registration) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          await fetch(
+            `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
+            { method: "POST" }
+          );
+        }
+        await registration.unregister();
+      }
+      setIsSubscribed(false);
+    } catch (error) {
+      console.error("Error unsubscribing from push notifications:", error);
+    }
+  };
+
   return (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>
       <ConfigProvider>
@@ -243,7 +351,9 @@ function App() {
               setPushPermission,
               isSubscriptionLoading,
               setIsSubscriptionLoading,
-              requestNotificationPermission
+              requestNotificationPermission,
+              setupPushNotifications,
+              unsubscribePushNotifications
             }}
           >
             <BrowserRouter basename="/">

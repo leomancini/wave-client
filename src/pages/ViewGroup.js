@@ -83,7 +83,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [, setPendingReadItems] = useState(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const { isSubscribed, isSubscriptionLoading } =
+  const { isSubscribed, isSubscriptionLoading, setupPushNotifications } =
     useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
 
@@ -571,6 +571,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           <Banner
             messages={["Get notified about new activity!"]}
             button="Enable push notifications"
+            onButtonClick={() => setupPushNotifications(groupId, userId)}
           />
         )}
         <MediaGrid>

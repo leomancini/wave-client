@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useContext, useCallback } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
 import styled from "styled-components";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
@@ -17,19 +17,6 @@ import { Spinner } from "./Spinner";
 import VerifyPhoneNumber from "./VerifyPhoneNumber";
 import { SegmentedController } from "./SegmentedController";
 import { InlineEmptyCard } from "./EmptyCard";
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 const Container = styled.div`
   position: fixed;
@@ -381,109 +368,6 @@ const UserListItem = ({ user, showSeparator }) => (
   </ListItem>
 );
 
-const requestPushSubscription = async (
-  groupId,
-  userId,
-  permission,
-  setIsSubscribed,
-  setIsSubscriptionLoading,
-  isUnsubscribing = false
-) => {
-  try {
-    setIsSubscriptionLoading(true);
-
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    let registration = registrations.find((reg) =>
-      reg.scope.includes("/service-workers/")
-    );
-
-    // If we're unsubscribing and there's no registration, we can just return
-    if (isUnsubscribing && !registration) {
-      setIsSubscribed(false);
-      return { success: true };
-    }
-
-    // Register service worker if it doesn't exist and we're not unsubscribing
-    if (!registration && !isUnsubscribing) {
-      registration = await navigator.serviceWorker.register(
-        "/service-workers/web-push-notifications.js",
-        { scope: "/service-workers/" }
-      );
-
-      // Wait for the service worker to be activated
-      if (registration.installing) {
-        await new Promise((resolve) => {
-          registration.installing.addEventListener("statechange", (e) => {
-            if (e.target.state === "activated") {
-              resolve();
-            }
-          });
-        });
-      }
-    }
-
-    if (!registration) {
-      throw new Error("Service worker registration failed");
-    }
-
-    const existingSubscription =
-      await registration.pushManager.getSubscription();
-
-    if (isUnsubscribing) {
-      if (existingSubscription) {
-        await existingSubscription.unsubscribe();
-      }
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/web-push/remove-subscription/${groupId}/${userId}`,
-        { method: "POST" }
-      );
-      const data = await response.json();
-      setIsSubscribed(false);
-      return data;
-    }
-
-    if (permission !== "granted") {
-      throw new Error("Permission not granted");
-    }
-
-    if (existingSubscription) {
-      await existingSubscription.unsubscribe();
-    }
-
-    const convertedVapidKey = urlBase64ToUint8Array(
-      process.env.REACT_APP_VAPID_PUBLIC_KEY
-    );
-
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: convertedVapidKey
-    });
-
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/web-push/save-subscription/${groupId}/${userId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription)
-      }
-    );
-
-    const data = await response.json();
-
-    const currentSubscription =
-      await registration.pushManager.getSubscription();
-    setIsSubscribed(!!currentSubscription && !!currentSubscription.endpoint);
-
-    return data;
-  } catch (error) {
-    console.error("Push subscription failed:", error);
-    setIsSubscribed(false);
-    return { success: false, error: error.message };
-  } finally {
-    setIsSubscriptionLoading(false);
-  }
-};
-
 export const MoreMenu = ({
   visible,
   setIsMoreMenuVisible,
@@ -519,11 +403,58 @@ export const MoreMenu = ({
     pushPermission,
     isSubscriptionLoading,
     setIsSubscriptionLoading,
-    requestNotificationPermission
+    setupPushNotifications,
+    unsubscribePushNotifications
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
   const allowPushNotifications =
     isPWA || process.env.REACT_APP_ENVIRONMENT === "development";
+
+  const handleSwitchNotificationPreference = async (option) => {
+    const serverOption = option.toUpperCase();
+    if (serverOption === notificationPreference) {
+      return;
+    }
+    setIsSwitchingNotificationPreference(true);
+
+    try {
+      if (serverOption === "PUSH") {
+        if (allowPushNotifications) {
+          await setupPushNotifications(groupId, user.id);
+        } else {
+          setIsSubscriptionLoading(false);
+        }
+      } else if (notificationPreference === "PUSH" && isSubscribed) {
+        await unsubscribePushNotifications(groupId, user.id);
+      }
+
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            notificationType: serverOption
+          })
+        }
+      );
+
+      // Store notification preference in localStorage
+      localStorage.setItem("notificationPreference", serverOption);
+      setNotificationPreference(serverOption);
+
+      if (serverOption !== "PUSH" || !allowPushNotifications) {
+        setIsSubscriptionLoading(false);
+      }
+    } catch (error) {
+      console.error("Error updating notification preference:", error);
+      setIsSubscriptionLoading(false);
+    }
+
+    setIsSwitchingNotificationPreference(false);
+  };
 
   useEffect(() => {
     if (config?.reactions) {
@@ -603,33 +534,6 @@ export const MoreMenu = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSwitchDeviceInstructions]);
-
-  const setupPushNotifications = useCallback(async () => {
-    try {
-      setIsSubscriptionLoading(true);
-      const permission = await requestNotificationPermission();
-
-      if (permission === "granted") {
-        await requestPushSubscription(
-          groupId,
-          user.id,
-          permission,
-          setIsSubscribed,
-          setIsSubscriptionLoading,
-          false
-        );
-      }
-    } catch (error) {
-      console.error("Error setting up push notifications:", error);
-      setIsSubscriptionLoading(false);
-    }
-  }, [
-    groupId,
-    user.id,
-    requestNotificationPermission,
-    setIsSubscribed,
-    setIsSubscriptionLoading
-  ]);
 
   useEffect(() => {
     const checkSubscriptionStatus = async () => {
@@ -742,81 +646,6 @@ export const MoreMenu = ({
       setReactionEmojisLoading(false);
       setReactionEmojiSlotIndex(null);
     }
-  };
-
-  const handleSwitchNotificationPreference = async (option) => {
-    const serverOption = option.toUpperCase();
-    if (serverOption === notificationPreference) {
-      return;
-    }
-    setIsSwitchingNotificationPreference(true);
-
-    try {
-      if (serverOption === "PUSH") {
-        if (allowPushNotifications) {
-          const permission = await requestNotificationPermission();
-          if (permission === "granted") {
-            await requestPushSubscription(
-              groupId,
-              user.id,
-              permission,
-              setIsSubscribed,
-              setIsSubscriptionLoading,
-              false
-            );
-          } else {
-            setIsSubscriptionLoading(false);
-          }
-        } else {
-          setIsSubscriptionLoading(false);
-        }
-      } else if (notificationPreference === "PUSH" && isSubscribed) {
-        await requestPushSubscription(
-          groupId,
-          user.id,
-          pushPermission,
-          setIsSubscribed,
-          setIsSubscriptionLoading,
-          true
-        );
-      }
-
-      await fetch(
-        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/notification-preference`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            notificationType: serverOption
-          })
-        }
-      );
-
-      // Store notification preference in localStorage
-      localStorage.setItem("notificationPreference", serverOption);
-      setNotificationPreference(serverOption);
-
-      if (serverOption !== "PUSH" || !allowPushNotifications) {
-        setIsSubscriptionLoading(false);
-      }
-
-      // If we're disabling push notifications, unregister the service worker
-      if (serverOption !== "PUSH") {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (const registration of registrations) {
-          if (registration.scope.includes("/service-workers/")) {
-            await registration.unregister();
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error updating notification preference:", error);
-      setIsSubscriptionLoading(false);
-    }
-
-    setIsSwitchingNotificationPreference(false);
   };
 
   return (
@@ -957,7 +786,9 @@ export const MoreMenu = ({
                             prominence="secondary"
                             stretch="fill"
                             label="Enable push notifications"
-                            onClick={setupPushNotifications}
+                            onClick={() =>
+                              setupPushNotifications(groupId, user.id)
+                            }
                           />
                         )
                       ) : (
