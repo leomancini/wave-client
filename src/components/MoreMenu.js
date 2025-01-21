@@ -863,8 +863,8 @@ export const MoreMenu = ({
                                 prominence="secondary"
                                 stretch="fill"
                                 label="Enable push notifications"
-                                onClick={() =>
-                                  setupPushNotifications(groupId, user.id)
+                                onClick={async () =>
+                                  await setupPushNotifications(groupId, user.id)
                                 }
                               />
                             )
