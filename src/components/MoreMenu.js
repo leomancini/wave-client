@@ -806,7 +806,8 @@ export const MoreMenu = ({
                   <SectionLabel>Notifications</SectionLabel>
                   {(isSwitchingNotificationPreference ||
                     isCheckingSubscription ||
-                    isSubscriptionLoading) && <Spinner size="small" />}
+                    isSubscriptionLoading ||
+                    isSettingUpPushNotifications) && <Spinner size="small" />}
                 </SectionHeader>
                 <SegmentedController
                   options={["Off", "Push", "SMS"]}
@@ -861,6 +862,10 @@ export const MoreMenu = ({
                                 Push notifications blocked, check browser
                                 settings.
                               </InlineEmptyCard>
+                            ) : isSettingUpPushNotifications === "denied" ? (
+                              <InlineEmptyCard>
+                                Setting up push notifications...
+                              </InlineEmptyCard>
                             ) : (
                               <Button
                                 type="text"
@@ -871,7 +876,6 @@ export const MoreMenu = ({
                                 onClick={() =>
                                   setupPushNotifications(groupId, user.id)
                                 }
-                                disabled={isSettingUpPushNotifications}
                               />
                             )
                           ) : (
