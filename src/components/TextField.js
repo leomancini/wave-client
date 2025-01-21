@@ -62,6 +62,7 @@ const InputBase = css`
       -moz-user-select: none !important;
       -ms-user-select: none !important;
       user-select: none !important;
+      opacity: 1;
 
       &:active,
       &:focus {
