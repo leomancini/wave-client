@@ -611,7 +611,7 @@ export const ViewGroup = ({ groupId, userId }) => {
             isLoading={
               isSubscriptionLoading ||
               isCheckingSubscription ||
-              (pushPermission === "granted" && !isSubscribed)
+              (pushPermission === "granted" && isSubscribed)
             }
           />
         )}
