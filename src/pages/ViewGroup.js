@@ -91,7 +91,8 @@ export const ViewGroup = ({ groupId, userId }) => {
     setupPushNotifications,
     pushPermission,
     checkSubscriptionStatus,
-    localPushNotificationsEnabled
+    localPushNotificationsEnabled,
+    isSettingUpPushNotifications
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
 
@@ -612,7 +613,8 @@ export const ViewGroup = ({ groupId, userId }) => {
             isLoading={
               isSubscriptionLoading ||
               isCheckingSubscription ||
-              (pushPermission === "granted" && isSubscribed)
+              (pushPermission === "granted" && isSubscribed) ||
+              isSettingUpPushNotifications
             }
           />
         )}
