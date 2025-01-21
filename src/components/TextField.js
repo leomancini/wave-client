@@ -54,7 +54,8 @@ const InputBase = css`
   ${({ disabled }) =>
     disabled &&
     css`
-      background: rgba(0, 0, 0, 0.025);
+      // background: rgba(0, 0, 0, 0.025);
+      background: red;
       color: rgba(0, 0, 0, 0.25);
       cursor: not-allowed;
       -webkit-user-select: none !important;
@@ -135,7 +136,6 @@ export const TextField = forwardRef(
       multiLine = false,
       handleChange,
       disabled = false,
-      additionalStyles = "",
       clearValueOnSubmit = true,
       buttonLabel,
       onSubmit,
