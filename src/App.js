@@ -90,6 +90,8 @@ function App() {
     "Notification" in window ? Notification.permission : "denied"
   );
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
+  const [localPushNotificationsEnabled, setLocalPushNotificationsEnabled] =
+    useState(false);
 
   const [isPWA] = useState(() => {
     const standaloneMode = window.navigator.standalone;
@@ -327,10 +329,12 @@ function App() {
 
           await response.json();
           await checkSubscriptionStatus();
+          setLocalPushNotificationsEnabled(true);
         }
       } catch (error) {
         console.error("Error setting up push notifications:", error);
         setIsSubscribed(false);
+        setLocalPushNotificationsEnabled(false);
       } finally {
         setIsSubscriptionLoading(false);
       }
@@ -359,6 +363,7 @@ function App() {
           await registration.unregister();
         }
         await checkSubscriptionStatus();
+        setLocalPushNotificationsEnabled(false);
       } catch (error) {
         console.error("Error unsubscribing from push notifications:", error);
         setIsSubscribed(false);
@@ -385,7 +390,9 @@ function App() {
               requestNotificationPermission,
               setupPushNotifications,
               unsubscribePushNotifications,
-              checkSubscriptionStatus
+              checkSubscriptionStatus,
+              localPushNotificationsEnabled,
+              setLocalPushNotificationsEnabled
             }}
           >
             <BrowserRouter basename="/">

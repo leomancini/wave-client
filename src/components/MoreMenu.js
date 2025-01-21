@@ -405,7 +405,9 @@ export const MoreMenu = ({
     setIsSubscriptionLoading,
     setupPushNotifications,
     unsubscribePushNotifications,
-    checkSubscriptionStatus
+    checkSubscriptionStatus,
+    localPushNotificationsEnabled,
+    setLocalPushNotificationsEnabled
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
   const allowPushNotifications =
@@ -588,6 +590,10 @@ export const MoreMenu = ({
     allowPushNotifications,
     onNotificationPreferenceChange
   ]);
+
+  useEffect(() => {
+    setLocalPushNotificationsEnabled(user.pushNotificationsEnabled);
+  }, [user.pushNotificationsEnabled, setLocalPushNotificationsEnabled]);
 
   const sendTestNotification = async () => {
     await fetch(
@@ -814,8 +820,8 @@ export const MoreMenu = ({
                 <br />
                 notificationPreference: {notificationPreference}
                 <br />
-                user.pushNotificationsEnabled:{" "}
-                {user.pushNotificationsEnabled ? "true" : "false"}
+                localPushNotificationsEnabled:{" "}
+                {localPushNotificationsEnabled ? "true" : "false"}
                 <br />
                 pushPermission: {pushPermission}
                 <br />
@@ -837,7 +843,7 @@ export const MoreMenu = ({
                           {allowPushNotifications ? (
                             isSubscribed &&
                             pushPermission === "granted" &&
-                            user.pushNotificationsEnabled ? (
+                            localPushNotificationsEnabled ? (
                               <Button
                                 type="text"
                                 size="small"
@@ -863,7 +869,7 @@ export const MoreMenu = ({
                               />
                             )
                           ) : (
-                            !user.pushNotificationsEnabled && (
+                            !localPushNotificationsEnabled && (
                               <>
                                 <InlineEmptyCard>
                                   To enable push notifications,
