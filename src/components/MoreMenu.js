@@ -842,72 +842,70 @@ export const MoreMenu = ({
                 <br />
                 {!isSwitchingNotificationPreference && (
                   <>
-                    {notificationPreference === "PUSH" &&
-                      !isCheckingSubscription &&
-                      !isSubscriptionLoading && (
-                        <>
-                          {allowPushNotifications ? (
-                            isSubscribed &&
-                            pushPermission === "granted" &&
-                            localPushNotificationsEnabled ? (
-                              <Button
-                                type="text"
-                                size="small"
-                                stretch="fill"
-                                label="Send test notification"
-                                onClick={sendTestNotification}
-                              />
-                            ) : pushPermission === "denied" ? (
-                              <InlineEmptyCard>
-                                Push notifications blocked, check browser
-                                settings.
-                              </InlineEmptyCard>
-                            ) : isSettingUpPushNotifications === "denied" ? (
-                              <InlineEmptyCard>
-                                Setting up push notifications...
-                              </InlineEmptyCard>
-                            ) : (
-                              <Button
-                                type="text"
-                                size="small"
-                                prominence="secondary"
-                                stretch="fill"
-                                label="Enable push notifications"
-                                onClick={() =>
-                                  setupPushNotifications(groupId, user.id)
-                                }
-                              />
-                            )
+                    {notificationPreference === "PUSH" && (
+                      <>
+                        {allowPushNotifications ? (
+                          isSubscribed &&
+                          pushPermission === "granted" &&
+                          localPushNotificationsEnabled ? (
+                            <Button
+                              type="text"
+                              size="small"
+                              stretch="fill"
+                              label="Send test notification"
+                              onClick={sendTestNotification}
+                            />
+                          ) : pushPermission === "denied" ? (
+                            <InlineEmptyCard>
+                              Push notifications blocked, check browser
+                              settings.
+                            </InlineEmptyCard>
+                          ) : isSettingUpPushNotifications === "denied" ? (
+                            <InlineEmptyCard>
+                              Setting up push notifications...
+                            </InlineEmptyCard>
                           ) : (
-                            !localPushNotificationsEnabled && (
-                              <>
-                                <InlineEmptyCard>
-                                  To enable push notifications,
-                                  <br />
-                                  {deviceType === "mobile"
-                                    ? "add WAVE to your home screen."
-                                    : "open WAVE on your phone."}
-                                </InlineEmptyCard>
-                                {deviceType !== "mobile" && (
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    prominence="secondary"
-                                    label={`Login on a ${
-                                      deviceType === "mobile"
-                                        ? "computer"
-                                        : "phone"
-                                    }`}
-                                    onClick={() =>
-                                      setShowSwitchDeviceInstructions(true)
-                                    }
-                                  />
-                                )}
-                              </>
-                            )
-                          )}
-                        </>
-                      )}
+                            <Button
+                              type="text"
+                              size="small"
+                              prominence="secondary"
+                              stretch="fill"
+                              label="Enable push notifications"
+                              onClick={() =>
+                                setupPushNotifications(groupId, user.id)
+                              }
+                            />
+                          )
+                        ) : (
+                          !localPushNotificationsEnabled && (
+                            <>
+                              <InlineEmptyCard>
+                                To enable push notifications,
+                                <br />
+                                {deviceType === "mobile"
+                                  ? "add WAVE to your home screen."
+                                  : "open WAVE on your phone."}
+                              </InlineEmptyCard>
+                              {deviceType !== "mobile" && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  prominence="secondary"
+                                  label={`Login on a ${
+                                    deviceType === "mobile"
+                                      ? "computer"
+                                      : "phone"
+                                  }`}
+                                  onClick={() =>
+                                    setShowSwitchDeviceInstructions(true)
+                                  }
+                                />
+                              )}
+                            </>
+                          )
+                        )}
+                      </>
+                    )}
                     {notificationPreference === "SMS" && (
                       <VerifyPhoneNumber groupId={groupId} user={user} />
                     )}
