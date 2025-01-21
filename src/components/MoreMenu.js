@@ -824,10 +824,6 @@ export const MoreMenu = ({
                               Push notifications blocked, check browser
                               settings.
                             </InlineEmptyCard>
-                          ) : isSettingUpPushNotifications ? (
-                            <InlineEmptyCard>
-                              Setting up push notifications...
-                            </InlineEmptyCard>
                           ) : (
                             !localPushNotificationsEnabled && (
                               <Button
