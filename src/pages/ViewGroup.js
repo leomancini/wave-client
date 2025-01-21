@@ -590,6 +590,8 @@ export const ViewGroup = ({ groupId, userId }) => {
         <br />
         notificationPreference: {notificationPreference}
         <br />
+        isSubscribed: {isSubscribed ? "true" : "false"}
+        <br />
         localPushNotificationsEnabled:{" "}
         {localPushNotificationsEnabled ? "true" : "false"}
         <br />
