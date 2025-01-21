@@ -874,6 +874,11 @@ export const MoreMenu = ({
                               onClick={() =>
                                 setupPushNotifications(groupId, user.id)
                               }
+                              disabled={
+                                isSettingUpPushNotifications ||
+                                isSubscriptionLoading ||
+                                isCheckingSubscription
+                              }
                             />
                           )
                         ) : (
