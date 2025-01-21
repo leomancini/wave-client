@@ -398,7 +398,6 @@ export const MoreMenu = ({
   ] = useState(false);
 
   const {
-    isSubscribed,
     isCheckingSubscription,
     pushPermission,
     isSubscriptionLoading,
@@ -595,12 +594,6 @@ export const MoreMenu = ({
   useEffect(() => {
     setLocalPushNotificationsEnabled(user.pushNotificationsEnabled);
   }, [user.pushNotificationsEnabled, setLocalPushNotificationsEnabled]);
-
-  const sendTestNotification = async () => {
-    await fetch(
-      `${process.env.REACT_APP_API_URL}/web-push/send-test/${groupId}/${user.id}`
-    );
-  };
 
   const showInvitationShareSheet = () => {
     navigator
