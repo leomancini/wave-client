@@ -100,9 +100,9 @@ const StyledButton = styled.button`
         active: `rgba(0, 0, 0, ${props.disabled ? 0.25 : 0.75})`
       },
       secondary: {
-        default: `rgba(0, 0, 0, ${props.disabled ? 0 : 0.05})`,
-        hover: `rgba(0, 0, 0, ${props.disabled ? 0 : 0.1})`,
-        active: `rgba(0, 0, 0, ${props.disabled ? 0 : 0.15})`
+        default: `rgba(0, 0, 0, ${props.disabled ? 0.05 : 0.05})`,
+        hover: `rgba(0, 0, 0, ${props.disabled ? 0.1 : 0.1})`,
+        active: `rgba(0, 0, 0, ${props.disabled ? 0.15 : 0.15})`
       },
       destructive: {
         default: `rgba(255, 0, 0, ${props.disabled ? 0.5 : 1})`,
@@ -123,7 +123,7 @@ const StyledButton = styled.button`
       color: ${(() => {
         switch (prominence) {
           case "secondary":
-            return "rgba(0, 0, 0, 0.75)";
+            return `rgba(0, 0, 0, ${props.disabled ? 0.5 : 0.75})`;
           case "tertiary":
             return "rgba(0, 0, 0, 0.6)";
           default:
