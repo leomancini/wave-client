@@ -811,6 +811,23 @@ export const MoreMenu = ({
                     isSwitchingNotificationPreference
                   }
                 />
+                <br />
+                notificationPreference: {notificationPreference}
+                <br />
+                user.pushNotificationsEnabled:{" "}
+                {user.pushNotificationsEnabled ? "true" : "false"}
+                <br />
+                pushPermission: {pushPermission}
+                <br />
+                isCheckingSubscription:{" "}
+                {isCheckingSubscription ? "true" : "false"}
+                <br />
+                isSubscriptionLoading:{" "}
+                {isSubscriptionLoading ? "true" : "false"}
+                <br />
+                isSwitchingNotificationPreference:{" "}
+                {isSwitchingNotificationPreference ? "true" : "false"}
+                <br />
                 {!isSwitchingNotificationPreference && (
                   <>
                     {notificationPreference === "PUSH" &&
@@ -830,10 +847,6 @@ export const MoreMenu = ({
                               <InlineEmptyCard>
                                 Push notifications blocked, check browser
                                 settings.
-                              </InlineEmptyCard>
-                            ) : isSubscriptionLoading ? (
-                              <InlineEmptyCard>
-                                Setting up push notifications...
                               </InlineEmptyCard>
                             ) : (
                               <Button
