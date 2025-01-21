@@ -845,17 +845,7 @@ export const MoreMenu = ({
                     {notificationPreference === "PUSH" && (
                       <>
                         {allowPushNotifications ? (
-                          isSubscribed &&
-                          pushPermission === "granted" &&
-                          localPushNotificationsEnabled ? (
-                            <Button
-                              type="text"
-                              size="small"
-                              stretch="fill"
-                              label="Send test notification"
-                              onClick={sendTestNotification}
-                            />
-                          ) : pushPermission === "denied" ? (
+                          pushPermission === "denied" ? (
                             <InlineEmptyCard>
                               Push notifications blocked, check browser
                               settings.
