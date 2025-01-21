@@ -142,6 +142,42 @@ const ReactionsContainer = styled.div`
   box-sizing: border-box;
 `;
 
+const Reactions = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  min-height: 1.25rem;
+  padding: 0 0.5rem;
+
+  ${({ isEmpty }) =>
+    isEmpty &&
+    `
+      display: none;
+    `}
+`;
+
+const Reaction = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: calc(1.25rem + 0.375rem);
+`;
+
+const ReactionEmoji = styled.div`
+  font-size: 1.25rem;
+`;
+
+const ReactionSpinnerContainer = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+`;
+
 const AddReactionButtons = styled.div`
   display: flex;
   flex-direction: row;
@@ -217,44 +253,11 @@ const AddReactionButton = styled.button`
   &:disabled {
     background: rgba(0, 0, 0, 0.025);
     cursor: not-allowed;
-    color: rgba(0, 0, 0, 0.4);
+
+    ${ReactionEmoji} {
+      opacity: 0.4;
+    }
   }
-`;
-
-const Reactions = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  min-height: 1.25rem;
-  padding: 0 0.5rem;
-
-  ${({ isEmpty }) =>
-    isEmpty &&
-    `
-      display: none;
-    `}
-`;
-
-const Reaction = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  align-items: center;
-  min-height: calc(1.25rem + 0.375rem);
-`;
-
-const ReactionEmoji = styled.div`
-  font-size: 1.25rem;
-`;
-
-const ReactionSpinnerContainer = styled.div`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-top: 0.125rem;
 `;
 
 let lastClickTime = 0;
@@ -633,7 +636,7 @@ export const MediaItem = forwardRef(
                   isPendingAny || (isUploadedThisPageLoad && !isDoneUploading)
                 }
               >
-                {reaction}
+                <ReactionEmoji>{reaction}</ReactionEmoji>
               </AddReactionButton>
             ))}
           </AddReactionButtons>
