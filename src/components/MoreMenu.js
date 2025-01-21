@@ -835,7 +835,9 @@ export const MoreMenu = ({
                       !isSubscriptionLoading && (
                         <>
                           {allowPushNotifications ? (
-                            isSubscribed && pushPermission === "granted" ? (
+                            isSubscribed &&
+                            pushPermission === "granted" &&
+                            user.pushNotificationsEnabled ? (
                               <Button
                                 type="text"
                                 size="small"
