@@ -217,7 +217,6 @@ const AddReactionButton = styled.button`
   &:disabled {
     background: rgba(0, 0, 0, 0.025);
     cursor: not-allowed;
-    color: inherit;
     color: rgba(0, 0, 0, 0.4);
   }
 `;
