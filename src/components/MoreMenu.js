@@ -813,26 +813,7 @@ export const MoreMenu = ({
                     isSettingUpPushNotifications
                   }
                 />
-                <br />
-                notificationPreference: {notificationPreference}
-                <br />
-                localPushNotificationsEnabled:{" "}
-                {localPushNotificationsEnabled ? "true" : "false"}
-                <br />
-                pushPermission: {pushPermission}
-                <br />
-                isCheckingSubscription:{" "}
-                {isCheckingSubscription ? "true" : "false"}
-                <br />
-                isSubscriptionLoading:{" "}
-                {isSubscriptionLoading ? "true" : "false"}
-                <br />
-                isSwitchingNotificationPreference:{" "}
-                {isSwitchingNotificationPreference ? "true" : "false"}
-                <br />
-                isSettingUpPushNotifications:{" "}
-                {isSettingUpPushNotifications ? "true" : "false"}
-                <br />
+
                 {!isSwitchingNotificationPreference && (
                   <>
                     {notificationPreference === "PUSH" && (

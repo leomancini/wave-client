@@ -90,7 +90,8 @@ export const ViewGroup = ({ groupId, userId }) => {
     isCheckingSubscription,
     setupPushNotifications,
     pushPermission,
-    checkSubscriptionStatus
+    checkSubscriptionStatus,
+    localPushNotificationsEnabled
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
 
@@ -586,6 +587,18 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        <br />
+        notificationPreference: {notificationPreference}
+        <br />
+        localPushNotificationsEnabled:{" "}
+        {localPushNotificationsEnabled ? "true" : "false"}
+        <br />
+        pushPermission: {pushPermission}
+        <br />
+        isCheckingSubscription: {isCheckingSubscription ? "true" : "false"}
+        <br />
+        isSubscriptionLoading: {isSubscriptionLoading ? "true" : "false"}
+        <br />
         {shouldShowPushNotificationBanner && (
           <Banner
             messages={[
