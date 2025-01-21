@@ -543,7 +543,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   const shouldShowPushNotificationBanner =
     notificationPreference === "PUSH" &&
     isPWA &&
-    !isSubscribed &&
     pushPermission !== "denied" &&
     !localPushNotificationsEnabled;
 
