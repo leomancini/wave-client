@@ -589,20 +589,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
-        <br />
-        notificationPreference: {notificationPreference}
-        <br />
-        isSubscribed: {isSubscribed ? "true" : "false"}
-        <br />
-        localPushNotificationsEnabled:{" "}
-        {localPushNotificationsEnabled ? "true" : "false"}
-        <br />
-        pushPermission: {pushPermission}
-        <br />
-        isCheckingSubscription: {isCheckingSubscription ? "true" : "false"}
-        <br />
-        isSubscriptionLoading: {isSubscriptionLoading ? "true" : "false"}
-        <br />
         {shouldShowPushNotificationBanner && (
           <Banner
             messages={[
