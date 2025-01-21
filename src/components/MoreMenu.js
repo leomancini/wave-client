@@ -828,22 +828,24 @@ export const MoreMenu = ({
                             <InlineEmptyCard>
                               Setting up push notifications...
                             </InlineEmptyCard>
-                          ) : localPushNotificationsEnabled ? null : (
-                            <Button
-                              type="text"
-                              size="small"
-                              prominence="secondary"
-                              stretch="fill"
-                              label="Enable push notifications"
-                              onClick={() =>
-                                setupPushNotifications(groupId, user.id)
-                              }
-                              disabled={
-                                isSettingUpPushNotifications ||
-                                isSubscriptionLoading ||
-                                isCheckingSubscription
-                              }
-                            />
+                          ) : (
+                            !localPushNotificationsEnabled && (
+                              <Button
+                                type="text"
+                                size="small"
+                                prominence="secondary"
+                                stretch="fill"
+                                label="Enable push notifications"
+                                onClick={() =>
+                                  setupPushNotifications(groupId, user.id)
+                                }
+                                disabled={
+                                  isSettingUpPushNotifications ||
+                                  isSubscriptionLoading ||
+                                  isCheckingSubscription
+                                }
+                              />
+                            )
                           )
                         ) : (
                           !localPushNotificationsEnabled && (
