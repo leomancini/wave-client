@@ -54,8 +54,7 @@ const InputBase = css`
   ${({ disabled }) =>
     disabled &&
     css`
-      // background: rgba(0, 0, 0, 0.025);
-      background: red;
+      background: rgba(0, 0, 0, 0.025);
       color: rgba(0, 0, 0, 0.25);
       cursor: not-allowed;
       -webkit-user-select: none !important;
