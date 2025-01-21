@@ -407,7 +407,8 @@ export const MoreMenu = ({
     unsubscribePushNotifications,
     checkSubscriptionStatus,
     localPushNotificationsEnabled,
-    setLocalPushNotificationsEnabled
+    setLocalPushNotificationsEnabled,
+    isSettingUpPushNotifications
   } = useContext(NotificationContext);
   const { isPWA } = useContext(AppContext);
   const allowPushNotifications =
@@ -814,7 +815,8 @@ export const MoreMenu = ({
                   isLoading={
                     isCheckingSubscription ||
                     isSubscriptionLoading ||
-                    isSwitchingNotificationPreference
+                    isSwitchingNotificationPreference ||
+                    isSettingUpPushNotifications
                   }
                 />
                 <br />
@@ -833,6 +835,9 @@ export const MoreMenu = ({
                 <br />
                 isSwitchingNotificationPreference:{" "}
                 {isSwitchingNotificationPreference ? "true" : "false"}
+                <br />
+                isSettingUpPushNotifications:{" "}
+                {isSettingUpPushNotifications ? "true" : "false"}
                 <br />
                 {!isSwitchingNotificationPreference && (
                   <>
@@ -863,9 +868,10 @@ export const MoreMenu = ({
                                 prominence="secondary"
                                 stretch="fill"
                                 label="Enable push notifications"
-                                onClick={async () =>
-                                  await setupPushNotifications(groupId, user.id)
+                                onClick={() =>
+                                  setupPushNotifications(groupId, user.id)
                                 }
+                                disabled={isSettingUpPushNotifications}
                               />
                             )
                           ) : (

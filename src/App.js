@@ -92,6 +92,8 @@ function App() {
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false);
   const [localPushNotificationsEnabled, setLocalPushNotificationsEnabled] =
     useState(false);
+  const [isSettingUpPushNotifications, setIsSettingUpPushNotifications] =
+    useState(false);
 
   const [isPWA] = useState(() => {
     const standaloneMode = window.navigator.standalone;
@@ -167,7 +169,6 @@ function App() {
           return false;
         }
 
-        // Only show loading state for manual checks
         if (!skipLoadingState) {
           setIsCheckingSubscription(true);
         }
@@ -199,7 +200,6 @@ function App() {
         const subscription = await registration.pushManager.getSubscription();
         const isValid = !!subscription && !!subscription.endpoint;
 
-        // Only update state if it's changed
         if (isValid !== isSubscribed) {
           setIsSubscribed(isValid);
         }
@@ -230,10 +230,9 @@ function App() {
       if (!mounted || checkInProgress) return;
 
       checkInProgress = true;
-      await checkSubscriptionStatus(true); // Skip loading state for automatic checks
+      await checkSubscriptionStatus(true);
       checkInProgress = false;
 
-      // Schedule next check only if still mounted and not already scheduled
       if (mounted && !timeoutId) {
         timeoutId = setTimeout(checkStatus, 60000); // Check every minute
       }
@@ -273,6 +272,7 @@ function App() {
   const setupPushNotifications = React.useCallback(
     async (groupId, userId) => {
       try {
+        setIsSettingUpPushNotifications(true);
         setIsSubscriptionLoading(true);
         const permission = await requestNotificationPermission();
         if (permission === "granted") {
@@ -337,6 +337,7 @@ function App() {
         setLocalPushNotificationsEnabled(false);
       } finally {
         setIsSubscriptionLoading(false);
+        setIsSettingUpPushNotifications(false);
       }
     },
     [checkSubscriptionStatus, requestNotificationPermission]
@@ -392,7 +393,9 @@ function App() {
               unsubscribePushNotifications,
               checkSubscriptionStatus,
               localPushNotificationsEnabled,
-              setLocalPushNotificationsEnabled
+              setLocalPushNotificationsEnabled,
+              isSettingUpPushNotifications,
+              setIsSettingUpPushNotifications
             }}
           >
             <BrowserRouter basename="/">
