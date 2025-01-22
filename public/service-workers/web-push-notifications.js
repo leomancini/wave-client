@@ -1,56 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* global clients */
 
-const SUBSCRIPTION_RENEWAL_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
-
-async function renewSubscription() {
-  try {
-    const registration = await self.registration;
-    const subscription = await registration.pushManager.getSubscription();
-
-    if (!subscription) return;
-
-    const clients = await self.clients.matchAll();
-    const client = clients[0];
-    if (!client) return;
-
-    const url = new URL(client.url);
-    const [, groupId, userId] = url.pathname.split("/");
-
-    if (!groupId || !userId) return;
-
-    const newSubscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: subscription.options.applicationServerKey
-    });
-
-    const response = await fetch(
-      `${self.location.origin}/web-push/renew-subscription/${groupId}/${userId}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newSubscription)
-      }
-    );
-
-    if (!response.ok) {
-      const data = await response.json();
-      if (data.isExpired) {
-        await subscription.unsubscribe();
-      }
-      throw new Error(data.error || "Failed to renew subscription");
-    }
-  } catch (error) {
-    // Silent error handling
-  }
-}
-
-setInterval(renewSubscription, SUBSCRIPTION_RENEWAL_INTERVAL);
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(renewSubscription());
-});
-
 self.addEventListener("push", function (event) {
   if (!event.data) return;
 
