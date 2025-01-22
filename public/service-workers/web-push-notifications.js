@@ -50,19 +50,20 @@ self.addEventListener("notificationclick", function (event) {
 
   if (event.action === "close") return;
 
-  const url = event.notification.data.url || "/";
+  const notificationUrl = event.notification.data.url || "/";
+  const fullUrl = new URL(notificationUrl, self.location.origin).href;
 
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windowClients) => {
         for (const client of windowClients) {
-          if (client.url === url && "focus" in client) {
+          if (client.url === fullUrl && "focus" in client) {
             return client.focus();
           }
         }
         if (clients.openWindow) {
-          return clients.openWindow(url);
+          return clients.openWindow(fullUrl);
         }
       })
   );
