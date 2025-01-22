@@ -56,10 +56,10 @@ self.addEventListener("notificationclick", function (event) {
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windowClients) => {
+        const domain = new URL(url).origin;
         for (const client of windowClients) {
-          if (client.url === url && "focus" in client) {
+          if (client.url.startsWith(domain) && "focus" in client) {
             return client.focus().then(() => {
-              // Post a message to the focused client with additional data
               client.postMessage({
                 type: "NOTIFICATION_CLICKED",
                 data: event.notification.data.data
