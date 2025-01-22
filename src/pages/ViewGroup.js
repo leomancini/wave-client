@@ -590,6 +590,8 @@ export const ViewGroup = ({ groupId, userId }) => {
             });
           };
 
+          // Force a layout recalculation before starting
+          element.getBoundingClientRect();
           requestAnimationFrame(scrollToElement);
         }
       }, delay);
