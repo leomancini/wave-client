@@ -62,7 +62,7 @@ self.addEventListener("notificationclick", function (event) {
               // Post a message to the focused client with additional data
               client.postMessage({
                 type: "NOTIFICATION_CLICKED",
-                data: event.notification.data
+                data: "TESTING"
               });
               return client;
             });
