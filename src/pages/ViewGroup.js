@@ -562,7 +562,6 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     element.scrollIntoView({ behavior: "smooth" });
     setTargetItemId(null);
-
     window.history.replaceState(null, null, " ");
   }, [targetItemId, isLoading, isPWA]);
 
