@@ -14,6 +14,7 @@ const Container = styled.div`
   gap: 1rem;
   margin-bottom: 1rem;
   width: 100%;
+  scroll-margin-top: 2.5rem;
 
   p {
     margin: 0;

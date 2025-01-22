@@ -552,51 +552,18 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, []);
 
   useEffect(() => {
-    if (targetItemId && !isLoading) {
-      // Wait a bit for the PWA to fully initialize
-      const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
+    if (!targetItemId || isLoading) return;
 
-      setTimeout(() => {
-        const element = document.getElementById(targetItemId);
-        if (element) {
-          let attempts = 0;
-          const maxAttempts = 100; // Increase max attempts to ~1.6s
+    const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
 
-          const scrollToElement = () => {
-            // First reset scroll position to ensure we can calculate positions correctly
-            window.scrollTo({
-              top: 0,
-              behavior: "instant"
-            });
+    setTimeout(() => {
+      const element = document.getElementById(targetItemId);
+      if (!element) return;
 
-            // Give the browser a frame to process the scroll reset
-            requestAnimationFrame(() => {
-              const elementPosition = element.getBoundingClientRect().top;
-              const offsetPosition = elementPosition + window.scrollY - 40;
-
-              window.scrollTo({
-                top: offsetPosition,
-                behavior: "instant" // Force immediate scroll on iOS
-              });
-
-              // Check if we successfully scrolled to the right position
-              const newPosition = element.getBoundingClientRect().top;
-              if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
-                attempts++;
-                requestAnimationFrame(scrollToElement);
-              } else {
-                setTargetItemId(null);
-              }
-            });
-          };
-
-          // Force a layout recalculation before starting
-          element.getBoundingClientRect();
-          requestAnimationFrame(scrollToElement);
-        }
-      }, delay);
-    }
-  }, [targetItemId, isLoading, mediaItems, isPWA]);
+      element.scrollIntoView();
+      setTargetItemId(null);
+    }, delay);
+  }, [targetItemId, isLoading, isPWA]);
 
   if (isInitialLoad && isLoading) {
     return (
