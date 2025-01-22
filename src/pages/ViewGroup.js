@@ -415,8 +415,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
-        alert("App resumed - refreshing media items");
-        alert(window.location.hash);
         setPage(1);
         fetchMediaItems(groupId, userId, 1, { append: false });
       }
