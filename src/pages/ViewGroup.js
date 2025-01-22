@@ -544,6 +544,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
         setTargetItemId(hash);
+        alert("Setting target item id", hash);
       }
     };
 
@@ -559,6 +560,8 @@ export const ViewGroup = ({ groupId, userId }) => {
     setTimeout(() => {
       const element = document.getElementById(targetItemId);
       if (!element) return;
+
+      alert("Scrolling to item", targetItemId);
 
       // This only works on desktop or on iOS PWA cold starts
       // TODO: Find fix for doing this on iOS PWA warm starts
