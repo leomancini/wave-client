@@ -46,12 +46,21 @@ self.addEventListener("push", function (event) {
 });
 
 self.addEventListener("notificationclick", function (event) {
+  event.preventDefault();
   event.notification.close();
 
-  if (event.action === "close") return;
-
   const notificationUrl = event.notification.data.url || "/";
-  const fullUrl = new URL(notificationUrl, self.location.origin).href;
 
-  event.waitUntil(clients.openWindow(fullUrl));
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        if (clients.length > 0) {
+          const client = clients[0];
+          client.navigate(notificationUrl);
+          client.focus();
+          return;
+        } else event.waitUntil(self.clients.openWindow(notificationUrl));
+      })
+  );
 });
