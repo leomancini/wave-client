@@ -415,6 +415,12 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
+        // If we have a target item in the URL hash, set it as the target
+        const hash = window.location.hash.slice(1);
+        if (hash && hash !== "menu") {
+          setTargetItemId(hash);
+        }
+
         setPage(1);
         fetchMediaItems(groupId, userId, 1, { append: false });
       }
