@@ -63,7 +63,12 @@ const PageContainerInteractionBlocker = styled.div`
   opacity: ${(props) => (props.visible ? 1 : 0)};
 `;
 
-export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
+export const ViewGroup = ({
+  groupId,
+  userId,
+  scrollToItemId,
+  setScrollToItemId
+}) => {
   const { setConfig } = useConfig();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -83,7 +88,6 @@ export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [targetItemId, setTargetItemId] = useState(scrollToItemId);
 
   const {
     isSubscribed,
@@ -530,7 +534,7 @@ export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
         if (!scrollToItemId) return;
 
         alert(`Setting target item id to ${scrollToItemId}`);
-        setTargetItemId(scrollToItemId);
+        setScrollToItemId(null);
 
         setPage(1);
         fetchMediaItems(groupId, userId, 1, { append: false });
@@ -548,19 +552,18 @@ export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
       if (!scrollToItemId) return;
 
       alert(`Setting target item id to ${scrollToItemId}`);
-      setTargetItemId(scrollToItemId);
     };
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
+  }, [scrollToItemId]);
 
   useEffect(() => {
-    if (!targetItemId || isLoading) return;
+    if (!scrollToItemId || isLoading) return;
 
     setTimeout(
       () => {
-        const element = document.getElementById(targetItemId);
+        const element = document.getElementById(scrollToItemId);
         if (!element) return;
 
         element.scrollIntoView({ behavior: "smooth" });
@@ -568,8 +571,8 @@ export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
 
         setTimeout(
           () => {
-            setTargetItemId(null);
-            window.history.replaceState(null, null, " ");
+            setScrollToItemId(null);
+            window.history.replaceState(null, null, `/${groupId}/${userId}`);
             alert("Cleared target item id");
           },
           isPWA ? 500 : 0
@@ -577,7 +580,7 @@ export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
       },
       isPWA ? 500 : 0
     );
-  }, [targetItemId, isLoading, isPWA]);
+  }, [scrollToItemId, isLoading, isPWA, setScrollToItemId]);
 
   if (isInitialLoad && isLoading) {
     return (

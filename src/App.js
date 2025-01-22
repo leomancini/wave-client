@@ -83,7 +83,7 @@ function App() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState();
   const [userId, setUserId] = useState();
-  const [itemId, setItemId] = useState();
+  const [scrollToItemId, setScrollToItemId] = useState();
   const [page, setPage] = useState();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
@@ -132,7 +132,7 @@ function App() {
 
     if (urlParts.length === 2 || urlParts.length === 3) {
       // For viewing a specific group
-      const [groupId, userId, itemId] = urlParts;
+      const [groupId, userId, scrollToItemId] = urlParts;
 
       if (userId === "join") {
         setPage(Pages.JoinGroup.id);
@@ -143,7 +143,7 @@ function App() {
         setTitle(groupId);
         setGroupId(groupId);
         setUserId(userId);
-        setItemId(itemId);
+        setScrollToItemId(scrollToItemId);
       }
 
       if (!groupId) {
@@ -408,7 +408,8 @@ function App() {
                   <ViewGroup
                     groupId={groupId}
                     userId={userId}
-                    scrollToItemId={itemId}
+                    scrollToItemId={scrollToItemId}
+                    setScrollToItemId={setScrollToItemId}
                   />
                 )}
                 {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
