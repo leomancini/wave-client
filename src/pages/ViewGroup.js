@@ -411,25 +411,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [isMoreMenuVisible]);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && user.valid && groupId) {
-        // If we have a target item in the URL hash, set it as the target
-        const hash = window.location.hash.slice(1);
-        if (hash && hash !== "menu") {
-          setTargetItemId(hash);
-        }
-
-        setPage(1);
-        fetchMediaItems(groupId, userId, 1, { append: false });
-      }
-    };
-
-    window.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      window.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [user.valid, groupId, userId, fetchMediaItems]);
-
-  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(
@@ -544,6 +525,24 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [user.valid, groupId, userId]);
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && user.valid && groupId) {
+        const hash = window.location.hash.slice(1);
+        if (hash && hash !== "menu") {
+          setTargetItemId(hash);
+        }
+
+        setPage(1);
+        fetchMediaItems(groupId, userId, 1, { append: false });
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [user.valid, groupId, userId, fetchMediaItems]);
+
+  useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
@@ -558,15 +557,13 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (!targetItemId || isLoading) return;
 
-    const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
+    const element = document.getElementById(targetItemId);
+    if (!element) return;
 
-    setTimeout(() => {
-      const element = document.getElementById(targetItemId);
-      if (!element) return;
+    element.scrollIntoView({ behavior: "smooth" });
+    setTargetItemId(null);
 
-      element.scrollIntoView({ behavior: "smooth" });
-      setTargetItemId(null);
-    }, delay);
+    window.history.replaceState(null, null, " ");
   }, [targetItemId, isLoading, isPWA]);
 
   if (isInitialLoad && isLoading) {
