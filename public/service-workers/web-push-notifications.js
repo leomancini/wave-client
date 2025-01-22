@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-globals */
+/* global clients */
 
 self.addEventListener("push", function (event) {
   if (!event.data) return;
@@ -45,21 +46,39 @@ self.addEventListener("push", function (event) {
 });
 
 self.addEventListener("notificationclick", function (event) {
-  event.preventDefault();
   event.notification.close();
 
-  const notificationUrl = event.notification.data.url || "/";
+  if (event.action === "close") return;
+
+  const url = event.notification.data.url || "/";
 
   event.waitUntil(
-    self.clients
+    clients
       .matchAll({ type: "window", includeUncontrolled: true })
-      .then((clients) => {
-        if (clients.length > 0) {
-          const client = clients[0];
-          client.navigate(notificationUrl);
-          client.focus();
-          return;
-        } else event.waitUntil(self.clients.openWindow(notificationUrl));
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (client.url === url && "focus" in client) {
+            return client.focus().then(() => {
+              // Post a message to the focused client with additional data
+              client.postMessage({
+                type: "NOTIFICATION_CLICKED",
+                data: event.notification.data
+              });
+              return client;
+            });
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
       })
   );
+});
+
+navigator.serviceWorker.addEventListener("message", (event) => {
+  if (event.data.type === "NOTIFICATION_CLICKED") {
+    // Handle the notification data here
+    alert("Notification data:", event.data.data);
+    // You can now use this data to update your UI or trigger other actions
+  }
 });
