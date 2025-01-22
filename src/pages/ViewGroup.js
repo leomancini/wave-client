@@ -560,6 +560,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       const element = document.getElementById(targetItemId);
       if (!element) return;
 
+      // TODO: Find fix for doing this in PWA mode on iOS
       element.scrollIntoView();
       setTargetItemId(null);
     }, delay);
