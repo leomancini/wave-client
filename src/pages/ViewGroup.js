@@ -63,12 +63,7 @@ const PageContainerInteractionBlocker = styled.div`
   opacity: ${(props) => (props.visible ? 1 : 0)};
 `;
 
-export const ViewGroup = ({
-  groupId,
-  userId,
-  scrollToItemId,
-  setScrollToItemId
-}) => {
+export const ViewGroup = ({ groupId, userId }) => {
   const { setConfig } = useConfig();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -78,6 +73,9 @@ export const ViewGroup = ({
   const [user, setUser] = useState({});
   const [isMoreMenuVisible, setIsMoreMenuVisible] = useState(
     window.location.hash === "#menu"
+  );
+  const [scrollToItemId, setScrollToItemId] = useState(
+    window.location.hash.slice(1)
   );
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({});
@@ -561,40 +559,27 @@ export const ViewGroup = ({
   }, [user.valid, groupId, userId, fetchMediaItems]);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      alert("Hash changed");
-      if (!scrollToItemId) return;
+    alert(`Scroll to item id: ${scrollToItemId}`);
+    // const handleHashChange = () => {
+    //   alert("Hash changed");
+    //   if (!scrollToItemId) return;
 
-      alert(`Setting target item id to ${scrollToItemId}`);
-    };
+    //   alert(`Setting target item id to ${scrollToItemId}`);
+    // };
 
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    // window.addEventListener("hashchange", handleHashChange);
+    // return () => window.removeEventListener("hashchange", handleHashChange);
   }, [scrollToItemId]);
 
   useEffect(() => {
     if (!scrollToItemId || isLoading) return;
 
-    setTimeout(
-      () => {
-        const element = document.getElementById(scrollToItemId);
-        if (!element) return;
+    const element = document.getElementById(scrollToItemId);
+    if (!element) return;
 
-        element.scrollIntoView({ behavior: "smooth" });
-        alert("Scrolled to item");
-
-        setTimeout(
-          () => {
-            // setScrollToItemId(null);
-            // window.history.replaceState(null, null, `/${groupId}/${userId}`);
-            // alert("Cleared target item id");
-          },
-          isPWA ? 500 : 0
-        );
-      },
-      isPWA ? 500 : 0
-    );
-  }, [scrollToItemId, isLoading, isPWA, setScrollToItemId]);
+    element.scrollIntoView({ behavior: "smooth" });
+    alert("Scrolled to item");
+  }, [scrollToItemId, isLoading]);
 
   if (isInitialLoad && isLoading) {
     return (

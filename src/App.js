@@ -83,9 +83,6 @@ function App() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState();
   const [userId, setUserId] = useState();
-  const [scrollToItemId, setScrollToItemId] = useState(
-    window.location.hash.slice(1)
-  );
   const [page, setPage] = useState();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
@@ -134,7 +131,7 @@ function App() {
 
     if (urlParts.length === 2 || urlParts.length === 3) {
       // For viewing a specific group
-      const [groupId, userId, scrollToItemId] = urlParts;
+      const [groupId, userId] = urlParts;
 
       if (userId === "join") {
         setPage(Pages.JoinGroup.id);
@@ -145,7 +142,6 @@ function App() {
         setTitle(groupId);
         setGroupId(groupId);
         setUserId(userId);
-        setScrollToItemId(scrollToItemId);
       }
 
       if (!groupId) {
@@ -407,12 +403,7 @@ function App() {
                 {page === Pages.Home.id && <Home />}
                 {page === Pages.CreateGroup.id && <CreateGroup />}
                 {page === Pages.ViewGroup.id && (
-                  <ViewGroup
-                    groupId={groupId}
-                    userId={userId}
-                    scrollToItemId={scrollToItemId}
-                    setScrollToItemId={setScrollToItemId}
-                  />
+                  <ViewGroup groupId={groupId} userId={userId} />
                 )}
                 {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
                 {page === Pages.ScanQRCode.id && <ScanQRCode />}
