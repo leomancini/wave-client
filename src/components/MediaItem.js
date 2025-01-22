@@ -15,6 +15,10 @@ const Container = styled.div`
   margin-bottom: 1rem;
   width: 100%;
   scroll-margin-top: 2.5rem;
+
+  p {
+    margin: 0;
+  }
 `;
 
 const Media = styled.div`
