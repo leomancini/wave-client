@@ -527,14 +527,13 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
-        setPage(1);
-        fetchMediaItems(groupId, userId, 1, { append: false });
-
         const hash = window.location.hash.slice(1);
         if (hash && hash !== "menu") {
-          alert(`Changing hash to ${hash}`);
           setTargetItemId(hash);
         }
+
+        setPage(1);
+        fetchMediaItems(groupId, userId, 1, { append: false });
       }
     };
 
@@ -547,7 +546,6 @@ export const ViewGroup = ({ groupId, userId }) => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
-        alert(`Changing hash to ${hash}`);
         setTargetItemId(hash);
       }
     };
@@ -559,12 +557,15 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (!targetItemId || isLoading) return;
 
-    const element = document.getElementById(targetItemId);
-    if (!element) return;
+    const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
 
-    element.scrollIntoView({ behavior: "smooth" });
-    setTargetItemId(null);
-    // window.history.replaceState(null, null, " ");
+    setTimeout(() => {
+      const element = document.getElementById(targetItemId);
+      if (!element) return;
+
+      element.scrollIntoView({ behavior: "smooth" });
+      setTargetItemId(null);
+    }, delay);
   }, [targetItemId, isLoading, isPWA]);
 
   if (isInitialLoad && isLoading) {
