@@ -528,6 +528,7 @@ export const ViewGroup = ({ groupId, userId }) => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
         alert("Visibility changed to visible");
+        alert(window.location.hash);
         const hash = window.location.hash.slice(1);
         if (hash && hash !== "menu") {
           alert(`Setting target item id to ${hash}`);
@@ -663,6 +664,7 @@ export const ViewGroup = ({ groupId, userId }) => {
             }
           />
         )}
+        Hash: {window.location.hash}
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
