@@ -527,6 +527,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
+        alert("Visibility changed to visible");
         const hash = window.location.hash.slice(1);
         if (hash && hash !== "menu") {
           setTargetItemId(hash);
@@ -544,6 +545,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   useEffect(() => {
     const handleHashChange = () => {
+      alert("Hash changed");
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
         setTargetItemId(hash);
@@ -557,19 +559,25 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (!targetItemId || isLoading) return;
 
-    const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
+    setTimeout(
+      () => {
+        const element = document.getElementById(targetItemId);
+        if (!element) return;
 
-    setTimeout(() => {
-      const element = document.getElementById(targetItemId);
-      if (!element) return;
+        element.scrollIntoView({ behavior: "smooth" });
+        alert("Scrolled to item");
 
-      element.scrollIntoView({ behavior: "smooth" });
-      setTargetItemId(null);
-
-      setTimeout(() => {
-        window.history.replaceState(null, null, " ");
-      }, 500);
-    }, delay);
+        setTimeout(
+          () => {
+            setTargetItemId(null);
+            window.history.replaceState(null, null, " ");
+            alert("Cleared target item id");
+          },
+          isPWA ? 500 : 0
+        );
+      },
+      isPWA ? 500 : 0
+    );
   }, [targetItemId, isLoading, isPWA]);
 
   if (isInitialLoad && isLoading) {
