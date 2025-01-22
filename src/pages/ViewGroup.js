@@ -560,8 +560,9 @@ export const ViewGroup = ({ groupId, userId }) => {
       const element = document.getElementById(targetItemId);
       if (!element) return;
 
-      // TODO: Find fix for doing this in PWA mode on iOS
-      element.scrollIntoView();
+      // This only works on desktop or on iOS PWA cold starts
+      // TODO: Find fix for doing this on iOS PWA warm starts
+      element.scrollIntoView({ behavior: "smooth" });
       setTargetItemId(null);
     }, delay);
   }, [targetItemId, isLoading, isPWA]);
