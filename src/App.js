@@ -83,7 +83,9 @@ function App() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState();
   const [userId, setUserId] = useState();
-  const [scrollToItemId, setScrollToItemId] = useState();
+  const [scrollToItemId, setScrollToItemId] = useState(
+    window.location.hash.slice(1)
+  );
   const [page, setPage] = useState();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
