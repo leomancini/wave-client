@@ -217,7 +217,6 @@ export const ViewGroup = ({ groupId, userId }) => {
       }
     } catch (error) {
       console.error("Error validating user:", error);
-      alert("Error validating user");
       return { valid: false };
     }
   };
@@ -350,7 +349,6 @@ export const ViewGroup = ({ groupId, userId }) => {
               optimisticallyUploadedMediaItem.metadata.itemId
           )
         );
-        alert("Sorry, something went wrong.");
       }
     });
 
@@ -550,7 +548,6 @@ export const ViewGroup = ({ groupId, userId }) => {
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
         setTargetItemId(hash);
-        alert("Setting target item id", hash);
       }
     };
 
@@ -567,10 +564,6 @@ export const ViewGroup = ({ groupId, userId }) => {
       const element = document.getElementById(targetItemId);
       if (!element) return;
 
-      alert("Scrolling to item", targetItemId);
-
-      // This only works on desktop or on iOS PWA cold starts
-      // TODO: Find fix for doing this on iOS PWA warm starts
       element.scrollIntoView({ behavior: "smooth" });
       setTargetItemId(null);
     }, delay);
