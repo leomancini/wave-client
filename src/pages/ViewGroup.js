@@ -558,7 +558,11 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     element.scrollIntoView({ behavior: "smooth" });
     setScrollToItemId(null);
-  }, [scrollToItemId, isLoading]);
+
+    if (isPWA) {
+      window.history.replaceState(null, null, `/${groupId}/${userId}`);
+    }
+  }, [scrollToItemId, isLoading, isPWA]);
 
   if (isInitialLoad && isLoading) {
     return (
