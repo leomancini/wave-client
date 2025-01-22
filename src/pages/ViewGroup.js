@@ -83,6 +83,9 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [targetItemId, setTargetItemId] = useState(
+    window.location.hash.slice(1)
+  );
 
   const {
     isSubscribed,
@@ -536,6 +539,28 @@ export const ViewGroup = ({ groupId, userId }) => {
     return () => clearInterval(intervalId);
   }, [user.valid, groupId, userId]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash && hash !== "menu") {
+        setTargetItemId(hash);
+      }
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (targetItemId && !isLoading) {
+      const element = document.getElementById(targetItemId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        setTargetItemId(null);
+      }
+    }
+  }, [targetItemId, isLoading, mediaItems]);
+
   if (isInitialLoad && isLoading) {
     return (
       <Page fullHeight>
@@ -621,6 +646,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           {mediaItems.map((item, index) => {
             return (
               <MediaItem
+                id={item.metadata.itemId}
                 ref={
                   index === mediaItems.length - 1 ? lastMediaElementRef : null
                 }

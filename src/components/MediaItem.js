@@ -14,10 +14,7 @@ const Container = styled.div`
   gap: 1rem;
   margin-bottom: 1rem;
   width: 100%;
-
-  p {
-    margin: 0;
-  }
+  scroll-margin-top: 2.5rem;
 `;
 
 const Media = styled.div`
@@ -515,10 +512,9 @@ export const MediaItem = forwardRef(
     );
 
     return (
-      <Container>
+      <Container id={item.metadata.itemId}>
         <Media
           ref={mergeRefs}
-          data-item-id={item.metadata.itemId}
           style={{
             aspectRatio: `${item.metadata.dimensions?.width || 1} / ${
               item.metadata.dimensions?.height || 1
