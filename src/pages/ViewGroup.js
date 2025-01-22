@@ -555,14 +555,27 @@ export const ViewGroup = ({ groupId, userId }) => {
     if (targetItemId && !isLoading) {
       const element = document.getElementById(targetItemId);
       if (element) {
-        setTimeout(() => {
+        let attempts = 0;
+        const maxAttempts = 50; // 50 frames ≈ 833ms at 60fps
+
+        const scrollToElement = () => {
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition =
-            elementPosition + document.documentElement.scrollTop - 40;
+          const offsetPosition = elementPosition + window.scrollY - 40;
 
           window.scrollTo(0, offsetPosition);
-          setTargetItemId(null);
-        }, 100);
+
+          // Check if we successfully scrolled to the right position
+          const newPosition = element.getBoundingClientRect().top;
+          if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
+            // If we haven't reached the target position, try again
+            attempts++;
+            requestAnimationFrame(scrollToElement);
+          } else {
+            setTargetItemId(null);
+          }
+        };
+
+        requestAnimationFrame(scrollToElement);
       }
     }
   }, [targetItemId, isLoading, mediaItems]);
