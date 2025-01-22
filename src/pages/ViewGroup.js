@@ -677,6 +677,7 @@ export const ViewGroup = ({
             }
           />
         )}
+        <p>{window.location.hash}</p>
         <p>groupId: {groupId}</p>
         <p>userId: {userId}</p>
         <p>scrollToItemId: {scrollToItemId}</p>
