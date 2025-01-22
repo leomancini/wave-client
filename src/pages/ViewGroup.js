@@ -554,6 +554,8 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (targetItemId && !isLoading) {
       // Wait a bit for the PWA to fully initialize
+      const delay = isPWA && document.visibilityState === "visible" ? 500 : 0;
+
       setTimeout(() => {
         const element = document.getElementById(targetItemId);
         if (element) {
@@ -561,29 +563,38 @@ export const ViewGroup = ({ groupId, userId }) => {
           const maxAttempts = 100; // Increase max attempts to ~1.6s
 
           const scrollToElement = () => {
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.scrollY - 40;
-
+            // First reset scroll position to ensure we can calculate positions correctly
             window.scrollTo({
-              top: offsetPosition,
-              behavior: "instant" // Force immediate scroll on iOS
+              top: 0,
+              behavior: "instant"
             });
 
-            // Check if we successfully scrolled to the right position
-            const newPosition = element.getBoundingClientRect().top;
-            if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
-              attempts++;
-              requestAnimationFrame(scrollToElement);
-            } else {
-              setTargetItemId(null);
-            }
+            // Give the browser a frame to process the scroll reset
+            requestAnimationFrame(() => {
+              const elementPosition = element.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.scrollY - 40;
+
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: "instant" // Force immediate scroll on iOS
+              });
+
+              // Check if we successfully scrolled to the right position
+              const newPosition = element.getBoundingClientRect().top;
+              if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
+                attempts++;
+                requestAnimationFrame(scrollToElement);
+              } else {
+                setTargetItemId(null);
+              }
+            });
           };
 
           requestAnimationFrame(scrollToElement);
         }
-      }, 500); // Add initial delay for PWA initialization
+      }, delay);
     }
-  }, [targetItemId, isLoading, mediaItems]);
+  }, [targetItemId, isLoading, mediaItems, isPWA]);
 
   if (isInitialLoad && isLoading) {
     return (
