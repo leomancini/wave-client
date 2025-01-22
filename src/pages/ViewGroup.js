@@ -530,6 +530,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         alert("Visibility changed to visible");
         const hash = window.location.hash.slice(1);
         if (hash && hash !== "menu") {
+          alert(`Setting target item id to ${hash}`);
           setTargetItemId(hash);
         }
 
@@ -548,6 +549,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       alert("Hash changed");
       const hash = window.location.hash.slice(1);
       if (hash && hash !== "menu") {
+        alert(`Setting target item id to ${hash}`);
         setTargetItemId(hash);
       }
     };
