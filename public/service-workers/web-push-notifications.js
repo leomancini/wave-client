@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-globals */
-/* global clients */
 
 self.addEventListener("push", function (event) {
   if (!event.data) return;

@@ -663,7 +663,9 @@ export const ViewGroup = ({
             }
           />
         )}
-        scrollToItemId: {scrollToItemId}
+        <p>groupId: {groupId}</p>
+        <p>userId: {userId}</p>
+        <p>scrollToItemId: {scrollToItemId}</p>
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
