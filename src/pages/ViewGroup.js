@@ -557,13 +557,10 @@ export const ViewGroup = ({ groupId, userId }) => {
       if (element) {
         setTimeout(() => {
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - 40;
+          const offsetPosition =
+            elementPosition + document.documentElement.scrollTop - 40;
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth"
-          });
-
+          window.scrollTo(0, offsetPosition);
           setTargetItemId(null);
         }, 100);
       }
