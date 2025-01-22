@@ -498,6 +498,12 @@ export const MediaItem = forwardRef(
       setReactionEmojis(config.reactions);
     }, [config.reactions]);
 
+    useEffect(() => {
+      // Keep local state in sync with item.reactions
+      // when it changes on page visibility change
+      setReactions(item.reactions || []);
+    }, [item.reactions]);
+
     const hasUserReaction = (reactionEmoji) => {
       return reactions.some(
         (r) => r.user.id === user.id && r.reaction === reactionEmoji
