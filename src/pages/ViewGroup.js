@@ -412,7 +412,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
-        alert("App resumed - refreshing media items");
+        console.log("App resumed - refreshing media items");
         setPage(1);
         fetchMediaItems(groupId, userId, 1, false);
       }
@@ -421,7 +421,7 @@ export const ViewGroup = ({ groupId, userId }) => {
     window.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       window.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [user.valid, groupId, userId]);
+  }, [user.valid, groupId, userId, fetchMediaItems]);
 
   useEffect(() => {
     const fetchUsers = async () => {
