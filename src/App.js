@@ -81,9 +81,10 @@ const urlBase64ToUint8Array = (base64String) => {
 
 function App() {
   const [title, setTitle] = useState("WAVE");
-  const [groupId, setGroupId] = useState("");
-  const [userId, setUserId] = useState("");
-  const [page, setPage] = useState("");
+  const [groupId, setGroupId] = useState();
+  const [userId, setUserId] = useState();
+  const [itemId, setItemId] = useState();
+  const [page, setPage] = useState();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
   const [pushPermission, setPushPermission] = useState(
@@ -129,9 +130,9 @@ function App() {
     const path = new URL(url).pathname;
     const urlParts = path.substring(1).split("/");
 
-    if (urlParts.length === 2) {
+    if (urlParts.length === 2 || urlParts.length === 3) {
       // For viewing a specific group
-      const [groupId, userId] = urlParts;
+      const [groupId, userId, itemId] = urlParts;
 
       if (userId === "join") {
         setPage(Pages.JoinGroup.id);
@@ -142,6 +143,7 @@ function App() {
         setTitle(groupId);
         setGroupId(groupId);
         setUserId(userId);
+        setItemId(itemId);
       }
 
       if (!groupId) {
@@ -403,7 +405,11 @@ function App() {
                 {page === Pages.Home.id && <Home />}
                 {page === Pages.CreateGroup.id && <CreateGroup />}
                 {page === Pages.ViewGroup.id && (
-                  <ViewGroup groupId={groupId} userId={userId} />
+                  <ViewGroup
+                    groupId={groupId}
+                    userId={userId}
+                    scrollToItemId={itemId}
+                  />
                 )}
                 {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
                 {page === Pages.ScanQRCode.id && <ScanQRCode />}

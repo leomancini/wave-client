@@ -63,7 +63,7 @@ const PageContainerInteractionBlocker = styled.div`
   opacity: ${(props) => (props.visible ? 1 : 0)};
 `;
 
-export const ViewGroup = ({ groupId, userId }) => {
+export const ViewGroup = ({ groupId, userId, scrollToItemId }) => {
   const { setConfig } = useConfig();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -83,9 +83,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const [processingItems, setProcessingItems] = useState(new Set());
   const [, setPendingReadItems] = useState(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [targetItemId, setTargetItemId] = useState(
-    window.location.hash.slice(1)
-  );
+  const [targetItemId, setTargetItemId] = useState(scrollToItemId);
 
   const {
     isSubscribed,
@@ -528,12 +526,11 @@ export const ViewGroup = ({ groupId, userId }) => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
         alert("Visibility changed to visible");
-        alert(window.location.hash);
-        const hash = window.location.hash.slice(1);
-        if (hash && hash !== "menu") {
-          alert(`Setting target item id to ${hash}`);
-          setTargetItemId(hash);
-        }
+
+        if (!scrollToItemId) return;
+
+        alert(`Setting target item id to ${scrollToItemId}`);
+        setTargetItemId(scrollToItemId);
 
         setPage(1);
         fetchMediaItems(groupId, userId, 1, { append: false });
@@ -548,11 +545,10 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleHashChange = () => {
       alert("Hash changed");
-      const hash = window.location.hash.slice(1);
-      if (hash && hash !== "menu") {
-        alert(`Setting target item id to ${hash}`);
-        setTargetItemId(hash);
-      }
+      if (!scrollToItemId) return;
+
+      alert(`Setting target item id to ${scrollToItemId}`);
+      setTargetItemId(scrollToItemId);
     };
 
     window.addEventListener("hashchange", handleHashChange);
@@ -664,7 +660,7 @@ export const ViewGroup = ({ groupId, userId }) => {
             }
           />
         )}
-        Hash: {window.location.hash}
+        scrollToItemId: {scrollToItemId}
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
