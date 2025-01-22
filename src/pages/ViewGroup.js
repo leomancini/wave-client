@@ -194,7 +194,6 @@ export const ViewGroup = ({ groupId, userId }) => {
     if (user.valid && notificationPreference === "PUSH") {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data.type === "NOTIFICATION_CLICKED") {
-          alert(`Notification data: ${JSON.stringify(event.data, null, 2)}`);
           const itemId = event.data.data?.itemId;
           if (itemId) {
             setScrollToItemId(itemId);
@@ -541,13 +540,6 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && user.valid && groupId) {
-        alert("Visibility changed to visible");
-
-        if (!scrollToItemId) return;
-
-        alert(`Setting target item id to ${scrollToItemId}`);
-        setScrollToItemId(null);
-
         setPage(1);
         fetchMediaItems(groupId, userId, 1, { append: false });
       }
@@ -559,26 +551,13 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [user.valid, groupId, userId, fetchMediaItems]);
 
   useEffect(() => {
-    alert(`Scroll to item id: ${scrollToItemId}`);
-    // const handleHashChange = () => {
-    //   alert("Hash changed");
-    //   if (!scrollToItemId) return;
-
-    //   alert(`Setting target item id to ${scrollToItemId}`);
-    // };
-
-    // window.addEventListener("hashchange", handleHashChange);
-    // return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [scrollToItemId]);
-
-  useEffect(() => {
     if (!scrollToItemId || isLoading) return;
 
     const element = document.getElementById(scrollToItemId);
     if (!element) return;
 
     element.scrollIntoView({ behavior: "smooth" });
-    alert("Scrolled to item");
+    setScrollToItemId(null);
   }, [scrollToItemId, isLoading]);
 
   if (isInitialLoad && isLoading) {
@@ -662,10 +641,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             }
           />
         )}
-        <p>{window.location.hash}</p>
-        <p>groupId: {groupId}</p>
-        <p>userId: {userId}</p>
-        <p>scrollToItemId: {scrollToItemId}</p>
         <MediaGrid>
           {mediaItems.map((item, index) => {
             return (
