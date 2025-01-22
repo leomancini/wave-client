@@ -196,9 +196,10 @@ export const ViewGroup = ({
     if (user.valid && notificationPreference === "PUSH") {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data.type === "NOTIFICATION_CLICKED") {
-          alert("Notification data:", JSON.stringify(event, null, 2));
-          if (event.data.data?.itemId) {
-            setScrollToItemId(event.data.data.itemId);
+          alert(`Notification data: ${JSON.stringify(event.data, null, 2)}`);
+          const itemId = event.data.data?.itemId;
+          if (itemId) {
+            setScrollToItemId(itemId);
           }
         }
       });
