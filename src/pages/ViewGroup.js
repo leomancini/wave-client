@@ -410,48 +410,17 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [isMoreMenuVisible]);
 
   useEffect(() => {
-    const refreshData = () => {
-      if (user.valid && groupId) {
-        // Refresh media items
-        fetchMediaItems(groupId, userId, 1, false);
-
-        // Refresh stats
-        const fetchStats = async () => {
-          try {
-            const response = await fetch(
-              `${process.env.REACT_APP_API_URL}/stats/${groupId}`
-            );
-            const data = await response.json();
-            setStats(data);
-            setStatsIsLoading(false);
-          } catch (error) {
-            console.error("Error fetching stats:", error);
-          }
-        };
-        setStatsIsLoading(true);
-        fetchStats();
-      }
-    };
-
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        refreshData();
+      if (document.visibilityState === "visible" && user.valid && groupId) {
+        alert("App resumed - refreshing media items");
+        setPage(1);
+        fetchMediaItems(groupId, userId, 1, false);
       }
     };
 
-    const handleFocus = () => {
-      refreshData();
-    };
-
-    // Handle standard web visibility
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    // Handle iOS PWA
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
-    };
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [user.valid, groupId, userId]);
 
   useEffect(() => {
