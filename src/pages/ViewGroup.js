@@ -553,30 +553,35 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   useEffect(() => {
     if (targetItemId && !isLoading) {
-      const element = document.getElementById(targetItemId);
-      if (element) {
-        let attempts = 0;
-        const maxAttempts = 50; // 50 frames ≈ 833ms at 60fps
+      // Wait a bit for the PWA to fully initialize
+      setTimeout(() => {
+        const element = document.getElementById(targetItemId);
+        if (element) {
+          let attempts = 0;
+          const maxAttempts = 100; // Increase max attempts to ~1.6s
 
-        const scrollToElement = () => {
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - 40;
+          const scrollToElement = () => {
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.scrollY - 40;
 
-          window.scrollTo(0, offsetPosition);
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "instant" // Force immediate scroll on iOS
+            });
 
-          // Check if we successfully scrolled to the right position
-          const newPosition = element.getBoundingClientRect().top;
-          if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
-            // If we haven't reached the target position, try again
-            attempts++;
-            requestAnimationFrame(scrollToElement);
-          } else {
-            setTargetItemId(null);
-          }
-        };
+            // Check if we successfully scrolled to the right position
+            const newPosition = element.getBoundingClientRect().top;
+            if (Math.abs(newPosition - 40) > 1 && attempts < maxAttempts) {
+              attempts++;
+              requestAnimationFrame(scrollToElement);
+            } else {
+              setTargetItemId(null);
+            }
+          };
 
-        requestAnimationFrame(scrollToElement);
-      }
+          requestAnimationFrame(scrollToElement);
+        }
+      }, 500); // Add initial delay for PWA initialization
     }
   }, [targetItemId, isLoading, mediaItems]);
 
