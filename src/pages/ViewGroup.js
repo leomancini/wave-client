@@ -565,6 +565,10 @@ export const ViewGroup = ({ groupId, userId }) => {
 
       element.scrollIntoView({ behavior: "smooth" });
       setTargetItemId(null);
+
+      setTimeout(() => {
+        window.history.replaceState(null, null, " ");
+      }, 500);
     }, delay);
   }, [targetItemId, isLoading, isPWA]);
 
