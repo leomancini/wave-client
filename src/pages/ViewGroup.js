@@ -571,9 +571,9 @@ export const ViewGroup = ({
 
         setTimeout(
           () => {
-            setScrollToItemId(null);
-            window.history.replaceState(null, null, `/${groupId}/${userId}`);
-            alert("Cleared target item id");
+            // setScrollToItemId(null);
+            // window.history.replaceState(null, null, `/${groupId}/${userId}`);
+            // alert("Cleared target item id");
           },
           isPWA ? 500 : 0
         );
