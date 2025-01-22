@@ -555,8 +555,17 @@ export const ViewGroup = ({ groupId, userId }) => {
     if (targetItemId && !isLoading) {
       const element = document.getElementById(targetItemId);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-        setTargetItemId(null);
+        setTimeout(() => {
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - 40;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
+
+          setTargetItemId(null);
+        }, 100);
       }
     }
   }, [targetItemId, isLoading, mediaItems]);
