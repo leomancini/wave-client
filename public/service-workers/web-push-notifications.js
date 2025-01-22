@@ -74,11 +74,3 @@ self.addEventListener("notificationclick", function (event) {
       })
   );
 });
-
-navigator.serviceWorker.addEventListener("message", (event) => {
-  if (event.data.type === "NOTIFICATION_CLICKED") {
-    // Handle the notification data here
-    alert("Notification data:", event.data.data);
-    // You can now use this data to update your UI or trigger other actions
-  }
-});

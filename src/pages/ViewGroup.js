@@ -192,6 +192,19 @@ export const ViewGroup = ({
     }
   }, [user.valid, user.notificationPreference]);
 
+  useEffect(() => {
+    if (user.valid && notificationPreference === "PUSH") {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data.type === "NOTIFICATION_CLICKED") {
+          alert("Notification data:", event.data.data);
+          if (event.data.data?.itemId) {
+            setScrollToItemId(event.data.data.itemId);
+          }
+        }
+      });
+    }
+  }, [user.valid, notificationPreference]);
+
   const validateUser = async (groupId, userId) => {
     try {
       const validateResponse = await fetch(
