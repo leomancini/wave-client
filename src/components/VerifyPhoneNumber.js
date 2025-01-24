@@ -52,6 +52,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
   const [initialPhoneNumberValue, setInitialPhoneNumberValue] = useState(
     user.phoneNumber?.display
   );
+  const [phoneNumberError, setPhoneNumberError] = useState(false);
   const [verificationCodeValue, setVerificationCodeValue] = useState("");
   const [verificationCodeError, setVerificationCodeError] = useState(false);
 
@@ -102,6 +103,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       }
     } else {
       try {
+        setPhoneNumberError(false);
         const response = await fetch(
           `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/generate-verification-code`,
           {
@@ -119,14 +121,22 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
         );
 
         if (!response.ok) {
+          setPhoneNumberError(true);
           throw new Error("Failed to generate verification code");
         }
 
-        setUserPhoneNumber(phoneNumber);
-        setShouldShowVerificationCodeInput(true);
-        setInitialPhoneNumberValue(phoneNumber);
+        const data = await response.json();
+
+        if (data.success) {
+          setUserPhoneNumber(phoneNumber);
+          setShouldShowVerificationCodeInput(true);
+          setInitialPhoneNumberValue(phoneNumber);
+        } else {
+          setPhoneNumberError(true);
+        }
       } catch (error) {
         console.error("Error generating verification code:", error);
+        setPhoneNumberError(true);
         setIsSubmittingPhoneNumber(false);
       } finally {
         setIsSubmittingPhoneNumber(false);
@@ -138,6 +148,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
     setIsSubmittingVerificationCode(true);
 
     try {
+      setVerificationCodeError(false);
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}/verify-verification-code`,
         {
@@ -150,6 +161,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       );
 
       if (!response.ok) {
+        setVerificationCodeError(true);
         throw new Error("Failed to verify code");
       }
 
@@ -184,7 +196,7 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       placeholder="Enter verification code..."
       buttonLabel={<FontAwesomeIcon icon={faCheck} />}
       onSubmit={onVerificationCodeSubmit}
-      clearValueOnSubmit={false}
+      clearValueOnSubmit={verificationCodeError}
       disabled={isSubmittingVerificationCode}
       isLoading={isSubmittingVerificationCode}
       value={verificationCodeValue}
@@ -223,11 +235,14 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       buttonLabel={<FontAwesomeIcon icon={faCheck} />}
       disabled={isSubmittingPhoneNumber}
       isLoading={isSubmittingPhoneNumber}
-      clearValueOnSubmit={false}
+      clearValueOnSubmit={phoneNumberError}
       valueIsValid={phoneNumberIsValid || !phoneNumberValue}
       accessory={
-        (phoneNumberValue || initialPhoneNumberValue) &&
-        shouldShowVerifiedLabel && <VerifiedLabel>Verified</VerifiedLabel>
+        phoneNumberError ? (
+          <ErrorLabel>Try again</ErrorLabel>
+        ) : phoneNumberValue || initialPhoneNumberValue ? (
+          shouldShowVerifiedLabel && <VerifiedLabel>Verified</VerifiedLabel>
+        ) : null
       }
     />
   );
