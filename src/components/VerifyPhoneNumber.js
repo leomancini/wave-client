@@ -37,22 +37,20 @@ const ErrorLabel = styled.div`
 `;
 
 const VerifyPhoneNumber = ({ groupId, user }) => {
-  const [userPhoneNumber, setUserPhoneNumber] = useState(user.phoneNumber);
-  const [
-    shouldShowPhoneNumberSubmitButton,
-    setShouldShowPhoneNumberSubmitButton
-  ] = useState(false);
+  const [userPhoneNumber, setUserPhoneNumber] = useState(
+    user.phoneNumber?.display
+  );
   const [shouldShowVerificationCodeInput, setShouldShowVerificationCodeInput] =
     useState(false);
   const [isSubmittingVerificationCode, setIsSubmittingVerificationCode] =
     useState(false);
   const [isPhoneNumberVerified, setIsPhoneNumberVerified] = useState(
-    user.phoneNumber !== undefined
+    user.phoneNumber?.display !== undefined
   );
   const [isSubmittingPhoneNumber, setIsSubmittingPhoneNumber] = useState(false);
   const [phoneNumberValue, setPhoneNumberValue] = useState();
   const [initialPhoneNumberValue, setInitialPhoneNumberValue] = useState(
-    user.phoneNumber
+    user.phoneNumber?.display
   );
   const [verificationCodeValue, setVerificationCodeValue] = useState("");
   const [verificationCodeError, setVerificationCodeError] = useState(false);
@@ -111,7 +109,12 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify({ phoneNumber })
+            body: JSON.stringify({
+              phoneNumber: {
+                display: phoneNumber,
+                e164: phoneNumberValue
+              }
+            })
           }
         );
 
@@ -170,7 +173,6 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
 
   const shouldShowVerifiedLabel =
     !isSubmittingPhoneNumber &&
-    !shouldShowPhoneNumberSubmitButton &&
     isPhoneNumberVerified &&
     (phoneNumberValue
       ? formatPhoneNumber(phoneNumberValue)
@@ -223,7 +225,6 @@ const VerifyPhoneNumber = ({ groupId, user }) => {
       isLoading={isSubmittingPhoneNumber}
       clearValueOnSubmit={false}
       valueIsValid={phoneNumberIsValid || !phoneNumberValue}
-      setShouldShowButton={setShouldShowPhoneNumberSubmitButton}
       accessory={
         (phoneNumberValue || initialPhoneNumberValue) &&
         shouldShowVerifiedLabel && <VerifiedLabel>Verified</VerifiedLabel>

@@ -198,17 +198,18 @@ export const TextField = forwardRef(
                 onChange(e.target.value);
               }
 
-              setValue(e.target.value);
-              setIsSubmitted(false);
               if (handleChange) {
                 handleChange(e.target.value);
               }
+
+              setValue(e.target.value);
+              setIsSubmitted(false);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
 
-                if (buttonLabel) {
+                if (buttonLabel && shouldShowButton) {
                   onSubmit(value);
                   setIsSubmitted(true);
                 }
@@ -246,17 +247,18 @@ export const TextField = forwardRef(
                 onChange(e.target.value);
               }
 
-              setValue(e.target.value);
-              setIsSubmitted(false);
               if (handleChange) {
                 handleChange(e.target.value);
               }
+
+              setValue(e.target.value);
+              setIsSubmitted(false);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
 
-                if (buttonLabel) {
+                if (buttonLabel && shouldShowButton) {
                   onSubmit(value);
                   setIsSubmitted(true);
                 }
