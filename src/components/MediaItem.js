@@ -168,6 +168,7 @@ const Reaction = styled.div`
 
 const ReactionEmoji = styled.div`
   font-size: 1.25rem;
+  transition: opacity 0.2s;
 `;
 
 const ReactionSpinnerContainer = styled.div`
