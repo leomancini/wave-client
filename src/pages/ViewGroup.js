@@ -203,6 +203,67 @@ export const ViewGroup = ({ groupId, userId }) => {
     }
   }, [user.valid, notificationPreference]);
 
+  useEffect(() => {
+    if (groupId && userId) {
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      if (manifestLink) {
+        const manifest = {
+          short_name: groupId,
+          name: groupId,
+          start_url: `${process.env.REACT_APP_CLIENT_URL}/${groupId}/${userId}?source=pwa`,
+          display: "standalone",
+          theme_color: "#ffffff",
+          background_color: "#ffffff",
+          orientation: "portrait",
+          icons: [
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/180.png`,
+              sizes: "180x180",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/167.png`,
+              sizes: "167x167",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/152.png`,
+              sizes: "152x152",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/192.png`,
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/512.png`,
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            }
+          ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifest, null, 2)], {
+          type: "application/json"
+        });
+        const manifestUrl = URL.createObjectURL(blob);
+
+        manifestLink.href = manifestUrl;
+
+        return () => {
+          URL.revokeObjectURL(manifestUrl);
+          manifestLink.href = `${process.env.REACT_APP_CLIENT_URL}/manifest.json`;
+        };
+      }
+    }
+  }, [groupId, userId]);
+
   const validateUser = async (groupId, userId) => {
     try {
       const validateResponse = await fetch(
