@@ -215,15 +215,6 @@ export const ViewGroup = ({ groupId, userId }) => {
           theme_color: "#ffffff",
           background_color: "#ffffff",
           orientation: "portrait",
-          screenshots: [
-            {
-              src: `${process.env.REACT_APP_CLIENT_URL}/images/screenshots/home.png`,
-              sizes: "1170x2532",
-              type: "image/png",
-              form_factor: "narrow",
-              label: "Wave Feed"
-            }
-          ],
           icons: [
             {
               src: `${process.env.REACT_APP_CLIENT_URL}/images/app-icons/180.png`,
