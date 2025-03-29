@@ -246,6 +246,15 @@ export const ViewGroup = ({ groupId, userId }) => {
               type: "image/png",
               purpose: "any maskable"
             }
+          ],
+          screenshots: [
+            {
+              src: `${process.env.REACT_APP_CLIENT_URL}/images/screenshots/mobile.png`,
+              sizes: "1170x2532",
+              type: "image/png",
+              platform: "narrow",
+              label: "Screenshot"
+            }
           ]
         };
 
