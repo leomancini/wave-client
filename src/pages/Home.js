@@ -20,7 +20,6 @@ const PageContainer = styled.div`
 `;
 
 const GroupList = styled.div`
-  margin-top: 1rem;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -39,14 +38,15 @@ const GroupListItem = styled.div`
   background-color: white;
   border-radius: 2rem;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.15), 0px 2px 4px rgba(0, 0, 0, 0.05);
-  width: calc(100% - 4rem);
-  padding: 2rem;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   text-decoration: none;
   color: inherit;
   min-height: 3rem;
+  position: relative;
+  overflow: hidden;
 
   transition: all 0.2s;
   -webkit-transform: translateZ(0);
@@ -67,6 +67,27 @@ const GroupListItem = styled.div`
     box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1);
     opacity: 0.8;
   }
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 2rem;
+    height: calc(100% - 4rem);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &::before {
+    left: -0.125rem;
+    background: linear-gradient(to right, white 15%, transparent 100%);
+  }
+
+  &::after {
+    right: -0.125rem;
+    background: linear-gradient(to left, white 15%, transparent 100%);
+  }
 `;
 
 const GroupHeader = styled.div`
@@ -74,7 +95,8 @@ const GroupHeader = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  width: calc(100% - 4rem);
+  padding: 2rem 2rem 0 2rem;
 `;
 
 const GroupName = styled.div`
@@ -108,12 +130,26 @@ const Badge = styled.div`
 const UserList = styled(List)`
   margin-top: 0;
   flex-direction: row;
-  flex-wrap: wrap;
-  gap: 2rem;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  padding: 0 2rem 2rem 2rem;
 `;
 
 const UserListItem = styled(ListItem)`
   width: unset;
+`;
+
+const UserListItemValue = styled(ListItemValue)`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Home = () => {
@@ -210,12 +246,12 @@ export const Home = () => {
                             key={`${data.groupId}-user-${userIndex}`}
                           >
                             <ListItemContent>
-                              <ListItemValue>
+                              <UserListItemValue>
                                 <UserAvatar>
                                   {user.name.substring(0, 1).toUpperCase()}
                                 </UserAvatar>
                                 {user.name}
-                              </ListItemValue>
+                              </UserListItemValue>
                             </ListItemContent>
                           </UserListItem>
                         ))
