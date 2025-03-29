@@ -17,6 +17,14 @@ import { Spinner } from "./Spinner";
 import VerifyPhoneNumber from "./VerifyPhoneNumber";
 import { SegmentedController } from "./SegmentedController";
 import { InlineEmptyCard } from "./EmptyCard";
+import { UserAvatar } from "./UserAvatar";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemLabel,
+  ListItemValue
+} from "./List";
 
 const Container = styled.div`
   position: fixed;
@@ -180,50 +188,6 @@ const SectionContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-`;
-
-const List = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: -1rem;
-  margin-bottom: -1rem;
-`;
-
-const ListItem = styled.div`
-  width: 100%;
-`;
-
-const ListItemContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 3rem;
-  padding: 0.5rem 0;
-`;
-
-const ListItemLabel = styled.div`
-  font-size: 1rem;
-`;
-
-const ListItemValue = styled.div`
-  font-size: 1rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const UserAvatar = styled.div`
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.15);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: normal;
 `;
 
 const StyledReaction = styled.div`

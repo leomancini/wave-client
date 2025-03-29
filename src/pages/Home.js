@@ -3,6 +3,14 @@ import styled from "styled-components";
 
 import { Page } from "../components/Page";
 import { Spinner } from "../components/Spinner";
+import { UserAvatar } from "../components/UserAvatar";
+import {
+  List,
+  ListItem,
+  ListItemContent,
+  ListItemValue
+} from "../components/List";
+import { Button } from "../components/Button";
 
 const PageContainer = styled.div`
   display: flex;
@@ -30,13 +38,12 @@ const GroupLink = styled.a`
 const GroupListItem = styled.div`
   background-color: white;
   border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 3rem);
-  padding: 1.5rem;
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.15), 0px 2px 4px rgba(0, 0, 0, 0.05);
+  width: calc(100% - 4rem);
+  padding: 2rem;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
   text-decoration: none;
   color: inherit;
   min-height: 3rem;
@@ -48,6 +55,26 @@ const GroupListItem = styled.div`
   transform-origin: center center;
   will-change: transform;
   user-select: none;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 0px 48px rgba(0, 0, 0, 0.1),
+      0px 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0.8;
+  }
+`;
+
+const GroupHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 `;
 
 const GroupName = styled.div`
@@ -78,11 +105,23 @@ const Badge = styled.div`
   text-align: center;
 `;
 
+const UserList = styled(List)`
+  margin-top: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2rem;
+`;
+
+const UserListItem = styled(ListItem)`
+  width: unset;
+`;
+
 export const Home = () => {
   const [myGroups] = useState(
     () => JSON.parse(localStorage.getItem("myGroups")) || []
   );
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [groupUsers, setGroupUsers] = useState({});
 
   useEffect(() => {
     const fetchUnreadCounts = async () => {
@@ -113,7 +152,34 @@ export const Home = () => {
       }
     };
 
+    const fetchGroupUsers = async () => {
+      try {
+        const promises = myGroups.map((group) =>
+          fetch(`${process.env.REACT_APP_API_URL}/users/${group.groupId}`)
+            .then((res) => res.json())
+            .then((users) => ({
+              groupId: group.groupId,
+              users
+            }))
+        );
+
+        const results = await Promise.all(promises);
+        const users = results.reduce(
+          (acc, { groupId, users }) => ({
+            ...acc,
+            [groupId]: users
+          }),
+          {}
+        );
+
+        setGroupUsers(users);
+      } catch (error) {
+        console.error("Failed to fetch group users:", error);
+      }
+    };
+
     fetchUnreadCounts();
+    fetchGroupUsers();
   }, [myGroups]);
 
   return (
@@ -124,16 +190,37 @@ export const Home = () => {
             {myGroups.map((data, index) => (
               <GroupLink href={`/${data.groupId}/${data.userId}`} key={index}>
                 <GroupListItem>
-                  <GroupName>{data.groupId}</GroupName>
-                  <GroupValueContainer>
-                    {unreadCounts[data.groupId] !== undefined ? (
-                      unreadCounts[data.groupId] > 0 && (
-                        <Badge>{unreadCounts[data.groupId]}</Badge>
-                      )
-                    ) : (
-                      <Spinner size="medium" />
-                    )}
-                  </GroupValueContainer>
+                  <GroupHeader>
+                    <GroupName>{data.groupId}</GroupName>
+                    <GroupValueContainer>
+                      {unreadCounts[data.groupId] !== undefined &&
+                      groupUsers[data.groupId] ? (
+                        unreadCounts[data.groupId] > 0 && (
+                          <Badge>{unreadCounts[data.groupId]}</Badge>
+                        )
+                      ) : (
+                        <Spinner size="medium" />
+                      )}
+                    </GroupValueContainer>
+                  </GroupHeader>
+                  <UserList>
+                    {groupUsers[data.groupId]
+                      ? groupUsers[data.groupId].map((user, userIndex) => (
+                          <UserListItem
+                            key={`${data.groupId}-user-${userIndex}`}
+                          >
+                            <ListItemContent>
+                              <ListItemValue>
+                                <UserAvatar>
+                                  {user.name.substring(0, 1).toUpperCase()}
+                                </UserAvatar>
+                                {user.name}
+                              </ListItemValue>
+                            </ListItemContent>
+                          </UserListItem>
+                        ))
+                      : null}
+                  </UserList>
                 </GroupListItem>
               </GroupLink>
             ))}
@@ -141,6 +228,16 @@ export const Home = () => {
         ) : (
           <p>No groups found</p>
         )}
+        <Button
+          size="small"
+          stretch="fill"
+          prominence="secondary"
+          label="Create new group"
+          onClick={() => {
+            window.location.href = "/create-group";
+          }}
+          style={{ marginTop: "2rem" }}
+        />
       </PageContainer>
     </Page>
   );

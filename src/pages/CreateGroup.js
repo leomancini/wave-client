@@ -74,6 +74,7 @@ export const CreateGroup = () => {
           size="small"
           type="text"
           label="Create"
+          style={{ marginTop: "1rem" }}
         />
       </Form>
     </Page>
