@@ -449,6 +449,12 @@ export const MoreMenu = ({
   }, [visible]);
 
   useEffect(() => {
+    if (showSwitchDeviceInstructions && contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [showSwitchDeviceInstructions]);
+
+  useEffect(() => {
     if (visible) {
       const scrollPos = window.scrollY;
       document.body.style.position = "fixed";
