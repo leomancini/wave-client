@@ -652,7 +652,7 @@ export const MoreMenu = ({
                     <SectionLabel>Step 1</SectionLabel>
                   </SectionHeader>
                   <ListItem>
-                    <ListItemContent style={{ padding: "0" }}>
+                    <ListItemContent style={{ padding: "0", minHeight: "0" }}>
                       <ListItemLabel>
                         Go to <b>wave.leo.gd/scan</b> on your computer
                       </ListItemLabel>
@@ -664,7 +664,7 @@ export const MoreMenu = ({
                     <SectionLabel>Step 2</SectionLabel>
                   </SectionHeader>
                   <ListItem>
-                    <ListItemContent style={{ padding: "0" }}>
+                    <ListItemContent style={{ padding: "0", minHeight: "0" }}>
                       <ListItemLabel>Scan this QR code</ListItemLabel>
                     </ListItemContent>
                   </ListItem>
@@ -675,7 +675,11 @@ export const MoreMenu = ({
                 <Section>
                   <ListItem>
                     <ListItemContent
-                      style={{ padding: "0", marginTop: "-1.5rem" }}
+                      style={{
+                        padding: "0",
+                        marginTop: "-1.5rem",
+                        minHeight: "0"
+                      }}
                     >
                       <ListItemLabel>
                         Use your phone to scan this QR code
@@ -687,7 +691,7 @@ export const MoreMenu = ({
             )}
             <Section>
               <ListItem>
-                <ListItemContent style={{ padding: "0" }}>
+                <ListItemContent style={{ padding: "0", borderRadius: "2rem" }}>
                   <QRCodeContainer>
                     {isLoadingQRCode ? (
                       <Spinner size="x-large" />
