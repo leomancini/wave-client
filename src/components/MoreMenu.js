@@ -210,7 +210,6 @@ const QRCodeContainer = styled.div`
   border-radius: 2rem;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0;
-  background-color: rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
   backface-visibility: hidden;
   overflow: hidden;
@@ -452,7 +451,10 @@ export const MoreMenu = ({
 
   useEffect(() => {
     if (showSwitchDeviceInstructions && contentRef.current) {
+      const originalScrollBehavior = contentRef.current.style.scrollBehavior;
+      contentRef.current.style.scrollBehavior = "auto";
       contentRef.current.scrollTop = 0;
+      contentRef.current.style.scrollBehavior = originalScrollBehavior;
     }
   }, [showSwitchDeviceInstructions]);
 
