@@ -697,30 +697,18 @@ export const MoreMenu = ({
                 </Section>
               </>
             )}
-            <Section>
-              <ListItem>
-                <ListItemContent
-                  style={{
-                    padding: "0",
-                    borderRadius: "2rem",
-                    backfaceVisibility: "hidden"
-                  }}
-                >
-                  <QRCodeContainer>
-                    {isLoadingQRCode ? (
-                      <Spinner size="x-large" />
-                    ) : (
-                      qrCodeUrl && (
-                        <img
-                          src={qrCodeUrl}
-                          alt={`${process.env.REACT_APP_API_URL}/${groupId}/${user.id}`}
-                        />
-                      )
-                    )}
-                  </QRCodeContainer>
-                </ListItemContent>
-              </ListItem>
-            </Section>
+            <QRCodeContainer>
+              {isLoadingQRCode ? (
+                <Spinner size="x-large" />
+              ) : (
+                qrCodeUrl && (
+                  <img
+                    src={qrCodeUrl}
+                    alt={`${process.env.REACT_APP_API_URL}/${groupId}/${user.id}`}
+                  />
+                )
+              )}
+            </QRCodeContainer>
           </>
         ) : (
           <>
