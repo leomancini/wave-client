@@ -647,7 +647,7 @@ export const MoreMenu = ({
           <>
             {deviceType === "mobile" ? (
               <>
-                <Section>
+                <Section style={{ gap: "1rem" }}>
                   <SectionHeader>
                     <SectionLabel>Step 1</SectionLabel>
                   </SectionHeader>
@@ -659,7 +659,7 @@ export const MoreMenu = ({
                     </ListItemContent>
                   </ListItem>
                 </Section>
-                <Section>
+                <Section style={{ gap: "1rem" }}>
                   <SectionHeader>
                     <SectionLabel>Step 2</SectionLabel>
                   </SectionHeader>
@@ -672,7 +672,7 @@ export const MoreMenu = ({
               </>
             ) : (
               <>
-                <Section>
+                <Section style={{ gap: "1rem" }}>
                   <ListItem>
                     <ListItemContent
                       style={{
@@ -691,7 +691,13 @@ export const MoreMenu = ({
             )}
             <Section>
               <ListItem>
-                <ListItemContent style={{ padding: "0", borderRadius: "2rem" }}>
+                <ListItemContent
+                  style={{
+                    padding: "0",
+                    borderRadius: "2rem",
+                    backfaceVisibility: "hidden"
+                  }}
+                >
                   <QRCodeContainer>
                     {isLoadingQRCode ? (
                       <Spinner size="x-large" />
