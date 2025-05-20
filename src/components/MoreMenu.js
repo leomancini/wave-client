@@ -211,11 +211,6 @@ const QRCodeContainer = styled.div`
   font-size: 0;
   margin-bottom: 2rem;
   border-radius: 2rem;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  perspective: 1000;
-  -webkit-perspective: 1000;
 
   img {
     width: calc(100% - 4rem);
@@ -702,18 +697,24 @@ export const MoreMenu = ({
                 </Section>
               </>
             )}
-            <QRCodeContainer>
-              {isLoadingQRCode ? (
-                <Spinner size="x-large" />
-              ) : (
-                qrCodeUrl && (
-                  <img
-                    src={qrCodeUrl}
-                    alt={`${process.env.REACT_APP_API_URL}/${groupId}/${user.id}`}
-                  />
-                )
-              )}
-            </QRCodeContainer>
+            <Section>
+              <ListItem>
+                <ListItemContent style={{ padding: "0" }}>
+                  <QRCodeContainer>
+                    {isLoadingQRCode ? (
+                      <Spinner size="x-large" />
+                    ) : (
+                      qrCodeUrl && (
+                        <img
+                          src={qrCodeUrl}
+                          alt={`${process.env.REACT_APP_API_URL}/${groupId}/${user.id}`}
+                        />
+                      )
+                    )}
+                  </QRCodeContainer>
+                </ListItemContent>
+              </ListItem>
+            </Section>
           </>
         ) : (
           <>
