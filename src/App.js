@@ -101,7 +101,7 @@ function App() {
     const displayModeStandalone = window.matchMedia(
       "(display-mode: standalone)"
     ).matches;
-
+    g;
     const fromHomescreen = window.location.search.includes("source=pwa");
 
     return standaloneMode || displayModeStandalone || fromHomescreen;

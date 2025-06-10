@@ -425,6 +425,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         });
       } catch (error) {
         console.error("Upload error:", error);
+        alert("Failed to upload file. Please try again.");
         setMediaItems((prev) =>
           prev.filter(
             (item) =>

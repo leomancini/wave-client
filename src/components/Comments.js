@@ -127,6 +127,9 @@ export const Comments = ({ item, groupId, user, disabled }) => {
       setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
     } catch (error) {
       console.error("Error adding comment:", error);
+      alert("Failed to add comment. Please try again.");
+      // Remove the failed comment from the optimistic UI
+      setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
     }
   };
 

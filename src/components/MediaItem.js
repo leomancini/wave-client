@@ -420,6 +420,7 @@ const addReaction = async (
     });
   } catch (error) {
     console.error("Error adding reaction:", error);
+    alert("Failed to add reaction. Please try again.");
     setReactions((prevReactions) => {
       if (isRemoving) {
         return prevReactions.map((r) =>
