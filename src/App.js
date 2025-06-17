@@ -10,6 +10,7 @@ import { ViewGroup } from "./pages/ViewGroup";
 import { JoinGroup } from "./pages/JoinGroup";
 import { ScanQRCode } from "./pages/ScanQRCode";
 import { Home } from "./pages/Home";
+import { handleGroupRedirect } from "./utilities/groupRedirects";
 
 export const NotificationContext = createContext();
 export const AppContext = createContext();
@@ -125,39 +126,55 @@ function App() {
   }, [title]);
 
   useEffect(() => {
-    const url = window.location.href;
-    const path = new URL(url).pathname;
-    const urlParts = path.substring(1).split("/");
+    const checkGroupRedirectAndSetPage = async () => {
+      const url = window.location.href;
+      const path = new URL(url).pathname;
+      const urlParts = path.substring(1).split("/");
 
-    if (urlParts.length === 2 || urlParts.length === 3) {
-      // For viewing a specific group
-      const [groupId, userId] = urlParts;
+      if (urlParts.length === 2 || urlParts.length === 3) {
+        // For viewing a specific group
+        const [originalGroupId, userId] = urlParts;
 
-      if (userId === "join") {
-        setPage(Pages.JoinGroup.id);
-        setTitle(groupId);
-        setGroupId(groupId);
+        // Check if this group has been renamed (old URL)
+        const wasRedirected = await handleGroupRedirect(
+          originalGroupId,
+          `/${userId}`
+        );
+        if (wasRedirected) {
+          return; // Exit early since we're redirecting
+        }
+
+        // No redirect needed, proceed with original logic
+        const groupId = originalGroupId;
+
+        if (userId === "join") {
+          setPage(Pages.JoinGroup.id);
+          setTitle(groupId);
+          setGroupId(groupId);
+        } else {
+          setPage(Pages.ViewGroup.id);
+          setTitle(groupId);
+          setGroupId(groupId);
+          setUserId(userId);
+        }
+
+        if (!groupId) {
+          alert("No group ID");
+          return;
+        }
+
+        if (!userId) {
+          alert("No user ID");
+          return;
+        }
       } else {
-        setPage(Pages.ViewGroup.id);
-        setTitle(groupId);
-        setGroupId(groupId);
-        setUserId(userId);
+        // For all other known pages
+        const pageId = urlParts[0];
+        setPageAndTitle(pageId || Pages.Home.id);
       }
+    };
 
-      if (!groupId) {
-        alert("No group ID");
-        return;
-      }
-
-      if (!userId) {
-        alert("No user ID");
-        return;
-      }
-    } else {
-      // For all other known pages
-      const pageId = urlParts[0];
-      setPageAndTitle(pageId || Pages.Home.id);
-    }
+    checkGroupRedirectAndSetPage();
   }, []);
 
   const checkSubscriptionStatus = React.useCallback(

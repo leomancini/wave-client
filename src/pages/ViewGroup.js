@@ -11,6 +11,7 @@ import styled from "styled-components";
 
 import { NotificationContext, AppContext } from "../App";
 import { useConfig } from "../contexts/ConfigContext";
+import { handleGroupRedirect } from "../utilities/groupRedirects";
 
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 
@@ -151,6 +152,12 @@ export const ViewGroup = ({ groupId, userId }) => {
   useEffect(() => {
     if (groupId && userId) {
       const init = async () => {
+        // Check if this group has been renamed before validating user
+        const wasRedirected = await handleGroupRedirect(groupId, `/${userId}`);
+        if (wasRedirected) {
+          return; // Exit early since we're redirecting
+        }
+
         const userData = await validateUser(groupId, userId);
         if (!userData.valid) {
           setIsLoading(false);

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
 import { TextField } from "../components/TextField";
+import { handleGroupRedirect } from "../utilities/groupRedirects";
 
 const Form = styled.form`
   display: flex;
@@ -17,28 +18,39 @@ export const JoinGroup = ({ groupId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Remove any existing userId from localStorage (from previous implementation)
-    const existingUserId = localStorage.getItem("userId");
-    if (existingUserId) {
-      localStorage.removeItem("userId");
-      const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
-      if (
-        !myGroups.some(
-          (group) =>
-            group.groupId === groupId && group.userId === existingUserId
-        )
-      ) {
-        myGroups.push({ groupId, userId: existingUserId });
-        localStorage.setItem("myGroups", JSON.stringify(myGroups));
+    const checkRedirectAndInitialize = async () => {
+      // First check if this group has been renamed
+      const wasRedirected = await handleGroupRedirect(groupId, "/join");
+      if (wasRedirected) {
+        return; // Exit early since we're redirecting
       }
-    }
 
-    const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
-    const existingGroup = myGroups.find((group) => group.groupId === groupId);
+      // Continue with existing logic if no redirect
+      // Remove any existing userId from localStorage (from previous implementation)
+      const existingUserId = localStorage.getItem("userId");
+      if (existingUserId) {
+        localStorage.removeItem("userId");
+        const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+        if (
+          !myGroups.some(
+            (group) =>
+              group.groupId === groupId && group.userId === existingUserId
+          )
+        ) {
+          myGroups.push({ groupId, userId: existingUserId });
+          localStorage.setItem("myGroups", JSON.stringify(myGroups));
+        }
+      }
 
-    if (existingGroup) {
-      window.location.href = `/${groupId}/${existingGroup.userId}`;
-    }
+      const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+      const existingGroup = myGroups.find((group) => group.groupId === groupId);
+
+      if (existingGroup) {
+        window.location.href = `/${groupId}/${existingGroup.userId}`;
+      }
+    };
+
+    checkRedirectAndInitialize();
   }, [groupId]);
 
   const handleSubmit = async () => {
