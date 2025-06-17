@@ -11,6 +11,7 @@ import {
   ListItemValue
 } from "../components/List";
 import { Button } from "../components/Button";
+import { checkGroupRedirect } from "../utilities/groupRedirects";
 
 const PageContainer = styled.div`
   display: flex;
@@ -153,11 +154,38 @@ const UserListItemValue = styled(ListItemValue)`
 `;
 
 export const Home = () => {
-  const [myGroups] = useState(
+  const [myGroups, setMyGroups] = useState(
     () => JSON.parse(localStorage.getItem("myGroups")) || []
   );
   const [unreadCounts, setUnreadCounts] = useState({});
   const [groupUsers, setGroupUsers] = useState({});
+
+  useEffect(() => {
+    const checkGroupRedirects = async () => {
+      const updatedGroups = [];
+      let hasChanges = false;
+
+      for (const group of myGroups) {
+        const redirectInfo = await checkGroupRedirect(group.groupId);
+        if (redirectInfo.hasRedirect && redirectInfo.newGroupId) {
+          updatedGroups.push({
+            ...group,
+            groupId: redirectInfo.newGroupId
+          });
+          hasChanges = true;
+        } else {
+          updatedGroups.push(group);
+        }
+      }
+
+      if (hasChanges) {
+        setMyGroups(updatedGroups);
+        localStorage.setItem("myGroups", JSON.stringify(updatedGroups));
+      }
+    };
+
+    checkGroupRedirects();
+  }, []);
 
   useEffect(() => {
     const fetchUnreadCounts = async () => {
