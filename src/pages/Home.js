@@ -252,7 +252,10 @@ export const Home = () => {
         {myGroups.length > 0 ? (
           <GroupList>
             {myGroups.map((data, index) => (
-              <GroupLink href={`/${data.groupId}/${data.userId}`} key={index}>
+              <GroupLink
+                href={`/${encodeURIComponent(data.groupId)}/${data.userId}`}
+                key={index}
+              >
                 <GroupListItem>
                   <GroupHeader>
                     <GroupName>{data.groupId}</GroupName>

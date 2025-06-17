@@ -134,10 +134,11 @@ function App() {
       if (urlParts.length === 2 || urlParts.length === 3) {
         // For viewing a specific group
         const [originalGroupId, userId] = urlParts;
+        const decodedGroupId = decodeURIComponent(originalGroupId);
 
         // Check if this group has been renamed (old URL)
         const wasRedirected = await handleGroupRedirect(
-          originalGroupId,
+          decodedGroupId,
           `/${userId}`
         );
         if (wasRedirected) {
@@ -145,7 +146,7 @@ function App() {
         }
 
         // No redirect needed, proceed with original logic
-        const groupId = originalGroupId;
+        const groupId = decodedGroupId;
 
         if (userId === "join") {
           setPage(Pages.JoinGroup.id);
