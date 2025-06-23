@@ -185,7 +185,7 @@ export const Home = () => {
     };
 
     checkGroupRedirects();
-  }, []);
+  }, [myGroups]);
 
   useEffect(() => {
     const fetchUnreadCounts = async () => {
