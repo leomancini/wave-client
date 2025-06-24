@@ -469,6 +469,21 @@ export const ViewGroup = ({ groupId, userId }) => {
     setIsMoreMenuVisible(!isMoreMenuVisible);
   };
 
+  const handleUserUpdate = (updatedUser) => {
+    // Update the current user object while preserving existing properties
+    setUser((prevUser) => ({
+      ...prevUser,
+      ...updatedUser
+    }));
+
+    // Update the user in the users array
+    setUsers((prevUsers) =>
+      prevUsers.map((u) =>
+        u.id === updatedUser.id ? { ...u, ...updatedUser } : u
+      )
+    );
+  };
+
   const markAsRead = (itemId) => {
     setMediaItems((currentMediaItems) => {
       const item = currentMediaItems.find(
@@ -609,6 +624,7 @@ export const ViewGroup = ({ groupId, userId }) => {
         setIsMoreMenuVisible={handleMenuToggle}
         style={{ zIndex: 3 }}
         onNotificationPreferenceChange={setNotificationPreference}
+        onUserUpdate={handleUserUpdate}
       />
       <PageContainerInteractionBlocker visible={isMoreMenuVisible} />
       <PageContainer>

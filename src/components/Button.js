@@ -105,8 +105,8 @@ const StyledButton = styled.button`
         active: `rgba(0, 0, 0, ${props.disabled ? 0.15 : 0.15})`
       },
       destructive: {
-        default: `rgba(255, 0, 0, ${props.disabled ? 0.5 : 1})`,
-        hover: `rgba(225, 0, 0, ${props.disabled ? 0.5 : 1})`,
+        default: `rgba(200, 0, 0, ${props.disabled ? 0.5 : 1})`,
+        hover: `rgba(180, 0, 0, ${props.disabled ? 0.5 : 1})`,
         active: `rgba(200, 0, 0, ${props.disabled ? 0.5 : 1})`
       },
       tertiary: {

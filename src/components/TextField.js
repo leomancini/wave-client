@@ -12,12 +12,6 @@ const TextFieldContainer = styled.div`
   width: 100%;
 `;
 
-const Label = styled.div`
-  font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-`;
-
 const InputBase = css`
   width: 100%;
   background: rgba(0, 0, 0, 0.05);
@@ -79,6 +73,12 @@ const InputBase = css`
         color: rgba(0, 0, 0, 0.2);
       }
     `}
+
+  ${({ hasLabel }) =>
+    hasLabel &&
+    css`
+      padding-left: 5rem;
+    `}
 `;
 
 const Input = styled.input`
@@ -99,10 +99,24 @@ const SpinnerContainer = styled.div`
 
 const AccessoryContainer = styled.div`
   position: absolute;
-  right: 0;
-  height: 100%;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: auto;
   display: flex;
   align-items: center;
+  z-index: 2;
+`;
+
+const InlineLabel = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  font-weight: bold;
+  pointer-events: none;
+  z-index: 1;
 `;
 
 const Button = styled.button`
@@ -184,131 +198,138 @@ export const TextField = forwardRef(
 
     return (
       <TextFieldContainer>
-        {label && <Label>{label}</Label>}
-        {multiLine ? (
-          <TextArea
-            ref={ref}
-            id={id}
-            value={currentValue}
-            placeholder={placeholder}
-            maxRows={99999}
-            onSelect={(e) => e.preventDefault()}
-            isLoading={isLoading}
-            inputMode={inputMode}
-            pattern={
-              inputMode === "numeric" || inputMode === "tel"
-                ? "[0-9]*"
-                : undefined
-            }
-            data-1p-ignore
-            autoComplete={autocomplete}
-            onChange={(e) => {
-              if (onChange) {
-                onChange(e.target.value);
+        <div style={{ position: "relative" }}>
+          {label && <InlineLabel>{label}</InlineLabel>}
+          {multiLine ? (
+            <TextArea
+              ref={ref}
+              id={id}
+              value={currentValue}
+              placeholder={placeholder}
+              maxRows={99999}
+              onSelect={(e) => e.preventDefault()}
+              isLoading={isLoading}
+              inputMode={inputMode}
+              pattern={
+                inputMode === "numeric" || inputMode === "tel"
+                  ? "[0-9]*"
+                  : undefined
               }
-
-              if (handleChange) {
-                handleChange(e.target.value);
-              }
-
-              setValue(e.target.value);
-              setIsSubmitted(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-
-                if (buttonLabel && shouldShowButton) {
-                  onSubmit(value);
-                  setIsSubmitted(true);
+              data-1p-ignore
+              autoComplete={autocomplete}
+              hasLabel={!!label}
+              hasAccessory={!!accessory && !shouldShowButton}
+              onChange={(e) => {
+                if (onChange) {
+                  onChange(e.target.value);
                 }
+
+                if (handleChange) {
+                  handleChange(e.target.value);
+                }
+
+                setValue(e.target.value);
+                setIsSubmitted(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+
+                  if (buttonLabel && shouldShowButton) {
+                    onSubmit(value);
+                    setIsSubmitted(true);
+                  }
+
+                  if (clearValueOnSubmit) {
+                    setValue("");
+                  } else {
+                    setPreviousValue(value);
+                  }
+                }
+              }}
+              disabled={disabled}
+              readOnly={disabled}
+              maxLength={maxLength}
+              animationsEnabled={animationsEnabled}
+            />
+          ) : (
+            <Input
+              ref={ref}
+              label={label}
+              id={id}
+              value={currentValue}
+              placeholder={placeholder}
+              onSelect={(e) => e.preventDefault()}
+              isLoading={isLoading}
+              inputMode={inputMode}
+              pattern={
+                inputMode === "numeric" || inputMode === "tel"
+                  ? "[0-9]*"
+                  : undefined
+              }
+              data-1p-ignore
+              autoComplete={autocomplete}
+              hasLabel={!!label}
+              hasAccessory={!!accessory && !shouldShowButton}
+              onChange={(e) => {
+                if (onChange) {
+                  onChange(e.target.value);
+                }
+
+                if (handleChange) {
+                  handleChange(e.target.value);
+                }
+
+                setValue(e.target.value);
+                setIsSubmitted(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+
+                  if (buttonLabel && shouldShowButton) {
+                    onSubmit(value);
+                    setIsSubmitted(true);
+                  }
+
+                  if (clearValueOnSubmit) {
+                    setValue("");
+                  } else {
+                    setPreviousValue(value);
+                  }
+                }
+              }}
+              disabled={disabled}
+              readOnly={disabled}
+              maxLength={maxLength}
+              animationsEnabled={animationsEnabled}
+            />
+          )}
+          {isLoading && (
+            <SpinnerContainer>
+              <Spinner size="small" />
+            </SpinnerContainer>
+          )}
+          {accessory && !shouldShowButton && (
+            <AccessoryContainer>{accessory}</AccessoryContainer>
+          )}
+          {shouldShowButton && (
+            <Button
+              onClick={() => {
+                onSubmit(value);
+                setIsSubmitted(true);
 
                 if (clearValueOnSubmit) {
                   setValue("");
                 } else {
                   setPreviousValue(value);
                 }
-              }
-            }}
-            disabled={disabled}
-            readOnly={disabled}
-            maxLength={maxLength}
-            animationsEnabled={animationsEnabled}
-          />
-        ) : (
-          <Input
-            ref={ref}
-            id={id}
-            value={currentValue}
-            placeholder={placeholder}
-            onSelect={(e) => e.preventDefault()}
-            isLoading={isLoading}
-            inputMode={inputMode}
-            pattern={
-              inputMode === "numeric" || inputMode === "tel"
-                ? "[0-9]*"
-                : undefined
-            }
-            data-1p-ignore
-            autoComplete={autocomplete}
-            onChange={(e) => {
-              if (onChange) {
-                onChange(e.target.value);
-              }
-
-              if (handleChange) {
-                handleChange(e.target.value);
-              }
-
-              setValue(e.target.value);
-              setIsSubmitted(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-
-                if (buttonLabel && shouldShowButton) {
-                  onSubmit(value);
-                  setIsSubmitted(true);
-                }
-
-                if (clearValueOnSubmit) {
-                  setValue("");
-                } else {
-                  setPreviousValue(value);
-                }
-              }
-            }}
-            disabled={disabled}
-            readOnly={disabled}
-            maxLength={maxLength}
-            animationsEnabled={animationsEnabled}
-          />
-        )}
-        {isLoading && (
-          <SpinnerContainer>
-            <Spinner size="small" />
-          </SpinnerContainer>
-        )}
-        {accessory && !shouldShowButton && (
-          <AccessoryContainer>{accessory}</AccessoryContainer>
-        )}
-        {shouldShowButton && (
-          <Button
-            onClick={() => {
-              onSubmit(value);
-              setIsSubmitted(true);
-
-              if (clearValueOnSubmit) {
-                setValue("");
-              } else {
-                setPreviousValue(value);
-              }
-            }}
-          >
-            {buttonLabel}
-          </Button>
-        )}
+              }}
+            >
+              {buttonLabel}
+            </Button>
+          )}
+        </div>
       </TextFieldContainer>
     );
   }

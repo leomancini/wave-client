@@ -345,7 +345,8 @@ export const MoreMenu = ({
   user,
   stats,
   statsIsLoading,
-  onNotificationPreferenceChange
+  onNotificationPreferenceChange,
+  onUserUpdate
 }) => {
   const { config } = useConfig();
   const contentRef = useRef(null);
@@ -366,6 +367,7 @@ export const MoreMenu = ({
     setIsSwitchingNotificationPreference
   ] = useState(false);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const {
     isCheckingSubscription,
@@ -957,44 +959,43 @@ export const MoreMenu = ({
                 <SectionLabel>Settings</SectionLabel>
               </SectionHeader>
               <ListItem>
-                <ListItemContent style={{ gap: "2rem", padding: "0" }}>
-                  <ListItemLabel>Username</ListItemLabel>
-                  <ListItemValue>
-                    <TextField
-                      initialValue={user.name}
-                      buttonLabel={<FontAwesomeIcon icon={faCheck} />}
-                      isLoading={isUpdatingUsername}
-                      disabled={isUpdatingUsername}
-                      onSubmit={async (newName) => {
-                        if (!newName || newName === user.name) return;
-                        setIsUpdatingUsername(true);
-                        try {
-                          const response = await fetch(
-                            `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}`,
-                            {
-                              method: "PUT",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ name: newName })
-                            }
-                          );
-                          if (!response.ok)
-                            throw new Error("Failed to update username");
-                          const data = await response.json();
-                          if (data.success && data.user) {
-                            if (typeof user === "object")
-                              user.name = data.user.name;
-                          }
-                        } catch (e) {
-                          alert("Failed to update username. Please try again.");
-                        } finally {
-                          setIsUpdatingUsername(false);
+                <TextField
+                  label="Name"
+                  initialValue={user.name}
+                  buttonLabel={<FontAwesomeIcon icon={faCheck} />}
+                  isLoading={isUpdatingUsername}
+                  disabled={isUpdatingUsername}
+                  onSubmit={async (newName) => {
+                    if (!newName || newName === user.name) return;
+                    setIsUpdatingUsername(true);
+                    try {
+                      const response = await fetch(
+                        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}`,
+                        {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ name: newName })
                         }
-                      }}
-                      maxLength={32}
-                      clearValueOnSubmit={false}
-                    />
-                  </ListItemValue>
-                </ListItemContent>
+                      );
+                      if (!response.ok)
+                        throw new Error("Failed to update username");
+                      const data = await response.json();
+                      if (data.success && data.user) {
+                        if (typeof user === "object")
+                          user.name = data.user.name;
+                      }
+                      if (onUserUpdate) {
+                        onUserUpdate(data.user);
+                      }
+                    } catch (e) {
+                      alert("Failed to update username. Please try again.");
+                    } finally {
+                      setIsUpdatingUsername(false);
+                    }
+                  }}
+                  maxLength={32}
+                  clearValueOnSubmit={false}
+                />
               </ListItem>
               <ListItem>
                 <Button
@@ -1006,6 +1007,99 @@ export const MoreMenu = ({
                     deviceType === "mobile" ? "computer" : "phone"
                   }`}
                   onClick={() => setShowSwitchDeviceInstructions(true)}
+                />
+              </ListItem>
+              <ListItem>
+                <Button
+                  type="text"
+                  size="small"
+                  stretch="fill"
+                  prominence="destructive"
+                  label="Delete my account"
+                  isLoading={isDeletingAccount}
+                  onClick={async () => {
+                    if (
+                      !window.confirm(
+                        "Are you sure you want to delete your account?"
+                      )
+                    )
+                      return;
+                    setIsDeletingAccount(true);
+                    try {
+                      const response = await fetch(
+                        `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}`,
+                        {
+                          method: "DELETE",
+                          headers: { "Content-Type": "application/json" }
+                        }
+                      );
+                      if (!response.ok)
+                        throw new Error("Failed to delete account");
+                      const data = await response.json();
+                      if (data.success) {
+                        // Remove group from localStorage
+                        try {
+                          const myGroups = JSON.parse(
+                            localStorage.getItem("myGroups") || "[]"
+                          );
+                          console.log("Current myGroups:", myGroups);
+                          console.log(
+                            "Looking to remove groupId:",
+                            groupId,
+                            "userId:",
+                            user.id
+                          );
+                          console.log(
+                            "groupId type:",
+                            typeof groupId,
+                            "user.id type:",
+                            typeof user.id
+                          );
+
+                          const updatedGroups = myGroups.filter((group) => {
+                            console.log(
+                              "Checking group:",
+                              group,
+                              "group.groupId type:",
+                              typeof group.groupId,
+                              "group.userId type:",
+                              typeof group.userId
+                            );
+                            const shouldKeep = !(
+                              group.groupId === groupId &&
+                              group.userId === user.id
+                            );
+                            console.log("Should keep this group:", shouldKeep);
+                            return shouldKeep;
+                          });
+
+                          console.log("Updated groups:", updatedGroups);
+                          localStorage.setItem(
+                            "myGroups",
+                            JSON.stringify(updatedGroups)
+                          );
+                          console.log("localStorage updated successfully");
+
+                          // Add a small delay to ensure localStorage is persisted
+                          setTimeout(() => {
+                            window.location.href = "/";
+                          }, 100);
+                        } catch (localStorageError) {
+                          console.error(
+                            "Error updating localStorage:",
+                            localStorageError
+                          );
+                          window.location.href = "/";
+                        }
+                      } else {
+                        alert("Sorry, something went wrong.");
+                      }
+                    } catch (e) {
+                      alert("Sorry, something went wrong.");
+                    } finally {
+                      setIsDeletingAccount(false);
+                    }
+                  }}
                 />
               </ListItem>
             </Section>

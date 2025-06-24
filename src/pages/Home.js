@@ -249,7 +249,7 @@ export const Home = () => {
   return (
     <Page>
       <PageContainer>
-        {myGroups.length > 0 ? (
+        {myGroups.length > 0 && (
           <GroupList>
             {myGroups.map((data, index) => (
               <GroupLink
@@ -292,8 +292,6 @@ export const Home = () => {
               </GroupLink>
             ))}
           </GroupList>
-        ) : (
-          <p>No groups found</p>
         )}
         <Button
           size="small"
@@ -303,7 +301,7 @@ export const Home = () => {
           onClick={() => {
             window.location.href = "/create-group";
           }}
-          style={{ marginTop: "2rem" }}
+          style={{ marginTop: myGroups.length > 0 ? "2rem" : "0" }}
         />
       </PageContainer>
     </Page>

@@ -18,7 +18,6 @@ const VerifiedLabel = styled.div`
   display: flex;
   align-items: center;
   font-weight: bold;
-  padding: 0 1rem;
   margin-right: 0.25rem;
   height: 2.25rem;
 `;
@@ -31,7 +30,6 @@ const ErrorLabel = styled.div`
   display: flex;
   align-items: center;
   font-weight: bold;
-  padding: 0 1rem;
   margin-right: 0.25rem;
   height: 2.25rem;
 `;
