@@ -28,9 +28,9 @@ export const usePullToRefresh = (isPWA, onRefresh, pageId) => {
       distThreshold: 60,
       distMax: 80,
       distReload: 50,
-      instructionsPullToRefresh: "",
-      instructionsReleaseToRefresh: "",
-      instructionsRefreshing: "",
+      instructionsPullToRefresh: " ",
+      instructionsReleaseToRefresh: " ",
+      instructionsRefreshing: " ",
       refreshTimeout: 500,
       // Disable on desktop
       shouldPullToRefresh: () => {
