@@ -12,7 +12,14 @@ const TextFieldContainer = styled.div`
   width: 100%;
 `;
 
+const Label = styled.div`
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`;
+
 const InputBase = css`
+  width: 100%;
   background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 1.375rem;
@@ -128,6 +135,7 @@ const Button = styled.button`
 export const TextField = forwardRef(
   (
     {
+      label,
       initialValue = "",
       id,
       placeholder,
@@ -176,6 +184,7 @@ export const TextField = forwardRef(
 
     return (
       <TextFieldContainer>
+        {label && <Label>{label}</Label>}
         {multiLine ? (
           <TextArea
             ref={ref}

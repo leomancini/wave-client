@@ -9,7 +9,12 @@ import { useConfig } from "../contexts/ConfigContext";
 import { formatDateTime } from "../utilities/formatDateTime";
 import { useDetectDeviceType } from "../utilities/detectDeviceType";
 
-import { faXmark, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faXmark,
+  faArrowLeft,
+  faCheck
+} from "@fortawesome/free-solid-svg-icons";
 
 import { Button } from "./Button";
 import { Separator } from "./Separator";
@@ -25,6 +30,7 @@ import {
   ListItemLabel,
   ListItemValue
 } from "./List";
+import { TextField } from "./TextField";
 
 const Container = styled.div`
   position: fixed;
@@ -359,6 +365,7 @@ export const MoreMenu = ({
     isSwitchingNotificationPreference,
     setIsSwitchingNotificationPreference
   ] = useState(false);
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
 
   const {
     isCheckingSubscription,
@@ -949,6 +956,46 @@ export const MoreMenu = ({
               <SectionHeader>
                 <SectionLabel>Settings</SectionLabel>
               </SectionHeader>
+              <ListItem>
+                <ListItemContent style={{ gap: "2rem", padding: "0" }}>
+                  <ListItemLabel>Username</ListItemLabel>
+                  <ListItemValue>
+                    <TextField
+                      initialValue={user.name}
+                      buttonLabel={<FontAwesomeIcon icon={faCheck} />}
+                      isLoading={isUpdatingUsername}
+                      disabled={isUpdatingUsername}
+                      onSubmit={async (newName) => {
+                        if (!newName || newName === user.name) return;
+                        setIsUpdatingUsername(true);
+                        try {
+                          const response = await fetch(
+                            `${process.env.REACT_APP_API_URL}/users/${groupId}/${user.id}`,
+                            {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ name: newName })
+                            }
+                          );
+                          if (!response.ok)
+                            throw new Error("Failed to update username");
+                          const data = await response.json();
+                          if (data.success && data.user) {
+                            if (typeof user === "object")
+                              user.name = data.user.name;
+                          }
+                        } catch (e) {
+                          alert("Failed to update username. Please try again.");
+                        } finally {
+                          setIsUpdatingUsername(false);
+                        }
+                      }}
+                      maxLength={32}
+                      clearValueOnSubmit={false}
+                    />
+                  </ListItemValue>
+                </ListItemContent>
+              </ListItem>
               <ListItem>
                 <Button
                   type="text"
