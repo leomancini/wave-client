@@ -207,7 +207,6 @@ export const TextField = forwardRef(
               value={currentValue}
               placeholder={placeholder}
               maxRows={99999}
-              onSelect={(e) => e.preventDefault()}
               isLoading={isLoading}
               inputMode={inputMode}
               pattern={
@@ -259,7 +258,6 @@ export const TextField = forwardRef(
               id={id}
               value={currentValue}
               placeholder={placeholder}
-              onSelect={(e) => e.preventDefault()}
               isLoading={isLoading}
               inputMode={inputMode}
               pattern={
