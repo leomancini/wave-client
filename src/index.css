@@ -30,47 +30,11 @@ code {
     monospace;
 }
 
-/* Pull-to-refresh styles for PWA mode */
-.__PULL_TO_REFRESH_LAYOUT {
-  position: relative;
-  overflow: hidden;
-}
+.ptr--ptr {
+  box-shadow: none !important;
 
-.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__content {
-  position: relative;
-  z-index: 1;
-}
-
-.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__pull {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  text-align: center;
-  padding: 1rem;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Style the FontAwesome SVG icon */
-.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__pull svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: rgba(0, 0, 0, 0.8);
-}
-
-/* Ensure the pull indicator doesn't interfere with the app content */
-.__PULL_TO_REFRESH_LAYOUT
-  .__PULL_TO_REFRESH_LAYOUT__pull.__PULL_TO_REFRESH_LAYOUT__pull--release
-  svg {
-  color: rgba(0, 0, 0, 0.9);
-}
-
-.__PULL_TO_REFRESH_LAYOUT
-  .__PULL_TO_REFRESH_LAYOUT__pull.__PULL_TO_REFRESH_LAYOUT__pull--refresh
-  svg {
-  color: rgba(0, 0, 0, 1);
+  .ptr--icon {
+    font-size: 1.5rem;
+    color: rgba(0, 0, 0, 0.25);
+  }
 }
