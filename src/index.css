@@ -29,3 +29,55 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Pull-to-refresh styles for PWA mode */
+.__PULL_TO_REFRESH_LAYOUT {
+  position: relative;
+  overflow: hidden;
+}
+
+.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__content {
+  position: relative;
+  z-index: 1;
+}
+
+.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__pull {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 500;
+}
+
+/* Style the FontAwesome rotate icon */
+.__PULL_TO_REFRESH_LAYOUT .__PULL_TO_REFRESH_LAYOUT__pull i {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Ensure the pull indicator doesn't interfere with the app content */
+.__PULL_TO_REFRESH_LAYOUT
+  .__PULL_TO_REFRESH_LAYOUT__pull.__PULL_TO_REFRESH_LAYOUT__pull--release {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.__PULL_TO_REFRESH_LAYOUT
+  .__PULL_TO_REFRESH_LAYOUT__pull.__PULL_TO_REFRESH_LAYOUT__pull--refresh {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.__PULL_TO_REFRESH_LAYOUT
+  .__PULL_TO_REFRESH_LAYOUT__pull.__PULL_TO_REFRESH_LAYOUT__pull--refresh
+  i {
+  color: rgba(0, 0, 0, 1);
+}

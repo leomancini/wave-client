@@ -11,6 +11,7 @@ import { JoinGroup } from "./pages/JoinGroup";
 import { ScanQRCode } from "./pages/ScanQRCode";
 import { Home } from "./pages/Home";
 import { handleGroupRedirect } from "./utilities/groupRedirects";
+import { usePullToRefresh } from "./hooks/usePullToRefresh";
 
 export const NotificationContext = createContext();
 export const AppContext = createContext();
@@ -107,6 +108,16 @@ function App() {
 
     return standaloneMode || displayModeStandalone || fromHomescreen;
   });
+
+  // Initialize pull-to-refresh for PWA mode only
+  usePullToRefresh(
+    isPWA,
+    () => {
+      // Custom refresh logic - you can customize this based on your needs
+      window.location.reload();
+    },
+    page
+  );
 
   const setPageAndTitle = (pageId) => {
     const currentPageKey = Object.keys(Pages).find(
