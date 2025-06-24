@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
+import ReactDOMServer from "react-dom/server";
 import PullToRefresh from "pulltorefreshjs";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const usePullToRefresh = (isPWA, onRefresh, pageId) => {
   const ptrRef = useRef(null);
@@ -25,17 +28,21 @@ export const usePullToRefresh = (isPWA, onRefresh, pageId) => {
       distThreshold: 60,
       distMax: 80,
       distReload: 50,
-      instructionsPullToRefresh: "Pull down to refresh",
-      instructionsReleaseToRefresh: "Release to refresh",
-      instructionsRefreshing: "Refreshing...",
+      instructionsPullToRefresh: "",
+      instructionsReleaseToRefresh: "",
+      instructionsRefreshing: "",
       refreshTimeout: 500,
       // Disable on desktop
       shouldPullToRefresh: () => {
         return window.innerWidth <= 768;
       },
-      // Custom icon using FontAwesome rotate icon
-      iconArrow: '<i class="fa-solid fa-rotate"></i>',
-      iconRefreshing: '<i class="fa-solid fa-rotate fa-spin"></i>'
+      // Custom icon using FontAwesome rotate icon with ReactDOMServer
+      iconArrow: ReactDOMServer.renderToString(
+        <FontAwesomeIcon icon={faRotate} />
+      ),
+      iconRefreshing: ReactDOMServer.renderToString(
+        <FontAwesomeIcon icon={faRotate} spin={true} />
+      )
     });
 
     // Cleanup function
