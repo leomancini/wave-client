@@ -14,7 +14,6 @@ export const usePullToRefresh = (
 
   useEffect(() => {
     if (!isPWA || isMoreMenuOpen) {
-      // Destroy existing instance if more menu opens
       if (ptrRef.current) {
         ptrRef.current.destroy();
         ptrRef.current = null;
