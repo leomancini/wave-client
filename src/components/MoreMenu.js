@@ -123,9 +123,14 @@ const HeaderContent = styled.div`
   width: 100%;
 `;
 
-const GroupTitle = styled.div`
+const Title = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 `;
 
 const HeaderShadow = styled.div`
@@ -640,11 +645,11 @@ export const MoreMenu = ({
               style={{ marginLeft: "-1.25rem" }}
             />
           )}
-          <GroupTitle>
+          <Title>
             {showSwitchDeviceInstructions
               ? `Login on a ${deviceType === "mobile" ? "computer" : "phone"}`
               : groupId}
-          </GroupTitle>
+          </Title>
           {!showSwitchDeviceInstructions && (
             <Button
               type="icon-small"
