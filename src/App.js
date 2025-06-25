@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ConfigProvider } from "./contexts/ConfigContext";
 import { StyleSheetManager } from "styled-components";
 import isPropValid from "@emotion/is-prop-valid";
+import { MoreMenuProvider, useMoreMenu } from "./contexts/MoreMenuContext";
 
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
@@ -81,7 +82,7 @@ const urlBase64ToUint8Array = (base64String) => {
   return outputArray;
 };
 
-function App() {
+function AppContent() {
   const [title, setTitle] = useState("WAVE");
   const [groupId, setGroupId] = useState();
   const [userId, setUserId] = useState();
@@ -96,6 +97,8 @@ function App() {
     useState(false);
   const [isSettingUpPushNotifications, setIsSettingUpPushNotifications] =
     useState(false);
+
+  const { isMoreMenuOpen } = useMoreMenu();
 
   const [isPWA] = useState(() => {
     const standaloneMode = window.navigator.standalone;
@@ -116,7 +119,8 @@ function App() {
       // Custom refresh logic - you can customize this based on your needs
       window.location.reload();
     },
-    page
+    page,
+    isMoreMenuOpen
   );
 
   const setPageAndTitle = (pageId) => {
@@ -457,41 +461,49 @@ function App() {
   );
 
   return (
+    <AppContext.Provider value={{ isPWA }}>
+      <NotificationContext.Provider
+        value={{
+          isSubscribed,
+          setIsSubscribed,
+          isCheckingSubscription,
+          pushPermission,
+          setPushPermission,
+          isSubscriptionLoading,
+          setIsSubscriptionLoading,
+          requestNotificationPermission,
+          setupPushNotifications,
+          unsubscribePushNotifications,
+          checkSubscriptionStatus,
+          localPushNotificationsEnabled,
+          setLocalPushNotificationsEnabled,
+          isSettingUpPushNotifications,
+          setIsSettingUpPushNotifications
+        }}
+      >
+        <BrowserRouter basename="/">
+          <Container>
+            {page === Pages.Home.id && <Home />}
+            {page === Pages.CreateGroup.id && <CreateGroup />}
+            {page === Pages.ViewGroup.id && (
+              <ViewGroup groupId={groupId} userId={userId} />
+            )}
+            {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
+            {page === Pages.ScanQRCode.id && <ScanQRCode />}
+          </Container>
+        </BrowserRouter>
+      </NotificationContext.Provider>
+    </AppContext.Provider>
+  );
+}
+
+function App() {
+  return (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>
       <ConfigProvider>
-        <AppContext.Provider value={{ isPWA }}>
-          <NotificationContext.Provider
-            value={{
-              isSubscribed,
-              setIsSubscribed,
-              isCheckingSubscription,
-              pushPermission,
-              setPushPermission,
-              isSubscriptionLoading,
-              setIsSubscriptionLoading,
-              requestNotificationPermission,
-              setupPushNotifications,
-              unsubscribePushNotifications,
-              checkSubscriptionStatus,
-              localPushNotificationsEnabled,
-              setLocalPushNotificationsEnabled,
-              isSettingUpPushNotifications,
-              setIsSettingUpPushNotifications
-            }}
-          >
-            <BrowserRouter basename="/">
-              <Container>
-                {page === Pages.Home.id && <Home />}
-                {page === Pages.CreateGroup.id && <CreateGroup />}
-                {page === Pages.ViewGroup.id && (
-                  <ViewGroup groupId={groupId} userId={userId} />
-                )}
-                {page === Pages.JoinGroup.id && <JoinGroup groupId={groupId} />}
-                {page === Pages.ScanQRCode.id && <ScanQRCode />}
-              </Container>
-            </BrowserRouter>
-          </NotificationContext.Provider>
-        </AppContext.Provider>
+        <MoreMenuProvider>
+          <AppContent />
+        </MoreMenuProvider>
       </ConfigProvider>
     </StyleSheetManager>
   );

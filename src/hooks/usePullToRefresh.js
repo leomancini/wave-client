@@ -4,11 +4,21 @@ import PullToRefresh from "pulltorefreshjs";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export const usePullToRefresh = (isPWA, onRefresh, pageId) => {
+export const usePullToRefresh = (
+  isPWA,
+  onRefresh,
+  pageId,
+  isMoreMenuOpen = false
+) => {
   const ptrRef = useRef(null);
 
   useEffect(() => {
-    if (!isPWA) {
+    if (!isPWA || isMoreMenuOpen) {
+      // Destroy existing instance if more menu opens
+      if (ptrRef.current) {
+        ptrRef.current.destroy();
+        ptrRef.current = null;
+      }
       return;
     }
 
@@ -42,7 +52,7 @@ export const usePullToRefresh = (isPWA, onRefresh, pageId) => {
         ptrRef.current = null;
       }
     };
-  }, [isPWA, onRefresh, pageId]);
+  }, [isPWA, onRefresh, pageId, isMoreMenuOpen]);
 
   return ptrRef.current;
 };

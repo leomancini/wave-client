@@ -11,6 +11,7 @@ import styled from "styled-components";
 
 import { NotificationContext, AppContext } from "../App";
 import { useConfig } from "../contexts/ConfigContext";
+import { useMoreMenu } from "../contexts/MoreMenuContext";
 import { handleGroupRedirect } from "../utilities/groupRedirects";
 
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
@@ -66,6 +67,7 @@ const PageContainerInteractionBlocker = styled.div`
 
 export const ViewGroup = ({ groupId, userId }) => {
   const { setConfig } = useConfig();
+  const { setIsMoreMenuOpen } = useMoreMenu();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [page, setPage] = useState(1);
@@ -209,6 +211,18 @@ export const ViewGroup = ({ groupId, userId }) => {
       });
     }
   }, [user.valid, notificationPreference]);
+
+  // Update global more menu state when local state changes
+  useEffect(() => {
+    setIsMoreMenuOpen(isMoreMenuVisible);
+  }, [isMoreMenuVisible, setIsMoreMenuOpen]);
+
+  // Reset more menu state when component unmounts
+  useEffect(() => {
+    return () => {
+      setIsMoreMenuOpen(false);
+    };
+  }, [setIsMoreMenuOpen]);
 
   const validateUser = async (groupId, userId) => {
     try {
@@ -470,7 +484,8 @@ export const ViewGroup = ({ groupId, userId }) => {
       });
     }
 
-    setIsMoreMenuVisible(!isMoreMenuVisible);
+    const newState = !isMoreMenuVisible;
+    setIsMoreMenuVisible(newState);
   };
 
   const handleUserUpdate = (updatedUser) => {
