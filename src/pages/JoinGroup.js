@@ -30,15 +30,34 @@ export const JoinGroup = ({ groupId }) => {
       const existingUserId = localStorage.getItem("userId");
       if (existingUserId) {
         localStorage.removeItem("userId");
-        const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
-        if (
-          !myGroups.some(
-            (group) =>
-              group.groupId === groupId && group.userId === existingUserId
-          )
-        ) {
-          myGroups.push({ groupId, userId: existingUserId });
-          localStorage.setItem("myGroups", JSON.stringify(myGroups));
+
+        // Validate the existing group before adding it to localStorage
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${existingUserId}`
+          );
+          const data = await response.json();
+
+          if (response.ok && data.valid) {
+            const myGroups = JSON.parse(
+              localStorage.getItem("myGroups") || "[]"
+            );
+            if (
+              !myGroups.some(
+                (group) =>
+                  group.groupId === groupId && group.userId === existingUserId
+              )
+            ) {
+              myGroups.push({ groupId, userId: existingUserId });
+              localStorage.setItem("myGroups", JSON.stringify(myGroups));
+            }
+          } else {
+            console.log(
+              `Invalid group ${groupId} for user ${existingUserId}, not adding to localStorage`
+            );
+          }
+        } catch (error) {
+          console.error(`Error validating group ${groupId}:`, error);
         }
       }
 
@@ -46,7 +65,40 @@ export const JoinGroup = ({ groupId }) => {
       const existingGroup = myGroups.find((group) => group.groupId === groupId);
 
       if (existingGroup) {
-        window.location.href = `/${groupId}/${existingGroup.userId}`;
+        // Validate the existing group before redirecting
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/validate-group-user/${groupId}/${existingGroup.userId}`
+          );
+          const data = await response.json();
+
+          if (response.ok && data.valid) {
+            window.location.href = `/${groupId}/${existingGroup.userId}`;
+          } else {
+            console.log(
+              `Invalid group ${groupId} for user ${existingGroup.userId}, removing from localStorage`
+            );
+            const updatedGroups = myGroups.filter(
+              (group) =>
+                !(
+                  group.groupId === groupId &&
+                  group.userId === existingGroup.userId
+                )
+            );
+            localStorage.setItem("myGroups", JSON.stringify(updatedGroups));
+          }
+        } catch (error) {
+          console.error(`Error validating group ${groupId}:`, error);
+          // If validation fails, remove the group from localStorage to be safe
+          const updatedGroups = myGroups.filter(
+            (group) =>
+              !(
+                group.groupId === groupId &&
+                group.userId === existingGroup.userId
+              )
+          );
+          localStorage.setItem("myGroups", JSON.stringify(updatedGroups));
+        }
       }
     };
 

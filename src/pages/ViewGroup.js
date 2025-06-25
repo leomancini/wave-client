@@ -227,7 +227,11 @@ export const ViewGroup = ({ groupId, userId }) => {
           localStorage.removeItem("userId");
 
           const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
-          if (!myGroups.some((group) => group.groupId === groupId)) {
+          if (
+            !myGroups.some(
+              (group) => group.groupId === groupId && group.userId === userId
+            )
+          ) {
             myGroups.push({ groupId, userId });
             localStorage.setItem("myGroups", JSON.stringify(myGroups));
           }

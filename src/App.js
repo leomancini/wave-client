@@ -186,7 +186,59 @@ function App() {
       }
     };
 
+    const validateAndCleanupGroups = async () => {
+      try {
+        const myGroups = JSON.parse(localStorage.getItem("myGroups") || "[]");
+        if (myGroups.length === 0) return;
+
+        const validationPromises = myGroups.map(async (group) => {
+          try {
+            const response = await fetch(
+              `${process.env.REACT_APP_API_URL}/validate-group-user/${group.groupId}/${group.userId}`
+            );
+            const data = await response.json();
+            return {
+              group,
+              isValid: response.ok && data.valid
+            };
+          } catch (error) {
+            console.error(`Error validating group ${group.groupId}:`, error);
+            return {
+              group,
+              isValid: false
+            };
+          }
+        });
+
+        const validationResults = await Promise.all(validationPromises);
+        const invalidGroups = validationResults.filter(
+          (result) => !result.isValid
+        );
+
+        if (invalidGroups.length > 0) {
+          console.log(
+            `Removing ${invalidGroups.length} invalid groups from localStorage on app init:`,
+            invalidGroups.map((result) => result.group.groupId)
+          );
+
+          const validGroups = myGroups.filter(
+            (group) =>
+              validationResults.find(
+                (result) =>
+                  result.group.groupId === group.groupId &&
+                  result.group.userId === group.userId
+              )?.isValid
+          );
+
+          localStorage.setItem("myGroups", JSON.stringify(validGroups));
+        }
+      } catch (error) {
+        console.error("Error validating groups on app init:", error);
+      }
+    };
+
     checkGroupRedirectAndSetPage();
+    validateAndCleanupGroups();
   }, []);
 
   const checkSubscriptionStatus = React.useCallback(
