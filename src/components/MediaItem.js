@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import { useConfig } from "../contexts/ConfigContext";
+import { useDetectDeviceType } from "../utilities/detectDeviceType";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 
@@ -452,6 +453,8 @@ export const MediaItem = forwardRef(
     ref
   ) => {
     const { config } = useConfig();
+    const deviceType = useDetectDeviceType();
+    const isMobile = deviceType === "mobile";
     const [reactions, setReactions] = useState(item.reactions || []);
     const [touchStartY, setTouchStartY] = useState(null);
     const [isThumbnailLoaded, setIsThumbnailLoaded] = useState(false);
@@ -568,11 +571,11 @@ export const MediaItem = forwardRef(
         >
           <TransformWrapper
             initialScale={1}
-            minScale={1}
+            minScale={1.4}
             maxScale={4}
             centerOnInit={true}
             doubleClick={{ disabled: true }}
-            disabled={isUploadedThisPageLoad}
+            disabled={isUploadedThisPageLoad || !isMobile}
             ref={transformRef}
             limitToBounds={true}
             onZoomStop={({ scale }) => {
