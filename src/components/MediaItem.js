@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, forwardRef } from "react";
 import styled from "styled-components";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import { useConfig } from "../contexts/ConfigContext";
 
@@ -459,6 +460,7 @@ export const MediaItem = forwardRef(
     const scrollThreshold = 10;
     const localRef = useRef(null);
     const observerRef = useRef(null);
+    const transformRef = useRef(null);
 
     const mergeRefs = (node) => {
       if (typeof ref === "function") {
@@ -557,27 +559,64 @@ export const MediaItem = forwardRef(
               });
             }
             setTouchStartY(null);
+
+            // Reset scale to 1 when touch ends
+            if (transformRef.current) {
+              transformRef.current.resetTransform();
+            }
           }}
         >
-          <ImageContainer
-            isUploadedThisPageLoad={isUploadedThisPageLoad}
-            isDoneUploading={isDoneUploading}
-            isImageLoaded={isImageLoaded}
+          <TransformWrapper
+            initialScale={1}
+            minScale={1}
+            maxScale={4}
+            centerOnInit={true}
+            doubleClick={{ disabled: true }}
+            disabled={isUploadedThisPageLoad}
+            ref={transformRef}
+            limitToBounds={true}
+            onZoomStop={({ scale }) => {
+              if (
+                scale < 1 &&
+                transformRef.current &&
+                typeof transformRef.current.setScale === "function"
+              ) {
+                transformRef.current.setScale(1);
+              }
+            }}
+            panning={{ disabled: true }}
           >
-            <Image
-              src={imageUrl}
-              alt={item.metadata.itemId}
-              onLoad={() => setIsImageLoaded(true)}
-            />
-            {!isUploadedThisPageLoad && (
-              <Thumbnail
-                src={thumbnailUrl}
-                alt={item.metadata.itemId}
-                onLoad={() => setIsThumbnailLoaded(true)}
-                isThumbnailLoaded={isThumbnailLoaded}
-              />
-            )}
-          </ImageContainer>
+            <TransformComponent
+              wrapperStyle={{
+                width: "100%",
+                height: "100%"
+              }}
+              contentStyle={{
+                width: "100%",
+                height: "100%"
+              }}
+            >
+              <ImageContainer
+                isUploadedThisPageLoad={isUploadedThisPageLoad}
+                isDoneUploading={isDoneUploading}
+                isImageLoaded={isImageLoaded}
+              >
+                <Image
+                  src={imageUrl}
+                  alt={item.metadata.itemId}
+                  onLoad={() => setIsImageLoaded(true)}
+                />
+                {!isUploadedThisPageLoad && (
+                  <Thumbnail
+                    src={thumbnailUrl}
+                    alt={item.metadata.itemId}
+                    onLoad={() => setIsThumbnailLoaded(true)}
+                    isThumbnailLoaded={isThumbnailLoaded}
+                  />
+                )}
+              </ImageContainer>
+            </TransformComponent>
+          </TransformWrapper>
           {isUploadedThisPageLoad && !isDoneUploading && (
             <ImageSpinnerContainer>
               <Spinner size="x-large" />
