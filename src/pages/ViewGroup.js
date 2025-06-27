@@ -200,7 +200,11 @@ export const ViewGroup = ({ groupId, userId }) => {
   }, [user.valid, user.notificationPreference]);
 
   useEffect(() => {
-    if (user.valid && notificationPreference === "PUSH") {
+    if (
+      user.valid &&
+      notificationPreference === "PUSH" &&
+      navigator.serviceWorker
+    ) {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data.type === "NOTIFICATION_CLICKED") {
           const itemId = event.data.data?.itemId;
