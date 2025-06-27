@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import { formatDateTime } from "../utilities/formatDateTime";
+import { parseUrlsInText } from "../utilities/formatDateTime";
 
 import { TextField } from "./TextField";
 import { Spinner } from "./Spinner";
@@ -64,6 +65,21 @@ const Text = styled.div`
   }
 `;
 
+const Link = styled.a`
+  color: #000000;
+  font-weight: 500;
+  text-decoration: underline;
+  word-break: break-all;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: rgba(0, 0, 0, 0.7);
+  }
+`;
+
 const SpinnerContainer = styled.div`
   display: inline-flex;
   align-items: center;
@@ -73,6 +89,8 @@ const SpinnerContainer = styled.div`
 `;
 
 const Comment = ({ name, text, timestamp, disabled }) => {
+  const textParts = parseUrlsInText(text);
+
   return (
     <CommentContainer>
       <Metadata>
@@ -87,7 +105,22 @@ const Comment = ({ name, text, timestamp, disabled }) => {
           )}
         </Time>
       </Metadata>
-      <Text>{text}</Text>
+      <Text>
+        {textParts.map((part, index) =>
+          part.type === "link" ? (
+            <Link
+              key={index}
+              href={part.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {part.content}
+            </Link>
+          ) : (
+            <span key={index}>{part.content}</span>
+          )
+        )}
+      </Text>
     </CommentContainer>
   );
 };

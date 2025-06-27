@@ -38,3 +38,50 @@ export const formatDateTime = (date, type = "long") => {
     }
   }
 };
+
+/**
+ * Converts URLs in text to clickable links
+ * @param {string} text - The text to process
+ * @returns {Array} Array of text and link elements
+ */
+export const parseUrlsInText = (text) => {
+  if (!text) return [];
+
+  // URL regex pattern that matches http/https URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before the URL
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        content: text.slice(lastIndex, match.index)
+      });
+    }
+
+    // Add the URL as a link, but hide the protocol in display text
+    const fullUrl = match[0];
+    const displayText = fullUrl.replace(/^https?:\/\//, "");
+
+    parts.push({
+      type: "link",
+      content: displayText,
+      url: fullUrl
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text after the last URL
+  if (lastIndex < text.length) {
+    parts.push({
+      type: "text",
+      content: text.slice(lastIndex)
+    });
+  }
+
+  return parts.length > 0 ? parts : [{ type: "text", content: text }];
+};
