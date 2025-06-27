@@ -684,7 +684,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           messages={[
             "Images can be zoomed in!",
             "Links in comments are clickable!",
-            "Username can be changed at any time!",
+            "Username can be changed anytime!",
             "Accounts can be deleted!"
           ]}
         />
