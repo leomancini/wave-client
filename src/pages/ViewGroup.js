@@ -677,17 +677,6 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
-        <Banner
-          prominence="announcement"
-          label="NEW"
-          date="June 26, 2025"
-          messages={[
-            "Images can be zoomed in!",
-            "Links in comments are clickable!",
-            "Username can be changed anytime!",
-            "Accounts can be deleted!"
-          ]}
-        />
         {shouldShowPushNotificationBanner && (
           <Banner
             messages={[
