@@ -10,6 +10,9 @@ import { formatDateTime } from "../utilities/formatDateTime";
 import { Comments } from "./Comments";
 import { Spinner } from "./Spinner";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -17,6 +20,7 @@ const Container = styled.div`
   margin-bottom: 1rem;
   width: 100%;
   scroll-margin-top: 1.5rem;
+  position: relative;
 
   p {
     margin: 0;
@@ -91,19 +95,20 @@ const Details = styled.div`
   justify-content: space-between;
   gap: 0.5rem;
   font-size: 1rem;
-  padding: 0 1rem;
   min-height: 1.25rem;
 `;
 
 const Name = styled.p`
   font-weight: bold;
+  padding-left: 1rem;
 `;
 
-const TimeAndUnreadIndicator = styled.div`
+const MetadataAndActions = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+  padding-right: 0.5rem;
 `;
 
 const Time = styled.p`
@@ -132,6 +137,34 @@ const UnreadIndicator = styled.div`
     `
       opacity: 1;
     `}
+`;
+
+const ShareButton = styled.button`
+  border: none;
+  font-size: 1rem;
+  vertical-align: 2px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  user-select: none;
+  background-color: transparent;
+  transition: all 0.2s;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      color: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  &:active:not(:disabled) {
+    color: rgba(0, 0, 0, 0.7);
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+  }
 `;
 
 const ReactionsContainer = styled.div`
@@ -522,6 +555,32 @@ export const MediaItem = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
+    const handleShare = async () => {
+      try {
+        if (navigator.share && navigator.canShare) {
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const file = new File(
+            [blob],
+            `Photo from ${item.uploader?.name} in ${groupId}.jpg`,
+            {
+              type: blob.type || "image/jpeg"
+            }
+          );
+
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: `Photo from ${item.uploader?.name} in ${groupId}`,
+              files: [file]
+            });
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    };
+
     return (
       <Container id={item.metadata.itemId}>
         <Media
@@ -628,12 +687,12 @@ export const MediaItem = forwardRef(
         </Media>
         <Details>
           <Name>{item.uploader?.name || user.name}</Name>
-          <TimeAndUnreadIndicator>
+          <MetadataAndActions>
             {isUploadedThisPageLoad === undefined ||
             (isUploadedThisPageLoad && isDoneUploading) ? (
               <>
                 <UnreadIndicator visible={isUnread} />
-                <Time isUnread={isUnread}>
+                <Time isUnread={isUnread} onClick={handleShare}>
                   {formatDateTime(item.metadata.uploadDate)}
                 </Time>
               </>
@@ -641,7 +700,13 @@ export const MediaItem = forwardRef(
               isUploadedThisPageLoad &&
               !isDoneUploading && <Time>Uploading...</Time>
             )}
-          </TimeAndUnreadIndicator>
+            <ShareButton
+              onClick={handleShare}
+              disabled={isUploadedThisPageLoad && !isDoneUploading}
+            >
+              <FontAwesomeIcon icon={faEllipsisVertical} />
+            </ShareButton>
+          </MetadataAndActions>
         </Details>
         <ReactionsContainer>
           <Reactions isEmpty={Object.keys(reactions).length === 0}>
