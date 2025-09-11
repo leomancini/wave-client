@@ -49,11 +49,19 @@ const Metadata = styled.div`
 
 const Name = styled.div`
   font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: calc(100% - 120px);
 `;
 
 const Time = styled.div`
   color: rgba(0, 0, 0, 0.5);
   white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
 `;
 
 const Text = styled.div`

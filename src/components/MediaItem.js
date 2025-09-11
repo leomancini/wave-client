@@ -93,7 +93,6 @@ const Details = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 0.5rem;
   font-size: 1rem;
   min-height: 1.25rem;
 `;
@@ -101,6 +100,12 @@ const Details = styled.div`
 const Name = styled.p`
   font-weight: bold;
   padding-left: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
 `;
 
 const MetadataAndActions = styled.div`
@@ -114,6 +119,9 @@ const MetadataAndActions = styled.div`
 const Time = styled.p`
   color: rgba(0, 0, 0, 0.5);
   transition: color 1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
 
   ${({ isUnread }) =>
     isUnread &&
