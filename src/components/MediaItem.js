@@ -90,6 +90,7 @@ const ImageSpinnerContainer = styled.div`
 `;
 
 const Details = styled.div`
+  height: 1.25rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -98,6 +99,7 @@ const Details = styled.div`
 `;
 
 const Name = styled.p`
+  height: 1.25rem;
   font-weight: bold;
   padding-left: 1rem;
   overflow: hidden;
@@ -111,12 +113,13 @@ const Name = styled.p`
 const MetadataAndActions = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.5rem;
   padding-right: 0.5rem;
 `;
 
 const Time = styled.p`
+  height: 1.25rem;
   color: rgba(0, 0, 0, 0.5);
   transition: color 1s;
   white-space: nowrap;
