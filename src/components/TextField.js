@@ -10,6 +10,7 @@ const TextFieldContainer = styled.div`
   gap: 0.5rem;
   position: relative;
   width: 100%;
+  font-size: 0;
 `;
 
 const InputBase = css`
