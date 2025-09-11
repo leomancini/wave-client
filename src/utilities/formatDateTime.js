@@ -1,40 +1,60 @@
 export const formatDateTime = (date, type = "long") => {
-  const today = new Date().toLocaleDateString("en-US");
+  const now = new Date();
+  const today = now.toLocaleDateString("en-US");
   const yesterday = new Date(
     new Date().setDate(new Date().getDate() - 1)
   ).toLocaleDateString("en-US");
 
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
+  const inputDate = new Date(date);
+  const currentYear = now.getFullYear();
+  const inputYear = inputDate.getFullYear();
+  const isCurrentYear = inputYear === currentYear;
+
+  // Calculate days difference
+  const daysDifference = Math.floor((now - inputDate) / (1000 * 60 * 60 * 24));
+  const isWithinWeek = daysDifference >= 0 && daysDifference < 7;
+
+  const formattedDate = inputDate.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric"
   });
 
-  const formattedDateWithYear = new Date(date).toLocaleDateString("en-US", {
+  const formattedDateWithYear = inputDate.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric"
   });
 
-  const formattedTime = new Date(date).toLocaleTimeString("en-US", {
+  const formattedTime = inputDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit"
   });
 
+  const dayOfWeek = inputDate.toLocaleDateString("en-US", {
+    weekday: "long"
+  });
+
   if (type === "short") {
-    if (today === new Date(date).toLocaleDateString("en-US")) {
+    if (today === inputDate.toLocaleDateString("en-US")) {
       return formattedTime;
-    } else if (yesterday === new Date(date).toLocaleDateString("en-US")) {
+    } else if (yesterday === inputDate.toLocaleDateString("en-US")) {
       return `Yesterday`;
+    } else if (isWithinWeek && daysDifference > 1) {
+      return dayOfWeek;
     } else {
       return formattedDate;
     }
   } else {
-    if (today === new Date(date).toLocaleDateString("en-US")) {
+    if (today === inputDate.toLocaleDateString("en-US")) {
       return `Today at ${formattedTime}`;
-    } else if (yesterday === new Date(date).toLocaleDateString("en-US")) {
+    } else if (yesterday === inputDate.toLocaleDateString("en-US")) {
       return `Yesterday at ${formattedTime}`;
+    } else if (isWithinWeek && daysDifference > 1) {
+      return `${dayOfWeek} at ${formattedTime}`;
     } else {
-      return `${formattedDateWithYear} at ${formattedTime}`;
+      // Only show year if it's not the current year
+      const dateToUse = isCurrentYear ? formattedDate : formattedDateWithYear;
+      return `${dateToUse} at ${formattedTime}`;
     }
   }
 };
