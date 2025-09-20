@@ -142,12 +142,13 @@ const UnreadIndicator = styled.div`
   border-radius: 50%;
   opacity: 0;
   transition: opacity 1s;
+  margin-bottom: 0.375rem;
 
   ${({ visible }) =>
     visible &&
     `
       opacity: 1;
-    `}
+    `};
 `;
 
 const ShareButton = styled.button`
