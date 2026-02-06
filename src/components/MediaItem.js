@@ -395,44 +395,49 @@ const addReaction = async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   if (!isRemoving) {
-    const img = document.querySelector(`img[alt="${itemId}"]`);
-    const tempReaction = document.createElement("div");
-    tempReaction.style.cssText = `
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      margin-top: -2rem;
-      font-size: 5rem;
-      opacity: 0;
-      pointer-events: none;
-      z-index: 2;
-      animation: reactionPopup 0.4s ease-out forwards,
-        reactionFadeOut 0.5s ease-out 0.8s forwards;
-    `;
+    const reactionAnchor =
+      document.querySelector(`[data-reaction-anchor="${itemId}"]`) ||
+      document.querySelector(`img[alt="${itemId}"]`)?.parentElement;
 
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes reactionPopup {
-        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      }
-      @keyframes reactionFadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
+    if (reactionAnchor) {
+      const tempReaction = document.createElement("div");
+      tempReaction.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        margin-top: -2rem;
+        font-size: 5rem;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 2;
+        animation: reactionPopup 0.4s ease-out forwards,
+          reactionFadeOut 0.5s ease-out 0.8s forwards;
+      `;
 
-    tempReaction.textContent = reaction;
-    img.parentElement.style.position = "relative";
-    img.parentElement.appendChild(tempReaction);
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes reactionPopup {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes reactionFadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
 
-    setTimeout(() => {
-      tempReaction.remove();
-      style.remove();
-    }, 2000);
+      tempReaction.textContent = reaction;
+      reactionAnchor.style.position = "relative";
+      reactionAnchor.appendChild(tempReaction);
+
+      setTimeout(() => {
+        tempReaction.remove();
+        style.remove();
+      }, 2000);
+    }
   }
 
   try {
@@ -715,6 +720,7 @@ export const MediaItem = forwardRef(
               }}
             >
               <ImageContainer
+                data-reaction-anchor={item.metadata.itemId}
                 isUploadedThisPageLoad={isUploadedThisPageLoad}
                 isDoneUploading={isDoneUploading}
                 isImageLoaded={isImageLoaded}
