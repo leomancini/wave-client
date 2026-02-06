@@ -305,16 +305,30 @@ export const ViewGroup = ({ groupId, userId }) => {
     const uploadQueue = Array.from(files);
 
     const uploadPromises = uploadQueue.map(async (file) => {
+      const isVideo = file.type.startsWith('video/');
+
       const dimensions = await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          resolve({
-            width: img.width,
-            height: img.height
-          });
-          URL.revokeObjectURL(img.src);
-        };
-        img.src = URL.createObjectURL(file);
+        if (isVideo) {
+          const video = document.createElement('video');
+          video.onloadedmetadata = () => {
+            resolve({
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
+            URL.revokeObjectURL(video.src);
+          };
+          video.src = URL.createObjectURL(file);
+        } else {
+          const img = new Image();
+          img.onload = () => {
+            resolve({
+              width: img.width,
+              height: img.height
+            });
+            URL.revokeObjectURL(img.src);
+          };
+          img.src = URL.createObjectURL(file);
+        }
       });
 
       const itemId = `${Date.now()}-${userId}-${Math.floor(
@@ -327,7 +341,9 @@ export const ViewGroup = ({ groupId, userId }) => {
           itemId,
           uploadDate: new Date().toISOString(),
           uploaderId: userId,
-          dimensions
+          dimensions,
+          mediaType: isVideo ? 'video' : 'image',
+          mimeType: file.type
         },
         uploader: {
           name: user.name
@@ -670,7 +686,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           >
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={handleFileUpload}
               multiple
               disabled={isUploading}
