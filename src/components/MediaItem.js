@@ -75,14 +75,6 @@ const Image = styled.img`
   z-index: 1;
 `;
 
-const Video = styled.video`
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-`;
-
 const Thumbnail = styled.img`
   width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
@@ -580,22 +572,17 @@ export const MediaItem = forwardRef(
         if (navigator.share && navigator.canShare) {
           const response = await fetch(imageUrl);
           const blob = await response.blob();
-          const isVideo = item.metadata.mediaType === 'video';
-          const mediaType = isVideo ? 'Video' : 'Photo';
-          const extension = isVideo ? '.mp4' : '.jpg';
-          const mimeType = blob.type || (isVideo ? 'video/mp4' : 'image/jpeg');
-
           const file = new File(
             [blob],
-            `${mediaType} from ${item.uploader?.name} in ${groupId}${extension}`,
+            `Photo from ${item.uploader?.name} in ${groupId}.jpg`,
             {
-              type: mimeType
+              type: blob.type || "image/jpeg"
             }
           );
 
           if (navigator.canShare({ files: [file] })) {
             await navigator.share({
-              title: `${mediaType} from ${item.uploader?.name} in ${groupId}`,
+              title: `Photo from ${item.uploader?.name} in ${groupId}`,
               files: [file]
             });
             return;
@@ -688,30 +675,18 @@ export const MediaItem = forwardRef(
                 isDoneUploading={isDoneUploading}
                 isImageLoaded={isImageLoaded}
               >
-                {item.metadata.mediaType === 'video' ? (
-                  <Video
-                    src={imageUrl}
-                    controls
-                    playsInline
-                    preload="metadata"
-                    onLoadedMetadata={() => setIsImageLoaded(true)}
+                <Image
+                  src={imageUrl}
+                  alt={item.metadata.itemId}
+                  onLoad={() => setIsImageLoaded(true)}
+                />
+                {!isUploadedThisPageLoad && (
+                  <Thumbnail
+                    src={thumbnailUrl}
+                    alt={item.metadata.itemId}
+                    onLoad={() => setIsThumbnailLoaded(true)}
+                    isThumbnailLoaded={isThumbnailLoaded}
                   />
-                ) : (
-                  <>
-                    <Image
-                      src={imageUrl}
-                      alt={item.metadata.itemId}
-                      onLoad={() => setIsImageLoaded(true)}
-                    />
-                    {!isUploadedThisPageLoad && (
-                      <Thumbnail
-                        src={thumbnailUrl}
-                        alt={item.metadata.itemId}
-                        onLoad={() => setIsThumbnailLoaded(true)}
-                        isThumbnailLoaded={isThumbnailLoaded}
-                      />
-                    )}
-                  </>
                 )}
               </ImageContainer>
             </TransformComponent>
