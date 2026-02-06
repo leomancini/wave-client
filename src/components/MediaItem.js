@@ -575,15 +575,46 @@ export const MediaItem = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
+    const getVideoExtensionFromMimeType = (type) => {
+      if (!type) {
+        return ".mp4";
+      }
+      const normalizedType = type.split(";")[0].trim().toLowerCase();
+      const mimeToExtension = {
+        "video/mp4": ".mp4",
+        "video/webm": ".webm",
+        "video/quicktime": ".mov",
+        "video/x-m4v": ".m4v",
+        "video/x-matroska": ".mkv",
+        "video/ogg": ".ogv",
+        "video/x-msvideo": ".avi",
+        "video/x-ms-wmv": ".wmv",
+        "video/3gpp": ".3gp",
+        "video/3gpp2": ".3g2",
+        "video/x-flv": ".flv"
+      };
+      if (mimeToExtension[normalizedType]) {
+        return mimeToExtension[normalizedType];
+      }
+      const subtype = normalizedType.split("/")[1];
+      if (!subtype) {
+        return ".mp4";
+      }
+      return `.${subtype.replace(/^x-/, "")}`;
+    };
+
     const handleShare = async () => {
       try {
         if (navigator.share && navigator.canShare) {
           const response = await fetch(imageUrl);
           const blob = await response.blob();
-          const isVideo = item.metadata.mediaType === 'video';
-          const mediaType = isVideo ? 'Video' : 'Photo';
-          const extension = isVideo ? '.mp4' : '.jpg';
-          const mimeType = blob.type || (isVideo ? 'video/mp4' : 'image/jpeg');
+          const isVideo = item.metadata.mediaType === "video";
+          const mediaType = isVideo ? "Video" : "Photo";
+          const fallbackMimeType = isVideo ? "video/mp4" : "image/jpeg";
+          const mimeType = blob.type || fallbackMimeType;
+          const extension = isVideo
+            ? getVideoExtensionFromMimeType(mimeType)
+            : ".jpg";
 
           const file = new File(
             [blob],
