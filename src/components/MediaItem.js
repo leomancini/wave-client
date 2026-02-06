@@ -395,49 +395,44 @@ const addReaction = async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   if (!isRemoving) {
-    const reactionAnchor =
-      document.querySelector(`[data-reaction-anchor="${itemId}"]`) ||
-      document.querySelector(`img[alt="${itemId}"]`)?.parentElement;
+    const img = document.querySelector(`img[alt="${itemId}"]`);
+    const tempReaction = document.createElement("div");
+    tempReaction.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      margin-top: -2rem;
+      font-size: 5rem;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 2;
+      animation: reactionPopup 0.4s ease-out forwards,
+        reactionFadeOut 0.5s ease-out 0.8s forwards;
+    `;
 
-    if (reactionAnchor) {
-      const tempReaction = document.createElement("div");
-      tempReaction.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0);
-        margin-top: -2rem;
-        font-size: 5rem;
-        opacity: 0;
-        pointer-events: none;
-        z-index: 2;
-        animation: reactionPopup 0.4s ease-out forwards,
-          reactionFadeOut 0.5s ease-out 0.8s forwards;
-      `;
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes reactionPopup {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      }
+      @keyframes reactionFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
 
-      const style = document.createElement("style");
-      style.textContent = `
-        @keyframes reactionPopup {
-          0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-        @keyframes reactionFadeOut {
-          from { opacity: 1; }
-          to { opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
+    tempReaction.textContent = reaction;
+    img.parentElement.style.position = "relative";
+    img.parentElement.appendChild(tempReaction);
 
-      tempReaction.textContent = reaction;
-      reactionAnchor.style.position = "relative";
-      reactionAnchor.appendChild(tempReaction);
-
-      setTimeout(() => {
-        tempReaction.remove();
-        style.remove();
-      }, 2000);
-    }
+    setTimeout(() => {
+      tempReaction.remove();
+      style.remove();
+    }, 2000);
   }
 
   try {
@@ -580,46 +575,15 @@ export const MediaItem = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
-    const getVideoExtensionFromMimeType = (type) => {
-      if (!type) {
-        return ".mp4";
-      }
-      const normalizedType = type.split(";")[0].trim().toLowerCase();
-      const mimeToExtension = {
-        "video/mp4": ".mp4",
-        "video/webm": ".webm",
-        "video/quicktime": ".mov",
-        "video/x-m4v": ".m4v",
-        "video/x-matroska": ".mkv",
-        "video/ogg": ".ogv",
-        "video/x-msvideo": ".avi",
-        "video/x-ms-wmv": ".wmv",
-        "video/3gpp": ".3gp",
-        "video/3gpp2": ".3g2",
-        "video/x-flv": ".flv"
-      };
-      if (mimeToExtension[normalizedType]) {
-        return mimeToExtension[normalizedType];
-      }
-      const subtype = normalizedType.split("/")[1];
-      if (!subtype) {
-        return ".mp4";
-      }
-      return `.${subtype.replace(/^x-/, "")}`;
-    };
-
     const handleShare = async () => {
       try {
         if (navigator.share && navigator.canShare) {
           const response = await fetch(imageUrl);
           const blob = await response.blob();
-          const isVideo = item.metadata.mediaType === "video";
-          const mediaType = isVideo ? "Video" : "Photo";
-          const fallbackMimeType = isVideo ? "video/mp4" : "image/jpeg";
-          const mimeType = blob.type || fallbackMimeType;
-          const extension = isVideo
-            ? getVideoExtensionFromMimeType(mimeType)
-            : ".jpg";
+          const isVideo = item.metadata.mediaType === 'video';
+          const mediaType = isVideo ? 'Video' : 'Photo';
+          const extension = isVideo ? '.mp4' : '.jpg';
+          const mimeType = blob.type || (isVideo ? 'video/mp4' : 'image/jpeg');
 
           const file = new File(
             [blob],
@@ -720,7 +684,6 @@ export const MediaItem = forwardRef(
               }}
             >
               <ImageContainer
-                data-reaction-anchor={item.metadata.itemId}
                 isUploadedThisPageLoad={isUploadedThisPageLoad}
                 isDoneUploading={isDoneUploading}
                 isImageLoaded={isImageLoaded}
