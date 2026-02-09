@@ -67,7 +67,7 @@ const GridCellWrapper = styled.div`
   overflow: hidden;
 
   ${({ index, count }) => {
-    const outer = '1.25rem';
+    const outer = '2rem';
     const inner = '0.375rem';
 
     if (count === 2) {
