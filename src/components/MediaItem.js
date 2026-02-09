@@ -75,6 +75,16 @@ const Image = styled.img`
   z-index: 1;
 `;
 
+const Video = styled.video`
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  object-fit: cover;
+  pointer-events: none;
+`;
+
 const Thumbnail = styled.img`
   width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
@@ -500,6 +510,7 @@ export const MediaItem = forwardRef(
     const { config } = useConfig();
     const deviceType = useDetectDeviceType();
     const isMobile = deviceType === "mobile";
+    const isVideo = item.metadata?.mediaType === "video";
     const [reactions, setReactions] = useState(item.reactions || []);
     const [touchStartY, setTouchStartY] = useState(null);
     const [isThumbnailLoaded, setIsThumbnailLoaded] = useState(false);
@@ -635,62 +646,87 @@ export const MediaItem = forwardRef(
             setTouchStartY(null);
 
             // Reset scale to 1 when touch ends
-            if (transformRef.current) {
+            if (!isVideo && transformRef.current) {
               transformRef.current.resetTransform();
             }
           }}
         >
-          <TransformWrapper
-            initialScale={1}
-            minScale={1.4}
-            maxScale={4}
-            centerOnInit={true}
-            doubleClick={{ disabled: true }}
-            disabled={isUploadedThisPageLoad || !isMobile}
-            ref={transformRef}
-            limitToBounds={true}
-            onZoomStop={({ scale }) => {
-              if (
-                scale < 1 &&
-                transformRef.current &&
-                typeof transformRef.current.setScale === "function"
-              ) {
-                transformRef.current.setScale(1);
-              }
-            }}
-            panning={{ disabled: true }}
-          >
-            <TransformComponent
-              wrapperStyle={{
-                width: "100%",
-                height: "100%"
-              }}
-              contentStyle={{
-                width: "100%",
-                height: "100%"
-              }}
+          {isVideo ? (
+            <ImageContainer
+              isUploadedThisPageLoad={isUploadedThisPageLoad}
+              isDoneUploading={isDoneUploading}
+              isImageLoaded={isImageLoaded}
             >
-              <ImageContainer
-                isUploadedThisPageLoad={isUploadedThisPageLoad}
-                isDoneUploading={isDoneUploading}
-                isImageLoaded={isImageLoaded}
-              >
-                <Image
-                  src={imageUrl}
+              <Video
+                src={imageUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                onLoadedData={() => setIsImageLoaded(true)}
+              />
+              {!isUploadedThisPageLoad && thumbnailUrl && (
+                <Thumbnail
+                  src={thumbnailUrl}
                   alt={item.metadata.itemId}
-                  onLoad={() => setIsImageLoaded(true)}
+                  onLoad={() => setIsThumbnailLoaded(true)}
+                  isThumbnailLoaded={isThumbnailLoaded}
                 />
-                {!isUploadedThisPageLoad && (
-                  <Thumbnail
-                    src={thumbnailUrl}
+              )}
+            </ImageContainer>
+          ) : (
+            <TransformWrapper
+              initialScale={1}
+              minScale={1.4}
+              maxScale={4}
+              centerOnInit={true}
+              doubleClick={{ disabled: true }}
+              disabled={isUploadedThisPageLoad || !isMobile}
+              ref={transformRef}
+              limitToBounds={true}
+              onZoomStop={({ scale }) => {
+                if (
+                  scale < 1 &&
+                  transformRef.current &&
+                  typeof transformRef.current.setScale === "function"
+                ) {
+                  transformRef.current.setScale(1);
+                }
+              }}
+              panning={{ disabled: true }}
+            >
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%"
+                }}
+                contentStyle={{
+                  width: "100%",
+                  height: "100%"
+                }}
+              >
+                <ImageContainer
+                  isUploadedThisPageLoad={isUploadedThisPageLoad}
+                  isDoneUploading={isDoneUploading}
+                  isImageLoaded={isImageLoaded}
+                >
+                  <Image
+                    src={imageUrl}
                     alt={item.metadata.itemId}
-                    onLoad={() => setIsThumbnailLoaded(true)}
-                    isThumbnailLoaded={isThumbnailLoaded}
+                    onLoad={() => setIsImageLoaded(true)}
                   />
-                )}
-              </ImageContainer>
-            </TransformComponent>
-          </TransformWrapper>
+                  {!isUploadedThisPageLoad && (
+                    <Thumbnail
+                      src={thumbnailUrl}
+                      alt={item.metadata.itemId}
+                      onLoad={() => setIsThumbnailLoaded(true)}
+                      isThumbnailLoaded={isThumbnailLoaded}
+                    />
+                  )}
+                </ImageContainer>
+              </TransformComponent>
+            </TransformWrapper>
+          )}
           {isUploadedThisPageLoad && !isDoneUploading && (
             <ImageSpinnerContainer>
               <Spinner size="x-large" />
