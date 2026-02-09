@@ -81,7 +81,6 @@ const Video = styled.video`
   top: 0;
   left: 0;
   z-index: 1;
-  object-fit: cover;
   pointer-events: none;
 `;
 
