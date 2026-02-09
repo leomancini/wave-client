@@ -305,7 +305,7 @@ export const ViewGroup = ({ groupId, userId }) => {
       return;
     }
 
-    const uploadQueue = Array.from(files);
+    const uploadQueue = Array.from(files).slice(0, 4);
 
     // Pre-generate all item IDs and dimensions
     const itemsWithMeta = await Promise.all(
