@@ -326,8 +326,8 @@ const addReaction = async (
   if (!isRemoving) {
     const container = document.getElementById(postId);
     if (container) {
-      const media = container.querySelector("img") || container.querySelector("video");
-      if (media) {
+      const photoGrid = container.firstElementChild;
+      if (photoGrid) {
         const tempReaction = document.createElement("div");
         tempReaction.style.cssText = `
           position: absolute;
@@ -358,9 +358,8 @@ const addReaction = async (
         document.head.appendChild(style);
 
         tempReaction.textContent = reaction;
-        const parent = media.closest("[class]")?.parentElement || media.parentElement;
-        parent.style.position = "relative";
-        parent.appendChild(tempReaction);
+        photoGrid.style.position = "relative";
+        photoGrid.appendChild(tempReaction);
 
         setTimeout(() => {
           tempReaction.remove();
