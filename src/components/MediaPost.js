@@ -326,8 +326,8 @@ const addReaction = async (
   if (!isRemoving) {
     const container = document.getElementById(postId);
     if (container) {
-      const img = container.querySelector("img");
-      if (img) {
+      const media = container.querySelector("img") || container.querySelector("video");
+      if (media) {
         const tempReaction = document.createElement("div");
         tempReaction.style.cssText = `
           position: absolute;
@@ -358,7 +358,7 @@ const addReaction = async (
         document.head.appendChild(style);
 
         tempReaction.textContent = reaction;
-        const parent = img.closest("[class]")?.parentElement || img.parentElement;
+        const parent = media.closest("[class]")?.parentElement || media.parentElement;
         parent.style.position = "relative";
         parent.appendChild(tempReaction);
 
@@ -506,17 +506,20 @@ export const MediaPost = forwardRef(
         if (navigator.share && navigator.canShare) {
           const files = await Promise.all(
             post.items.map(async (item, index) => {
-              const imageUrl = item.isUploadedThisPageLoad || isUploadedThisPageLoad
+              const mediaUrl = item.isUploadedThisPageLoad || isUploadedThisPageLoad
                 ? item.localUrl
                 : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
-              const response = await fetch(imageUrl);
+              const response = await fetch(mediaUrl);
               const blob = await response.blob();
               const suffix = post.items.length > 1 ? ` ${index + 1}` : "";
+              const isVideoItem = item.metadata?.mediaType === "video";
+              const ext = isVideoItem ? ".mp4" : ".jpg";
+              const label = isVideoItem ? "Video" : "Photo";
               return new File(
                 [blob],
-                `Photo${suffix} from ${post.uploader?.name} in ${groupId}.jpg`,
+                `${label}${suffix} from ${post.uploader?.name} in ${groupId}${ext}`,
                 {
-                  type: blob.type || "image/jpeg"
+                  type: blob.type || (isVideoItem ? "video/mp4" : "image/jpeg")
                 }
               );
             })
@@ -525,8 +528,8 @@ export const MediaPost = forwardRef(
           if (navigator.canShare({ files })) {
             await navigator.share({
               title: post.items.length > 1
-                ? `Photos from ${post.uploader?.name} in ${groupId}`
-                : `Photo from ${post.uploader?.name} in ${groupId}`,
+                ? `Media from ${post.uploader?.name} in ${groupId}`
+                : `${post.items[0]?.metadata?.mediaType === "video" ? "Video" : "Photo"} from ${post.uploader?.name} in ${groupId}`,
               files
             });
             return;

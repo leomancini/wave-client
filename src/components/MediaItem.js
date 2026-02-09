@@ -387,7 +387,7 @@ const addReaction = async (
   await new Promise((resolve) => setTimeout(resolve, 0));
 
   if (!isRemoving) {
-    const img = document.querySelector(`img[alt="${itemId}"]`);
+    const img = document.querySelector(`img[alt="${itemId}"]`) || document.querySelector(`video[data-item-id="${itemId}"]`);
     const tempReaction = document.createElement("div");
     tempReaction.style.cssText = `
       position: absolute;

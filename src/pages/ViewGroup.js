@@ -310,23 +310,42 @@ export const ViewGroup = ({ groupId, userId }) => {
     // Pre-generate all item IDs and dimensions
     const itemsWithMeta = await Promise.all(
       uploadQueue.map(async (file) => {
+        const isVideo = file.type.startsWith("video/");
+
         const dimensions = await new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            resolve({
-              width: img.width,
-              height: img.height
-            });
-            URL.revokeObjectURL(img.src);
-          };
-          img.src = URL.createObjectURL(file);
+          if (isVideo) {
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.onloadedmetadata = () => {
+              resolve({
+                width: video.videoWidth,
+                height: video.videoHeight
+              });
+              URL.revokeObjectURL(video.src);
+            };
+            video.onerror = () => {
+              resolve({ width: 16, height: 9 });
+              URL.revokeObjectURL(video.src);
+            };
+            video.src = URL.createObjectURL(file);
+          } else {
+            const img = new Image();
+            img.onload = () => {
+              resolve({
+                width: img.width,
+                height: img.height
+              });
+              URL.revokeObjectURL(img.src);
+            };
+            img.src = URL.createObjectURL(file);
+          }
         });
 
         const itemId = `${Date.now()}-${userId}-${Math.floor(
           Math.random() * 10000000000
         )}`;
 
-        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file) };
+        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file), isVideo };
       })
     );
 
@@ -336,13 +355,14 @@ export const ViewGroup = ({ groupId, userId }) => {
     // Create a single optimistic post containing all photos
     const optimisticPost = {
       postId,
-      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl }) => ({
+      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo }) => ({
         metadata: {
           itemId,
           postId,
           uploadDate: new Date().toISOString(),
           uploaderId: userId,
-          dimensions
+          dimensions,
+          ...(isVideo ? { mediaType: "video" } : {})
         },
         localUrl,
         isUploadedThisPageLoad: true
@@ -666,7 +686,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           >
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={handleFileUpload}
               multiple
               disabled={isUploading}
