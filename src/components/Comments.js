@@ -133,33 +133,37 @@ const Comment = ({ name, text, timestamp, disabled }) => {
   );
 };
 
-export const Comments = ({ item, groupId, user, disabled }) => {
+export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
   const [newComments, setNewComments] = useState([]);
+
+  // Support both post-level and legacy item-level
+  const targetId = postId || item?.metadata?.itemId;
+  const comments = post?.comments || item?.comments || [];
+  const apiPath = postId
+    ? `${process.env.REACT_APP_API_URL}/media/${groupId}/post/${targetId}/comment`
+    : `${process.env.REACT_APP_API_URL}/media/${groupId}/${targetId}/comment`;
 
   const onSubmit = async (comment) => {
     const timestamp = new Date().toISOString();
     setNewComments([...newComments, { text: comment, timestamp }]);
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/comment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            comment
-          })
-        }
-      );
+      const response = await fetch(apiPath, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          comment
+        })
+      });
 
       if (!response.ok) {
         throw new Error("Failed to add comment");
       }
 
-      item.comments.push({
+      comments.push({
         comment,
         timestamp,
         user: { id: user.id, name: user.name }
@@ -169,15 +173,14 @@ export const Comments = ({ item, groupId, user, disabled }) => {
     } catch (error) {
       console.error("Error adding comment:", error);
       alert("Failed to add comment. Please try again.");
-      // Remove the failed comment from the optimistic UI
       setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
     }
   };
 
   return (
     <Container>
-      <List isEmpty={item.comments.length === 0 && newComments.length === 0}>
-        {item.comments.map((comment) => (
+      <List isEmpty={comments.length === 0 && newComments.length === 0}>
+        {comments.map((comment) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
             <Comment
@@ -195,7 +198,7 @@ export const Comments = ({ item, groupId, user, disabled }) => {
         ))}
       </List>
       <TextField
-        id={`item-${item.metadata.itemId}-comment-text-field`}
+        id={`post-${targetId}-comment-text-field`}
         placeholder="Write a comment..."
         onSubmit={onSubmit}
         buttonLabel="↑"
