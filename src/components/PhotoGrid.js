@@ -280,34 +280,84 @@ const SinglePhoto = ({
   );
 };
 
-const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploading }) => {
+const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploading, onDoubleClick }) => {
+  const deviceType = useDetectDeviceType();
+  const isMobile = deviceType === "mobile";
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [touchStartY, setTouchStartY] = useState(null);
+  const scrollThreshold = 10;
+  const transformRef = React.useRef(null);
 
   return (
-    <ImageContainer
-      isUploadedThisPageLoad={isUploadedThisPageLoad}
-      isDoneUploading={isDoneUploading}
-      isImageLoaded={isImageLoaded}
+    <GridCell
+      style={{ pointerEvents: isUploadedThisPageLoad ? "none" : "auto" }}
+      onClick={(e) => {
+        if (isUploadedThisPageLoad) return;
+        if (!("ontouchstart" in window)) {
+          onDoubleClick(e);
+        }
+      }}
+      onTouchStart={(e) => {
+        setTouchStartY(e.touches[0].clientY);
+      }}
+      onTouchMove={(e) => {
+        if (touchStartY === null) return;
+        if (Math.abs(e.touches[0].clientY - touchStartY) > scrollThreshold) {
+          setTouchStartY(null);
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartY !== null) {
+          onDoubleClick(e);
+        }
+        setTouchStartY(null);
+        if (transformRef.current) {
+          transformRef.current.resetTransform();
+        }
+      }}
     >
-      <GridImage
-        src={imageUrl}
-        isLoaded={isImageLoaded || (isUploadedThisPageLoad && isDoneUploading)}
-        onLoad={() => setIsImageLoaded(true)}
-        style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-      />
-      {!isUploadedThisPageLoad && thumbnailUrl && (
-        <GridImage
-          src={thumbnailUrl}
-          isLoaded={true}
-        />
-      )}
-      {isUploadedThisPageLoad && (
-        <GridImage
-          src={imageUrl}
-          isLoaded={true}
-        />
-      )}
-    </ImageContainer>
+      <TransformWrapper
+        initialScale={1}
+        minScale={1.4}
+        maxScale={4}
+        centerOnInit={true}
+        doubleClick={{ disabled: true }}
+        disabled={isUploadedThisPageLoad || !isMobile}
+        ref={transformRef}
+        limitToBounds={true}
+        panning={{ disabled: true }}
+      >
+        <TransformComponent
+          wrapperStyle={{ width: "100%", height: "100%" }}
+          contentStyle={{ width: "100%", height: "100%" }}
+        >
+          <ImageContainer
+            isUploadedThisPageLoad={isUploadedThisPageLoad}
+            isDoneUploading={isDoneUploading}
+            isImageLoaded={isImageLoaded}
+          >
+            <GridImage
+              src={imageUrl}
+              isLoaded={isImageLoaded || (isUploadedThisPageLoad && isDoneUploading)}
+              onLoad={() => setIsImageLoaded(true)}
+              style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+            />
+            {!isUploadedThisPageLoad && thumbnailUrl && (
+              <GridImage
+                src={thumbnailUrl}
+                isLoaded={true}
+              />
+            )}
+            {isUploadedThisPageLoad && (
+              <GridImage
+                src={imageUrl}
+                isLoaded={true}
+              />
+            )}
+          </ImageContainer>
+        </TransformComponent>
+      </TransformWrapper>
+    </GridCell>
   );
 };
 
@@ -354,17 +404,16 @@ export const PhotoGrid = ({
               fullWidth={index === 0}
               count={displayItems.length}
             >
-              <GridCell>
-                <GridPhoto
-                  imageUrl={getImageUrl(item)}
-                  thumbnailUrl={getThumbnailUrl(item)}
-                  isUploadedThisPageLoad={isUploadedThisPageLoad}
-                  isDoneUploading={isDoneUploading}
-                />
-                {index === 3 && remainingCount > 0 && (
-                  <MoreOverlay>+{remainingCount}</MoreOverlay>
-                )}
-              </GridCell>
+              <GridPhoto
+                imageUrl={getImageUrl(item)}
+                thumbnailUrl={getThumbnailUrl(item)}
+                isUploadedThisPageLoad={isUploadedThisPageLoad}
+                isDoneUploading={isDoneUploading}
+                onDoubleClick={onDoubleClick}
+              />
+              {index === 3 && remainingCount > 0 && (
+                <MoreOverlay>+{remainingCount}</MoreOverlay>
+              )}
             </GridCellWrapper>
           ))}
         </Grid>
