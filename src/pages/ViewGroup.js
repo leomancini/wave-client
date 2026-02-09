@@ -18,7 +18,7 @@ import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
-import { MediaItem } from "../components/MediaItem";
+import { MediaPost } from "../components/MediaPost";
 import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { EmptyCard } from "../components/EmptyCard";
@@ -300,102 +300,101 @@ export const ViewGroup = ({ groupId, userId }) => {
     setIsUploading(true);
     const files = event.target.files;
 
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      setIsUploading(false);
+      return;
+    }
 
     const uploadQueue = Array.from(files);
 
-    const uploadPromises = uploadQueue.map(async (file) => {
-      const dimensions = await new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          resolve({
-            width: img.width,
-            height: img.height
-          });
-          URL.revokeObjectURL(img.src);
-        };
-        img.src = URL.createObjectURL(file);
-      });
+    // Pre-generate all item IDs and dimensions
+    const itemsWithMeta = await Promise.all(
+      uploadQueue.map(async (file) => {
+        const dimensions = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            resolve({
+              width: img.width,
+              height: img.height
+            });
+            URL.revokeObjectURL(img.src);
+          };
+          img.src = URL.createObjectURL(file);
+        });
 
-      const itemId = `${Date.now()}-${userId}-${Math.floor(
-        Math.random() * 10000000000
-      )}`;
+        const itemId = `${Date.now()}-${userId}-${Math.floor(
+          Math.random() * 10000000000
+        )}`;
 
-      const optimisticallyUploadedMediaItem = {
-        file,
+        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file) };
+      })
+    );
+
+    // For multi-file uploads, use the first itemId as the postId
+    const postId = itemsWithMeta[0].itemId;
+
+    // Create a single optimistic post containing all photos
+    const optimisticPost = {
+      postId,
+      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl }) => ({
         metadata: {
           itemId,
+          postId,
           uploadDate: new Date().toISOString(),
           uploaderId: userId,
           dimensions
         },
-        uploader: {
-          name: user.name
-        },
-        isUploadedThisPageLoad: true,
-        isDoneUploading: false,
-        skipThumbnail: true,
-        localUrl: URL.createObjectURL(file),
-        comments: [],
-        reactions: []
-      };
+        localUrl,
+        isUploadedThisPageLoad: true
+      })),
+      uploader: {
+        id: userId,
+        name: user.name
+      },
+      uploadDate: Date.now(),
+      isUploadedThisPageLoad: true,
+      isDoneUploading: false,
+      comments: [],
+      reactions: []
+    };
 
-      setMediaItems((prev) => [optimisticallyUploadedMediaItem, ...prev]);
+    setMediaItems((prev) => [optimisticPost, ...prev]);
 
-      const formData = new FormData();
-      const media = new File(
-        [file],
-        `${groupId}-${optimisticallyUploadedMediaItem.metadata.itemId}`,
-        {
-          type: file.type
-        }
-      );
+    // Upload all files in a single request
+    const formData = new FormData();
+    itemsWithMeta.forEach(({ file, itemId }) => {
+      const media = new File([file], `${groupId}-${itemId}`, {
+        type: file.type
+      });
       formData.append("media", media);
-      formData.append(
-        "itemId",
-        optimisticallyUploadedMediaItem.metadata.itemId
-      );
-      formData.append("group", groupId);
-      formData.append("uploaderId", userId);
-
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/upload`,
-          {
-            method: "POST",
-            body: formData
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Upload failed with status: ${response.status}`);
-        }
-
-        setMediaItems((currentMediaItems) => {
-          return currentMediaItems.map((item) => {
-            if (
-              item.metadata.itemId ===
-              optimisticallyUploadedMediaItem.metadata.itemId
-            ) {
-              item.isDoneUploading = true;
-            }
-            return item;
-          });
-        });
-      } catch (error) {
-        console.error("Upload error:", error);
-        alert("Failed to upload file. Please try again.");
-        setMediaItems((prev) =>
-          prev.filter(
-            (item) =>
-              item.metadata.itemId !==
-              optimisticallyUploadedMediaItem.metadata.itemId
-          )
-        );
-      }
     });
+    formData.append("group", groupId);
+    formData.append("uploaderId", userId);
 
-    await Promise.all(uploadPromises);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/upload`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
+
+      setMediaItems((currentPosts) =>
+        currentPosts.map((p) =>
+          p.postId === postId ? { ...p, isDoneUploading: true } : p
+        )
+      );
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload file. Please try again.");
+      setMediaItems((prev) => prev.filter((p) => p.postId !== postId));
+    }
+
     setIsUploading(false);
   };
 
@@ -507,26 +506,23 @@ export const ViewGroup = ({ groupId, userId }) => {
     );
   };
 
-  const markAsRead = (itemId) => {
-    setMediaItems((currentMediaItems) => {
-      const item = currentMediaItems.find(
-        (item) => item.metadata.itemId === itemId
-      );
-      if (!item?.isUnread) return currentMediaItems;
+  const markAsRead = (postId) => {
+    setMediaItems((currentPosts) => {
+      const post = currentPosts.find((p) => p.postId === postId);
+      if (!post?.isUnread) return currentPosts;
 
-      setPendingReadItems((prev) => new Set(prev).add(itemId));
+      // Mark the postId as read (unread entries are stored by postId)
+      setPendingReadItems((prev) => new Set(prev).add(postId));
 
       setTimeout(() => {
-        setMediaItems((currentMediaItems) =>
-          currentMediaItems.map((item) =>
-            item.metadata.itemId === itemId
-              ? { ...item, isUnread: false }
-              : item
+        setMediaItems((currentPosts) =>
+          currentPosts.map((p) =>
+            p.postId === postId ? { ...p, isUnread: false } : p
           )
         );
       }, 1000);
 
-      return currentMediaItems;
+      return currentPosts;
     });
   };
 
@@ -693,33 +689,21 @@ export const ViewGroup = ({ groupId, userId }) => {
           />
         )}
         <MediaGrid>
-          {mediaItems.map((item, index) => {
+          {mediaItems.map((post, index) => {
             return (
-              <MediaItem
-                id={item.metadata.itemId}
+              <MediaPost
                 ref={
                   index === mediaItems.length - 1 ? lastMediaElementRef : null
                 }
-                key={item.metadata.itemId}
-                item={item}
-                imageUrl={
-                  item.isUploadedThisPageLoad
-                    ? item.localUrl
-                    : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`
-                }
-                thumbnailUrl={
-                  item.isUploadedThisPageLoad
-                    ? null
-                    : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}/thumbnail`
-                }
-                fetchMediaItems={fetchMediaItems}
+                key={post.postId}
+                post={post}
                 groupId={groupId}
                 user={user}
-                isUnread={item.isUnread}
-                onLoad={(itemId) => markAsRead(itemId)}
-                isUploadedThisPageLoad={item.isUploadedThisPageLoad}
+                isUnread={post.isUnread}
+                onLoad={(postId) => markAsRead(postId)}
+                isUploadedThisPageLoad={post.isUploadedThisPageLoad}
                 isDoneUploading={
-                  item.isUploadedThisPageLoad ? item.isDoneUploading : true
+                  post.isUploadedThisPageLoad ? post.isDoneUploading : true
                 }
               />
             );
