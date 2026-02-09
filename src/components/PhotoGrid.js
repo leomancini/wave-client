@@ -75,14 +75,6 @@ const GridImage = styled.img`
   opacity: ${({ isLoaded }) => (isLoaded ? 1 : 0)};
 `;
 
-const GridVideo = styled.video`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 0.5s;
-  opacity: ${({ isLoaded }) => (isLoaded ? 1 : 0)};
-`;
-
 const MoreOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -137,14 +129,6 @@ const FullImage = styled.img`
   z-index: 1;
 `;
 
-const FullVideo = styled.video`
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-`;
-
 const Thumbnail = styled.img`
   width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
@@ -161,13 +145,12 @@ const ImageSpinnerContainer = styled.div`
 
 const SinglePhoto = ({
   item,
-  mediaUrl,
+  imageUrl,
   thumbnailUrl,
   isUploadedThisPageLoad,
   isDoneUploading,
   postId,
-  onDoubleClick,
-  isVideo
+  onDoubleClick
 }) => {
   const deviceType = useDetectDeviceType();
   const isMobile = deviceType === "mobile";
@@ -216,7 +199,7 @@ const SinglePhoto = ({
         maxScale={4}
         centerOnInit={true}
         doubleClick={{ disabled: true }}
-        disabled={isUploadedThisPageLoad || !isMobile || isVideo}
+        disabled={isUploadedThisPageLoad || !isMobile}
         ref={transformRef}
         limitToBounds={true}
         panning={{ disabled: true }}
@@ -230,23 +213,12 @@ const SinglePhoto = ({
             isDoneUploading={isDoneUploading}
             isImageLoaded={isImageLoaded}
           >
-            {isVideo ? (
-              <FullVideo
-                src={mediaUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                onLoadedData={() => setIsImageLoaded(true)}
-              />
-            ) : (
-              <FullImage
-                src={mediaUrl}
-                alt={postId}
-                onLoad={() => setIsImageLoaded(true)}
-              />
-            )}
-            {!isUploadedThisPageLoad && !isVideo && (
+            <FullImage
+              src={imageUrl}
+              alt={postId}
+              onLoad={() => setIsImageLoaded(true)}
+            />
+            {!isUploadedThisPageLoad && (
               <Thumbnail
                 src={thumbnailUrl}
                 alt={postId}
@@ -266,31 +238,17 @@ const SinglePhoto = ({
   );
 };
 
-const GridPhoto = ({ mediaUrl, isUploadedThisPageLoad, isVideo }) => {
+const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  if (isVideo) {
-    return (
-      <GridVideo
-        src={mediaUrl}
-        autoPlay
-        loop
-        muted
-        playsInline
-        isLoaded={isUploadedThisPageLoad ? true : isLoaded}
-        onLoadedData={() => setIsLoaded(true)}
-      />
-    );
-  }
-
   if (isUploadedThisPageLoad) {
-    return <GridImage src={mediaUrl} isLoaded={true} />;
+    return <GridImage src={imageUrl} isLoaded={true} />;
   }
 
   return (
     <>
       <GridImage
-        src={mediaUrl}
+        src={imageUrl}
         isLoaded={isLoaded}
         onLoad={() => setIsLoaded(true)}
       />
@@ -305,24 +263,21 @@ export const PhotoGrid = ({
   isUploadedThisPageLoad,
   isDoneUploading,
   onDoubleClick,
-  getMediaUrl,
-  getThumbnailUrl,
-  isItemVideo
+  getImageUrl,
+  getThumbnailUrl
 }) => {
   if (items.length === 1) {
     const item = items[0];
-    const isVideo = isItemVideo(item);
     return (
       <GridContainer>
         <SinglePhoto
           item={item}
-          mediaUrl={getMediaUrl(item)}
+          imageUrl={getImageUrl(item)}
           thumbnailUrl={getThumbnailUrl(item)}
           isUploadedThisPageLoad={isUploadedThisPageLoad}
           isDoneUploading={isDoneUploading}
           postId={postId}
           onDoubleClick={onDoubleClick}
-          isVideo={isVideo}
         />
       </GridContainer>
     );
@@ -341,9 +296,9 @@ export const PhotoGrid = ({
             count={displayItems.length}
           >
             <GridPhoto
-              mediaUrl={getMediaUrl(item)}
+              imageUrl={getImageUrl(item)}
+              thumbnailUrl={getThumbnailUrl(item)}
               isUploadedThisPageLoad={isUploadedThisPageLoad}
-              isVideo={isItemVideo(item)}
             />
             {index === 3 && remainingCount > 0 && (
               <MoreOverlay>+{remainingCount}</MoreOverlay>

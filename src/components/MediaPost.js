@@ -326,7 +326,7 @@ const addReaction = async (
   if (!isRemoving) {
     const container = document.getElementById(postId);
     if (container) {
-      const img = container.querySelector("video") || container.querySelector("img");
+      const img = container.querySelector("img");
       if (img) {
         const tempReaction = document.createElement("div");
         tempReaction.style.cssText = `
@@ -501,37 +501,32 @@ export const MediaPost = forwardRef(
       (r) => r.user.id === user.id && r.isPending
     );
 
-    const isItemVideo = (item) => {
-      if (item.isVideo !== undefined) return item.isVideo;
-      return item.metadata?.mimeType?.startsWith("video/") || false;
-    };
-
     const handleShare = async () => {
       try {
         if (navigator.share && navigator.canShare) {
           const files = await Promise.all(
             post.items.map(async (item, index) => {
-              const url = item.isUploadedThisPageLoad || isUploadedThisPageLoad
+              const imageUrl = item.isUploadedThisPageLoad || isUploadedThisPageLoad
                 ? item.localUrl
                 : `${process.env.REACT_APP_API_URL}/media/${groupId}/${item.metadata.itemId}`;
-              const response = await fetch(url);
+              const response = await fetch(imageUrl);
               const blob = await response.blob();
               const suffix = post.items.length > 1 ? ` ${index + 1}` : "";
-              const isVideo = isItemVideo(item);
-              const ext = isVideo ? ".mp4" : ".jpg";
-              const type = isVideo ? (blob.type || "video/mp4") : (blob.type || "image/jpeg");
-              const label = isVideo ? "Video" : "Photo";
               return new File(
                 [blob],
-                `${label}${suffix} from ${post.uploader?.name} in ${groupId}${ext}`,
-                { type }
+                `Photo${suffix} from ${post.uploader?.name} in ${groupId}.jpg`,
+                {
+                  type: blob.type || "image/jpeg"
+                }
               );
             })
           );
 
           if (navigator.canShare({ files })) {
             await navigator.share({
-              title: `Media from ${post.uploader?.name} in ${groupId}`,
+              title: post.items.length > 1
+                ? `Photos from ${post.uploader?.name} in ${groupId}`
+                : `Photo from ${post.uploader?.name} in ${groupId}`,
               files
             });
             return;
@@ -542,7 +537,7 @@ export const MediaPost = forwardRef(
       }
     };
 
-    const getMediaUrl = (item) => {
+    const getImageUrl = (item) => {
       if (item.isUploadedThisPageLoad || isUploadedThisPageLoad) {
         return item.localUrl;
       }
@@ -571,9 +566,8 @@ export const MediaPost = forwardRef(
               reaction: config.reactions[0]
             })
           }
-          getMediaUrl={getMediaUrl}
+          getImageUrl={getImageUrl}
           getThumbnailUrl={getThumbnailUrl}
-          isItemVideo={isItemVideo}
         />
         <Details>
           <Name>{post.uploader?.name || user.name}</Name>
