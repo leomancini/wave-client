@@ -310,42 +310,70 @@ export const ViewGroup = ({ groupId, userId }) => {
     // Pre-generate all item IDs and dimensions
     const itemsWithMeta = await Promise.all(
       uploadQueue.map(async (file) => {
+        const isVideo = file.type.startsWith("video/");
+        const objectUrl = URL.createObjectURL(file);
+
         const dimensions = await new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            resolve({
-              width: img.width,
-              height: img.height
-            });
-            URL.revokeObjectURL(img.src);
-          };
-          img.src = URL.createObjectURL(file);
+          if (isVideo) {
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.onloadedmetadata = () => {
+              resolve({
+                width: video.videoWidth,
+                height: video.videoHeight
+              });
+              URL.revokeObjectURL(video.src);
+            };
+            video.onerror = () => {
+              resolve({ width: 1920, height: 1080 });
+              URL.revokeObjectURL(video.src);
+            };
+            video.src = objectUrl;
+          } else {
+            const img = new Image();
+            img.onload = () => {
+              resolve({
+                width: img.width,
+                height: img.height
+              });
+              URL.revokeObjectURL(img.src);
+            };
+            img.src = objectUrl;
+          }
         });
 
         const itemId = `${Date.now()}-${userId}-${Math.floor(
           Math.random() * 10000000000
         )}`;
 
-        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file) };
+        return {
+          file,
+          itemId,
+          dimensions,
+          localUrl: URL.createObjectURL(file),
+          isVideo
+        };
       })
     );
 
     // For multi-file uploads, use the first itemId as the postId
     const postId = itemsWithMeta[0].itemId;
 
-    // Create a single optimistic post containing all photos
+    // Create a single optimistic post containing all photos/videos
     const optimisticPost = {
       postId,
-      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl }) => ({
+      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo }) => ({
         metadata: {
           itemId,
           postId,
           uploadDate: new Date().toISOString(),
           uploaderId: userId,
-          dimensions
+          dimensions,
+          mimeType: file.type
         },
         localUrl,
-        isUploadedThisPageLoad: true
+        isUploadedThisPageLoad: true,
+        isVideo
       })),
       uploader: {
         id: userId,
@@ -666,7 +694,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           >
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={handleFileUpload}
               multiple
               disabled={isUploading}
