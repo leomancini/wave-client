@@ -169,5 +169,17 @@
   <body style="background-color: #ffffff !important">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root" style="background-color: #ffffff !important"></div>
+    <script>
+      // Auto-reload if the main JS bundle fails to load (stale cached index.html)
+      window.addEventListener("error", function (e) {
+        if (e.target && e.target.tagName === "SCRIPT" && e.target.src && e.target.src.includes("/static/js/main.")) {
+          var reloaded = sessionStorage.getItem("__wave_reloaded");
+          if (!reloaded) {
+            sessionStorage.setItem("__wave_reloaded", "1");
+            window.location.reload();
+          }
+        }
+      }, true);
+    </script>
   </body>
 </html>
