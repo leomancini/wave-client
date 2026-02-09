@@ -171,6 +171,15 @@ const FullImage = styled.img`
   z-index: 1;
 `;
 
+const FullVideo = styled.video`
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+`;
+
 const Thumbnail = styled.img`
   width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
@@ -201,6 +210,7 @@ const SinglePhoto = ({
   const [touchStartY, setTouchStartY] = useState(null);
   const scrollThreshold = 10;
   const transformRef = React.useRef(null);
+  const isVideo = item.metadata?.mediaType === "video";
 
   return (
     <SingleImageContainer
@@ -230,47 +240,72 @@ const SinglePhoto = ({
           onDoubleClick(e);
         }
         setTouchStartY(null);
-        if (transformRef.current) {
+        if (!isVideo && transformRef.current) {
           transformRef.current.resetTransform();
         }
       }}
     >
-      <TransformWrapper
-        initialScale={1}
-        minScale={1.4}
-        maxScale={4}
-        centerOnInit={true}
-        doubleClick={{ disabled: true }}
-        disabled={isUploadedThisPageLoad || !isMobile}
-        ref={transformRef}
-        limitToBounds={true}
-        panning={{ disabled: true }}
-      >
-        <TransformComponent
-          wrapperStyle={{ width: "100%", height: "100%" }}
-          contentStyle={{ width: "100%", height: "100%" }}
+      {isVideo ? (
+        <ImageContainer
+          isUploadedThisPageLoad={isUploadedThisPageLoad}
+          isDoneUploading={isDoneUploading}
+          isImageLoaded={isImageLoaded}
         >
-          <ImageContainer
-            isUploadedThisPageLoad={isUploadedThisPageLoad}
-            isDoneUploading={isDoneUploading}
-            isImageLoaded={isImageLoaded}
-          >
-            <FullImage
-              src={imageUrl}
+          <FullVideo
+            src={imageUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onLoadedData={() => setIsImageLoaded(true)}
+          />
+          {!isUploadedThisPageLoad && thumbnailUrl && (
+            <Thumbnail
+              src={thumbnailUrl}
               alt={postId}
-              onLoad={() => setIsImageLoaded(true)}
+              onLoad={() => setIsThumbnailLoaded(true)}
+              isThumbnailLoaded={isThumbnailLoaded}
             />
-            {!isUploadedThisPageLoad && (
-              <Thumbnail
-                src={thumbnailUrl}
+          )}
+        </ImageContainer>
+      ) : (
+        <TransformWrapper
+          initialScale={1}
+          minScale={1.4}
+          maxScale={4}
+          centerOnInit={true}
+          doubleClick={{ disabled: true }}
+          disabled={isUploadedThisPageLoad || !isMobile}
+          ref={transformRef}
+          limitToBounds={true}
+          panning={{ disabled: true }}
+        >
+          <TransformComponent
+            wrapperStyle={{ width: "100%", height: "100%" }}
+            contentStyle={{ width: "100%", height: "100%" }}
+          >
+            <ImageContainer
+              isUploadedThisPageLoad={isUploadedThisPageLoad}
+              isDoneUploading={isDoneUploading}
+              isImageLoaded={isImageLoaded}
+            >
+              <FullImage
+                src={imageUrl}
                 alt={postId}
-                onLoad={() => setIsThumbnailLoaded(true)}
-                isThumbnailLoaded={isThumbnailLoaded}
+                onLoad={() => setIsImageLoaded(true)}
               />
-            )}
-          </ImageContainer>
-        </TransformComponent>
-      </TransformWrapper>
+              {!isUploadedThisPageLoad && (
+                <Thumbnail
+                  src={thumbnailUrl}
+                  alt={postId}
+                  onLoad={() => setIsThumbnailLoaded(true)}
+                  isThumbnailLoaded={isThumbnailLoaded}
+                />
+              )}
+            </ImageContainer>
+          </TransformComponent>
+        </TransformWrapper>
+      )}
       {isUploadedThisPageLoad && !isDoneUploading && (
         <ImageSpinnerContainer>
           <Spinner size="x-large" />
