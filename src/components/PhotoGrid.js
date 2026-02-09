@@ -34,7 +34,7 @@ const SingleImageContainer = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  gap: 12px;
+  gap: 4px;
   font-size: 0;
   background-color: white;
 
@@ -63,9 +63,27 @@ const Grid = styled.div`
 `;
 
 const GridCellWrapper = styled.div`
-  border-radius: 1.25rem;
   box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+
+  ${({ index, count }) => {
+    const outer = '1.25rem';
+    const inner = '0.375rem';
+
+    if (count === 2) {
+      if (index === 0) return `border-radius: ${outer} ${inner} ${inner} ${outer};`;
+      return `border-radius: ${inner} ${outer} ${outer} ${inner};`;
+    }
+    if (count === 3) {
+      if (index === 0) return `border-radius: ${outer} ${outer} ${inner} ${inner};`;
+      if (index === 1) return `border-radius: ${inner} ${inner} ${inner} ${outer};`;
+      return `border-radius: ${inner} ${inner} ${outer} ${inner};`;
+    }
+    if (index === 0) return `border-radius: ${outer} ${inner} ${inner} ${inner};`;
+    if (index === 1) return `border-radius: ${inner} ${outer} ${inner} ${inner};`;
+    if (index === 2) return `border-radius: ${inner} ${inner} ${inner} ${outer};`;
+    return `border-radius: ${inner} ${inner} ${outer} ${inner};`;
+  }}
 
   ${({ fullWidth, count }) => {
     if (fullWidth && count === 3) {
@@ -86,7 +104,7 @@ const GridCell = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: 1.25rem;
+  border-radius: inherit;
   background-color: rgba(0, 0, 0, 0.05);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
 `;
@@ -332,6 +350,7 @@ export const PhotoGrid = ({
           {displayItems.map((item, index) => (
             <GridCellWrapper
               key={item.metadata.itemId}
+              index={index}
               fullWidth={index === 0}
               count={displayItems.length}
             >
