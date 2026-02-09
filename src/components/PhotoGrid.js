@@ -6,12 +6,24 @@ import { useDetectDeviceType } from "../utilities/detectDeviceType";
 
 import { Spinner } from "./Spinner";
 
+const GridWrapper = styled.div`
+  border-radius: 2rem;
+
+  ${({ isGrid }) => !isGrid && `
+    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  `}
+`;
+
 const GridContainer = styled.div`
   position: relative;
   border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   background-color: rgba(0, 0, 0, 0.05);
+
+  ${({ isGrid }) => !isGrid && `
+    overflow: hidden;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    isolation: isolate;
+  `}
 `;
 
 const SingleImageContainer = styled.div`
@@ -22,8 +34,9 @@ const SingleImageContainer = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  gap: 2px;
+  gap: 12px;
   font-size: 0;
+  background-color: white;
 
   ${({ count }) => {
     if (count === 2) {
@@ -49,8 +62,9 @@ const Grid = styled.div`
   }}
 `;
 
-const GridCell = styled.div`
-  position: relative;
+const GridCellWrapper = styled.div`
+  border-radius: 1.25rem;
+  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 
   ${({ fullWidth, count }) => {
@@ -65,6 +79,16 @@ const GridCell = styled.div`
     }
     return "";
   }}
+`;
+
+const GridCell = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
 `;
 
 const GridImage = styled.img`
@@ -238,21 +262,34 @@ const SinglePhoto = ({
   );
 };
 
-const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  if (isUploadedThisPageLoad) {
-    return <GridImage src={imageUrl} isLoaded={true} />;
-  }
+const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploading }) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
-    <>
+    <ImageContainer
+      isUploadedThisPageLoad={isUploadedThisPageLoad}
+      isDoneUploading={isDoneUploading}
+      isImageLoaded={isImageLoaded}
+    >
       <GridImage
         src={imageUrl}
-        isLoaded={isLoaded}
-        onLoad={() => setIsLoaded(true)}
+        isLoaded={isImageLoaded || (isUploadedThisPageLoad && isDoneUploading)}
+        onLoad={() => setIsImageLoaded(true)}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
       />
-    </>
+      {!isUploadedThisPageLoad && thumbnailUrl && (
+        <GridImage
+          src={thumbnailUrl}
+          isLoaded={true}
+        />
+      )}
+      {isUploadedThisPageLoad && (
+        <GridImage
+          src={imageUrl}
+          isLoaded={true}
+        />
+      )}
+    </ImageContainer>
   );
 };
 
@@ -269,17 +306,19 @@ export const PhotoGrid = ({
   if (items.length === 1) {
     const item = items[0];
     return (
-      <GridContainer>
-        <SinglePhoto
-          item={item}
-          imageUrl={getImageUrl(item)}
-          thumbnailUrl={getThumbnailUrl(item)}
-          isUploadedThisPageLoad={isUploadedThisPageLoad}
-          isDoneUploading={isDoneUploading}
-          postId={postId}
-          onDoubleClick={onDoubleClick}
-        />
-      </GridContainer>
+      <GridWrapper>
+        <GridContainer>
+          <SinglePhoto
+            item={item}
+            imageUrl={getImageUrl(item)}
+            thumbnailUrl={getThumbnailUrl(item)}
+            isUploadedThisPageLoad={isUploadedThisPageLoad}
+            isDoneUploading={isDoneUploading}
+            postId={postId}
+            onDoubleClick={onDoubleClick}
+          />
+        </GridContainer>
+      </GridWrapper>
     );
   }
 
@@ -287,30 +326,35 @@ export const PhotoGrid = ({
   const remainingCount = items.length - 4;
 
   return (
-    <GridContainer>
-      <Grid count={displayItems.length}>
-        {displayItems.map((item, index) => (
-          <GridCell
-            key={item.metadata.itemId}
-            fullWidth={index === 0}
-            count={displayItems.length}
-          >
-            <GridPhoto
-              imageUrl={getImageUrl(item)}
-              thumbnailUrl={getThumbnailUrl(item)}
-              isUploadedThisPageLoad={isUploadedThisPageLoad}
-            />
-            {index === 3 && remainingCount > 0 && (
-              <MoreOverlay>+{remainingCount}</MoreOverlay>
-            )}
-          </GridCell>
-        ))}
-      </Grid>
-      {isUploadedThisPageLoad && !isDoneUploading && (
-        <ImageSpinnerContainer>
-          <Spinner size="x-large" />
-        </ImageSpinnerContainer>
-      )}
-    </GridContainer>
+    <GridWrapper isGrid>
+      <GridContainer isGrid>
+        <Grid count={displayItems.length}>
+          {displayItems.map((item, index) => (
+            <GridCellWrapper
+              key={item.metadata.itemId}
+              fullWidth={index === 0}
+              count={displayItems.length}
+            >
+              <GridCell>
+                <GridPhoto
+                  imageUrl={getImageUrl(item)}
+                  thumbnailUrl={getThumbnailUrl(item)}
+                  isUploadedThisPageLoad={isUploadedThisPageLoad}
+                  isDoneUploading={isDoneUploading}
+                />
+                {index === 3 && remainingCount > 0 && (
+                  <MoreOverlay>+{remainingCount}</MoreOverlay>
+                )}
+              </GridCell>
+            </GridCellWrapper>
+          ))}
+        </Grid>
+        {isUploadedThisPageLoad && !isDoneUploading && (
+          <ImageSpinnerContainer>
+            <Spinner size="x-large" />
+          </ImageSpinnerContainer>
+        )}
+      </GridContainer>
+    </GridWrapper>
   );
 };
