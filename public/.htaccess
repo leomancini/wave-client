@@ -2,6 +2,11 @@
   RewriteEngine On
   RewriteBase /
 
+  # If a stale cached index.html requests an old JS bundle that no longer
+  # exists, serve a small JS file that forces a fresh page reload
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^static/js/main\..+\.js$ /static/js/reload.js [L]
+
   # Allow static files through
   RewriteCond %{REQUEST_URI} !^/static/
   RewriteCond %{REQUEST_URI} !\.(?:css|js|json|jpg|jpeg|gif|png|ico|woff|woff2|ttf|svg|eot)$ [NC]
