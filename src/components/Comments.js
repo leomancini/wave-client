@@ -123,13 +123,15 @@ const SpinnerContainer = styled.div`
 `;
 
 const CommentMediaContainer = styled.div`
+  display: inline-block;
   position: relative;
-  max-width: 10rem;
-  max-height: 10rem;
   border-radius: 0.5rem;
   overflow: hidden;
   margin-top: 0.25rem;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.1);
+`;
+
+const CommentMediaInner = styled.div`
   transition: opacity 0.5s, filter 0.5s, transform 0.5s;
   filter: ${({ isUploading }) => (isUploading ? "blur(8px)" : "blur(0px)")};
   transform: ${({ isUploading }) =>
@@ -432,32 +434,40 @@ const Comment = ({
             </Text>
           )}
           {media && media.localUrl && media.isVideo && (
-            <CommentMediaContainer isUploading={!media.isDoneUploading}>
-              <CommentMediaVideo src={media.localUrl} muted playsInline />
+            <CommentMediaContainer>
+              <CommentMediaInner isUploading={!media.isDoneUploading}>
+                <CommentMediaVideo src={media.localUrl} muted playsInline />
+              </CommentMediaInner>
             </CommentMediaContainer>
           )}
           {media && media.localUrl && !media.isVideo && (
-            <CommentMediaContainer isUploading={!media.isDoneUploading}>
-              <CommentMediaImage src={media.localUrl} alt="" />
+            <CommentMediaContainer>
+              <CommentMediaInner isUploading={!media.isDoneUploading}>
+                <CommentMediaImage src={media.localUrl} alt="" />
+              </CommentMediaInner>
             </CommentMediaContainer>
           )}
           {media && media.mediaId && media.mediaType === "video" && (
-            <CommentMediaContainer isUploading={false}>
-              <CommentMediaVideo
-                src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
-                autoPlay
-                loop
-                muted
-                playsInline
-              />
+            <CommentMediaContainer>
+              <CommentMediaInner isUploading={false}>
+                <CommentMediaVideo
+                  src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              </CommentMediaInner>
             </CommentMediaContainer>
           )}
           {media && media.mediaId && media.mediaType === "image" && (
-            <CommentMediaContainer isUploading={false}>
-              <CommentMediaImage
-                src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
-                alt=""
-              />
+            <CommentMediaContainer>
+              <CommentMediaInner isUploading={false}>
+                <CommentMediaImage
+                  src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+                  alt=""
+                />
+              </CommentMediaInner>
             </CommentMediaContainer>
           )}
           {Object.keys(groupedReactions).length > 0 && (
