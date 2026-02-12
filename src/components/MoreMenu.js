@@ -373,6 +373,7 @@ export const MoreMenu = ({
   ] = useState(false);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [privateLinkCopied, setPrivateLinkCopied] = useState(false);
 
   const {
     isCheckingSubscription,
@@ -1013,6 +1014,27 @@ export const MoreMenu = ({
                   }`}
                   onClick={() => setShowSwitchDeviceInstructions(true)}
                 />
+              </ListItem>
+              <ListItem>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%" }}>
+                  <Button
+                    type="text"
+                    size="small"
+                    stretch="fill"
+                    prominence="secondary"
+                    label={privateLinkCopied ? "Copied!" : "Copy private link"}
+                    onClick={() => {
+                      const privateLink = `${process.env.REACT_APP_CLIENT_URL}/${groupId}/${user.id}`;
+                      navigator.clipboard.writeText(privateLink).then(() => {
+                        setPrivateLinkCopied(true);
+                        setTimeout(() => setPrivateLinkCopied(false), 2000);
+                      });
+                    }}
+                  />
+                  <span style={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.4)", textAlign: "left" }}>
+                    Don't share this link with anyone else. This is your password to post in this WAVE.
+                  </span>
+                </div>
               </ListItem>
               <ListItem>
                 <Button
