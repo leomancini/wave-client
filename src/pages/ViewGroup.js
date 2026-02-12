@@ -705,6 +705,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           label="NEW"
           date="February 12, 2026"
           messages={[
+            "Dark mode!",
             "You can now share videos! They'll autoplay and loop.",
             "Posts can now have up to 4 photos or videos together!",
             "Comments can now contain photos and videos!",

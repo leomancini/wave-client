@@ -785,16 +785,6 @@ export const MoreMenu = ({
             </Section>
             <Section>
               <SectionHeader>
-                <SectionLabel>Appearance</SectionLabel>
-              </SectionHeader>
-              <SegmentedController
-                options={["System", "Light", "Dark"]}
-                selectedOption={themePreference}
-                setSelectedOption={setThemePreference}
-              />
-            </Section>
-            <Section>
-              <SectionHeader>
                 <SectionLabel>Notifications</SectionLabel>
                 {(isSwitchingNotificationPreference ||
                   isCheckingSubscription ||
@@ -874,6 +864,16 @@ export const MoreMenu = ({
                   )}
                 </>
               )}
+            </Section>
+            <Section>
+              <SectionHeader>
+                <SectionLabel>Appearance</SectionLabel>
+              </SectionHeader>
+              <SegmentedController
+                options={["System", "Light", "Dark"]}
+                selectedOption={themePreference}
+                setSelectedOption={setThemePreference}
+              />
             </Section>
             <Section>
               <SectionHeader>
