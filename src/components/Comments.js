@@ -212,13 +212,13 @@ const CommentReactionsRow = styled.div`
 const CommentReaction = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
+  gap: 0.25rem;
   align-items: center;
-  min-height: calc(1.25rem + 0.375rem);
+  font-size: 0.75rem;
 `;
 
 const CommentReactionEmoji = styled.span`
-  font-size: 1.25rem;
+  font-size: 0.75rem;
 `;
 
 const ReactionButtonRow = styled.div`
