@@ -606,7 +606,10 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
         );
 
         if (!uploadResponse.ok) {
-          throw new Error("Failed to upload comment media");
+          const errorData = await uploadResponse.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || "Failed to upload comment media"
+          );
         }
 
         mediaData = await uploadResponse.json();
@@ -654,7 +657,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
       setNewComments((prev) => prev.filter((c) => c.timestamp !== timestamp));
     } catch (error) {
       console.error("Error adding comment:", error);
-      alert("Failed to add comment. Please try again.");
+      alert(error.message || "Failed to add comment. Please try again.");
       setIsUploading(false);
       setNewComments((prev) => prev.filter((c) => c.timestamp !== timestamp));
     }
