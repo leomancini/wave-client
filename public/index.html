@@ -1,35 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: #ffffff !important">
+<html lang="en">
   <head>
-    <style>
-      :root {
-        background-color: #ffffff !important;
-      }
-
-      html,
-      body,
-      #root {
-        background-color: #ffffff !important;
-      }
-
-      @media (display-mode: standalone) {
-        :root,
-        html,
-        body,
-        #root {
-          background-color: #ffffff !important;
-        }
-      }
-    </style>
+    <script>
+      // Apply theme immediately to prevent flash of wrong theme
+      (function() {
+        var pref = localStorage.getItem('themePreference') || 'SYSTEM';
+        var resolved = pref === 'SYSTEM'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : pref.toLowerCase();
+        document.documentElement.setAttribute('data-theme', resolved);
+      })();
+    </script>
     <meta charset="utf-8" />
     <script>
       // Immediately set up the manifest based on URL
       (function () {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var bgColor = isDark ? '#1a1a1a' : '#ffffff';
         const path = window.location.pathname.split("/");
         const manifest = {
           display: "standalone",
-          background_color: "#ffffff",
-          theme_color: "#ffffff",
+          background_color: bgColor,
+          theme_color: bgColor,
           orientation: "portrait",
           icons: [
             {
@@ -151,7 +143,7 @@
       href="/images/app-icons/167.png"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="theme-color"
@@ -160,15 +152,14 @@
     />
     <meta
       name="theme-color"
-      content="#ffffff"
+      content="#1a1a1a"
       media="(prefers-color-scheme: dark)"
     />
     <meta name="theme-color" content="#ffffff" />
-    <meta name="background-color" content="#ffffff" />
   </head>
-  <body style="background-color: #ffffff !important">
+  <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root" style="background-color: #ffffff !important"></div>
+    <div id="root"></div>
     <script>
       // Auto-reload if the main JS bundle fails to load (stale cached index.html)
       window.addEventListener("error", function (e) {

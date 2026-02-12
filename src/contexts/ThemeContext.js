@@ -27,13 +27,10 @@ export const ThemeProvider = ({ children }) => {
       const resolved = getResolvedTheme();
       document.documentElement.setAttribute("data-theme", resolved);
 
-      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute(
-          "content",
-          resolved === "dark" ? "#1a1a1a" : "#ffffff"
-        );
-      }
+      const themeColor = resolved === "dark" ? "#1a1a1a" : "#ffffff";
+      document
+        .querySelectorAll('meta[name="theme-color"]')
+        .forEach((meta) => meta.setAttribute("content", themeColor));
     };
 
     applyTheme();
