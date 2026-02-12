@@ -304,7 +304,7 @@ const EmojiOption = styled.button`
   }
 
   &.selected {
-    background-color: transparent;
+    background-color: var(--color-reaction-selected-bg);
     box-shadow: var(--shadow-emoji-selected);
   }
 

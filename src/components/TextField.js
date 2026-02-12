@@ -16,6 +16,7 @@ const TextFieldContainer = styled.div`
 const InputBase = css`
   width: 100%;
   background: var(--color-surface);
+  color: var(--color-primary);
   border: none;
   border-radius: 1.375rem;
   padding: 0.75rem 5rem 0.75rem 1rem;

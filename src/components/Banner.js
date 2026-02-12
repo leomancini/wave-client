@@ -35,12 +35,12 @@ const Label = styled.div`
   background: var(--color-accent);
   padding: 0.5rem 0.875rem;
   border-radius: 2rem;
-  color: var(--color-on-primary-80);
+  color: var(--color-on-accent-80);
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 
   strong {
-    color: var(--color-on-primary);
+    color: var(--color-on-accent);
     font-size: 0.875rem;
     font-weight: bold;
     margin: 0;

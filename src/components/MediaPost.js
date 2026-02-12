@@ -221,17 +221,17 @@ const AddReactionButton = styled.button`
   }
 
   &.selected {
-    background-color: transparent;
+    background-color: var(--color-reaction-selected-bg);
     box-shadow: var(--shadow-reaction-selected);
 
     @media (hover: hover) {
       &:hover {
-        background-color: transparent;
+        background-color: var(--color-reaction-selected-bg);
       }
     }
 
     &:active {
-      background-color: transparent;
+      background-color: var(--color-reaction-selected-bg);
     }
   }
 
