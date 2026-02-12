@@ -129,6 +129,7 @@ const CommentMediaContainer = styled.div`
   border-radius: 0.5rem;
   overflow: hidden;
   margin-top: 0.25rem;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.1);
   transition: opacity 0.5s, filter 0.5s, transform 0.5s;
   filter: ${({ isUploading }) => (isUploading ? "blur(8px)" : "blur(0px)")};
   transform: ${({ isUploading }) =>
@@ -155,12 +156,11 @@ const CommentMediaVideo = styled.video`
 
 const PreviewContainer = styled.div`
   position: relative;
-  max-width: 10rem;
-  max-height: 10rem;
+  display: inline-block;
   border-radius: 0.5rem;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const PreviewImage = styled.img`
@@ -179,15 +179,16 @@ const PreviewVideo = styled.video`
 
 const RemovePreviewButton = styled.button`
   position: absolute;
-  top: 0.125rem;
-  right: 0.125rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.375rem;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
   border: none;
   background: rgba(0, 0, 0, 0.6);
   color: white;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -757,12 +758,14 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
         disabled={disabled || isUploading}
         forceShowButton={!!selectedFile}
         leftAccessory={
-          <CameraButton
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || isUploading}
-          >
-            <FontAwesomeIcon icon={faCamera} />
-          </CameraButton>
+          !filePreview ? (
+            <CameraButton
+              onClick={() => fileInputRef.current?.click()}
+              disabled={disabled || isUploading}
+            >
+              <FontAwesomeIcon icon={faCamera} />
+            </CameraButton>
+          ) : null
         }
         bottomContent={
           filePreview ? (

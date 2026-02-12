@@ -151,6 +151,7 @@ const BottomContentContainer = styled.div`
   border-bottom-left-radius: 1.375rem;
   border-bottom-right-radius: 1.375rem;
   padding: 0.25rem 0.75rem 0.75rem 0.75rem;
+  overflow: hidden;
   transition: background 0.2s ease-in-out;
 
   ${({ isFocused }) =>
