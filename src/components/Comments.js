@@ -122,12 +122,27 @@ const SpinnerContainer = styled.div`
   height: 1.25rem;
 `;
 
+const CommentMediaContainer = styled.div`
+  position: relative;
+  max-width: 10rem;
+  max-height: 10rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-top: 0.25rem;
+  transition: opacity 0.5s, filter 0.5s, transform 0.5s;
+  filter: ${({ isUploading }) => (isUploading ? "blur(8px)" : "blur(0px)")};
+  transform: ${({ isUploading }) =>
+    isUploading ? "scale(1.125)" : "scale(1)"};
+  transform-origin: center;
+  opacity: ${({ isUploading }) => (isUploading ? 0.5 : 1)};
+`;
+
 const CommentMediaImage = styled.img`
   max-width: 10rem;
   max-height: 10rem;
   border-radius: 0.5rem;
   object-fit: cover;
-  margin-top: 0.25rem;
+  display: block;
 `;
 
 const CommentMediaVideo = styled.video`
@@ -135,13 +150,13 @@ const CommentMediaVideo = styled.video`
   max-height: 10rem;
   border-radius: 0.5rem;
   object-fit: cover;
-  margin-top: 0.25rem;
+  display: block;
 `;
 
 const PreviewContainer = styled.div`
   position: relative;
-  width: 5rem;
-  height: 5rem;
+  max-width: 10rem;
+  max-height: 10rem;
   border-radius: 0.5rem;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.1);
@@ -149,15 +164,17 @@ const PreviewContainer = styled.div`
 `;
 
 const PreviewImage = styled.img`
-  width: 100%;
-  height: 100%;
+  max-width: 10rem;
+  max-height: 10rem;
   object-fit: cover;
+  display: block;
 `;
 
 const PreviewVideo = styled.video`
-  width: 100%;
-  height: 100%;
+  max-width: 10rem;
+  max-height: 10rem;
   object-fit: cover;
+  display: block;
 `;
 
 const RemovePreviewButton = styled.button`
@@ -166,7 +183,7 @@ const RemovePreviewButton = styled.button`
   right: 0.125rem;
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 50%;
+  border-radius: 0.375rem;
   border: none;
   background: rgba(0, 0, 0, 0.6);
   color: white;
@@ -414,25 +431,33 @@ const Comment = ({
             </Text>
           )}
           {media && media.localUrl && media.isVideo && (
-            <CommentMediaVideo src={media.localUrl} muted playsInline />
+            <CommentMediaContainer isUploading={!media.isDoneUploading}>
+              <CommentMediaVideo src={media.localUrl} muted playsInline />
+            </CommentMediaContainer>
           )}
           {media && media.localUrl && !media.isVideo && (
-            <CommentMediaImage src={media.localUrl} alt="" />
+            <CommentMediaContainer isUploading={!media.isDoneUploading}>
+              <CommentMediaImage src={media.localUrl} alt="" />
+            </CommentMediaContainer>
           )}
           {media && media.mediaId && media.mediaType === "video" && (
-            <CommentMediaVideo
-              src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
+            <CommentMediaContainer isUploading={false}>
+              <CommentMediaVideo
+                src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            </CommentMediaContainer>
           )}
           {media && media.mediaId && media.mediaType === "image" && (
-            <CommentMediaImage
-              src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
-              alt=""
-            />
+            <CommentMediaContainer isUploading={false}>
+              <CommentMediaImage
+                src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+                alt=""
+              />
+            </CommentMediaContainer>
           )}
           {Object.keys(groupedReactions).length > 0 && (
             <CommentReactionsRow>
@@ -576,7 +601,11 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
 
     const timestamp = new Date().toISOString();
     const optimisticMedia = filePreview
-      ? { localUrl: filePreview.url, isVideo: filePreview.isVideo }
+      ? {
+          localUrl: filePreview.url,
+          isVideo: filePreview.isVideo,
+          isDoneUploading: false
+        }
       : null;
 
     setNewComments((prev) => [
@@ -614,6 +643,18 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
 
         mediaData = await uploadResponse.json();
         setIsUploading(false);
+
+        // Mark optimistic comment media as done uploading (triggers blur removal)
+        setNewComments((prev) =>
+          prev.map((c) =>
+            c.timestamp === timestamp && c.media
+              ? {
+                  ...c,
+                  media: { ...c.media, isDoneUploading: true }
+                }
+              : c
+          )
+        );
       }
 
       const response = await fetch(apiPath, {
@@ -723,7 +764,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
             <FontAwesomeIcon icon={faCamera} />
           </CameraButton>
         }
-        topContent={
+        bottomContent={
           filePreview ? (
             <PreviewContainer>
               {filePreview.isVideo ? (

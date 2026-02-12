@@ -93,6 +93,13 @@ const InputBase = css`
       border-top-left-radius: 0;
       border-top-right-radius: 0;
     `}
+
+  ${({ hasBottomContent }) =>
+    hasBottomContent &&
+    css`
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    `}
 `;
 
 const Input = styled.input`
@@ -137,6 +144,20 @@ const TopContentContainer = styled.div`
   border-top-left-radius: 1.375rem;
   border-top-right-radius: 1.375rem;
   padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+`;
+
+const BottomContentContainer = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+  border-bottom-left-radius: 1.375rem;
+  border-bottom-right-radius: 1.375rem;
+  padding: 0.25rem 0.75rem 0.75rem 0.75rem;
+  transition: background 0.2s ease-in-out;
+
+  ${({ isFocused }) =>
+    isFocused &&
+    css`
+      background: rgba(0, 0, 0, 0.075);
+    `}
 `;
 
 const InlineLabel = styled.div`
@@ -203,6 +224,7 @@ export const TextField = forwardRef(
       forceShowButton = false,
       leftAccessory,
       topContent,
+      bottomContent,
       ...props
     },
     ref
@@ -211,6 +233,7 @@ export const TextField = forwardRef(
     const [previousValue, setPreviousValue] = useState(initialValue);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [shouldShowButton, setShouldShowButton] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
       setValue(initialValue);
@@ -260,7 +283,10 @@ export const TextField = forwardRef(
               hasLabel={!!label}
               hasLeftAccessory={!!leftAccessory}
               hasTopContent={!!topContent}
+              hasBottomContent={!!bottomContent}
               hasAccessory={!!accessory && !shouldShowButton}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               onChange={(e) => {
                 if (onChange) {
                   onChange(e.target.value);
@@ -313,7 +339,10 @@ export const TextField = forwardRef(
               hasLabel={!!label}
               hasLeftAccessory={!!leftAccessory}
               hasTopContent={!!topContent}
+              hasBottomContent={!!bottomContent}
               hasAccessory={!!accessory && !shouldShowButton}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               onChange={(e) => {
                 if (onChange) {
                   onChange(e.target.value);
@@ -373,6 +402,11 @@ export const TextField = forwardRef(
             </Button>
           )}
         </div>
+        {bottomContent && (
+          <BottomContentContainer isFocused={isFocused}>
+            {bottomContent}
+          </BottomContentContainer>
+        )}
       </TextFieldContainer>
     );
   }
