@@ -294,7 +294,7 @@ const EmojiOption = styled.button`
   }
 `;
 
-const COMMENT_REACTION_EMOJIS = ["❤️", "✅", "👍", "😂", "🌊"];
+const COMMENT_REACTION_EMOJIS = ["❤️", "✅", "😂", "👍", "🙏"];
 
 const Comment = ({
   name,
