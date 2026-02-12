@@ -131,6 +131,8 @@ const StyledButton = styled.button`
             return "var(--color-btn-secondary-text)";
           case "tertiary":
             return "var(--color-btn-tertiary-text)";
+          case "destructive":
+            return "white";
           default:
             return "var(--color-on-primary)";
         }
