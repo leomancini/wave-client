@@ -309,7 +309,7 @@ export const ViewGroup = ({ groupId, userId }) => {
 
     // Pre-generate all item IDs and dimensions
     const itemsWithMeta = await Promise.all(
-      uploadQueue.map(async (file) => {
+      uploadQueue.map(async (file, index) => {
         const isVideo = file.type.startsWith("video/");
 
         const dimensions = await new Promise((resolve) => {
@@ -345,7 +345,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           Math.random() * 10000000000
         )}`;
 
-        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file), isVideo };
+        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file), isVideo, orderIndex: index };
       })
     );
 
@@ -355,13 +355,14 @@ export const ViewGroup = ({ groupId, userId }) => {
     // Create a single optimistic post containing all photos
     const optimisticPost = {
       postId,
-      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo }) => ({
+      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo, orderIndex }) => ({
         metadata: {
           itemId,
           postId,
           uploadDate: new Date().toISOString(),
           uploaderId: userId,
           dimensions,
+          orderIndex,
           ...(isVideo ? { mediaType: "video" } : {})
         },
         localUrl,
@@ -390,6 +391,12 @@ export const ViewGroup = ({ groupId, userId }) => {
     });
     formData.append("group", groupId);
     formData.append("uploaderId", userId);
+    formData.append("orderIndexes", JSON.stringify(
+      itemsWithMeta.reduce((acc, { itemId, orderIndex }) => {
+        acc[itemId] = orderIndex;
+        return acc;
+      }, {})
+    ));
 
     try {
       const response = await fetch(

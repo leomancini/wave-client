@@ -218,10 +218,10 @@ const SinglePhoto = ({
         aspectRatio: `${item.metadata.dimensions?.width || 1} / ${
           item.metadata.dimensions?.height || 1
         }`,
-        pointerEvents: isUploadedThisPageLoad ? "none" : "auto"
+        pointerEvents: isUploadedThisPageLoad && !isDoneUploading ? "none" : "auto"
       }}
       onClick={(e) => {
-        if (isUploadedThisPageLoad) return;
+        if (isUploadedThisPageLoad && !isDoneUploading) return;
         if (!("ontouchstart" in window)) {
           onDoubleClick(e);
         }
@@ -275,7 +275,7 @@ const SinglePhoto = ({
           maxScale={4}
           centerOnInit={true}
           doubleClick={{ disabled: true }}
-          disabled={isUploadedThisPageLoad || !isMobile}
+          disabled={(isUploadedThisPageLoad && !isDoneUploading) || !isMobile}
           ref={transformRef}
           limitToBounds={true}
           panning={{ disabled: true }}
@@ -325,9 +325,9 @@ const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploa
 
   return (
     <GridCell
-      style={{ pointerEvents: isUploadedThisPageLoad ? "none" : "auto" }}
+      style={{ pointerEvents: isUploadedThisPageLoad && !isDoneUploading ? "none" : "auto" }}
       onClick={(e) => {
-        if (isUploadedThisPageLoad) return;
+        if (isUploadedThisPageLoad && !isDoneUploading) return;
         if (!("ontouchstart" in window)) {
           onDoubleClick(e);
         }
@@ -357,7 +357,7 @@ const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploa
         maxScale={4}
         centerOnInit={true}
         doubleClick={{ disabled: true }}
-        disabled={isUploadedThisPageLoad || !isMobile}
+        disabled={(isUploadedThisPageLoad && !isDoneUploading) || !isMobile}
         ref={transformRef}
         limitToBounds={true}
         panning={{ disabled: true }}
