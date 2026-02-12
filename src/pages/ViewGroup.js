@@ -700,6 +700,17 @@ export const ViewGroup = ({ groupId, userId }) => {
             />
           </Button>
         </ButtonContainer>
+        <Banner
+          prominence="announcement"
+          label="NEW"
+          date="February 12, 2026"
+          messages={[
+            "You can now share videos! They'll autoplay and loop.",
+            "Posts can now have up to 4 photos or videos together!",
+            "Comments can now contain photos and videos!",
+            "You can react to comments now!"
+          ]}
+        />
         {shouldShowPushNotificationBanner && (
           <Banner
             messages={[
