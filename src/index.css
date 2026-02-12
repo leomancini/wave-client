@@ -120,6 +120,9 @@
 
   /* Banner */
   --color-banner-bg: white;
+
+  /* QR code */
+  --color-qr-bg: white;
 }
 
 [data-theme="dark"] {
@@ -237,13 +240,16 @@
   --color-share-btn-disabled: rgba(255, 255, 255, 0.3);
 
   /* Reaction selected */
-  --color-reaction-selected-bg: black;
+  --color-reaction-selected-bg: rgba(255, 255, 255, 0.12);
 
   /* Reaction disabled */
   --color-reaction-btn-disabled-bg: rgba(255, 255, 255, 0.04);
 
   /* Banner */
   --color-banner-bg: black;
+
+  /* QR code */
+  --color-qr-bg: white;
 }
 
 html,

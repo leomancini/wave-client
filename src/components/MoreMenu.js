@@ -219,6 +219,7 @@ const QRCodeContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--color-qr-bg);
   box-shadow: var(--shadow-elevation-1);
   font-size: 0;
   margin-bottom: 2rem;
