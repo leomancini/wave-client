@@ -11,7 +11,7 @@ const BannerContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: var(--color-bg);
+  background: var(--color-banner-bg);
   gap: 0.75rem;
   margin-bottom: 0.5rem;
 

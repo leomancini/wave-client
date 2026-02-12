@@ -117,6 +117,9 @@
 
   /* Reaction disabled */
   --color-reaction-btn-disabled-bg: rgba(0, 0, 0, 0.025);
+
+  /* Banner */
+  --color-banner-bg: white;
 }
 
 [data-theme="dark"] {
@@ -234,10 +237,13 @@
   --color-share-btn-disabled: rgba(255, 255, 255, 0.3);
 
   /* Reaction selected */
-  --color-reaction-selected-bg: rgba(255, 255, 255, 0.12);
+  --color-reaction-selected-bg: black;
 
   /* Reaction disabled */
   --color-reaction-btn-disabled-bg: rgba(255, 255, 255, 0.04);
+
+  /* Banner */
+  --color-banner-bg: black;
 }
 
 html,
