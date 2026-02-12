@@ -42,9 +42,13 @@ export const Spinner = styled.div`
   border-style: solid;
   margin: 0;
   border-color: ${({ theme }) =>
-    theme === "light" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"};
+    theme === "light"
+      ? "var(--color-spinner-light-track)"
+      : "var(--color-spinner-track)"};
   border-top-color: ${({ theme }) =>
-    theme === "light" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"};
+    theme === "light"
+      ? "var(--color-spinner-light-indicator)"
+      : "var(--color-spinner-indicator)"};
 
   border-radius: 50%;
   animation: spin 0.5s ease-in infinite;

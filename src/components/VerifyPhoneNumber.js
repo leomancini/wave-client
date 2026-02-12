@@ -11,7 +11,7 @@ import Input, {
 import { TextField } from "./TextField";
 
 const VerifiedLabel = styled.div`
-  color: rgba(0, 122, 255, 1);
+  color: var(--color-accent);
   text-transform: uppercase;
   font-size: 0.8125rem;
   letter-spacing: 0.0125rem;
@@ -23,7 +23,7 @@ const VerifiedLabel = styled.div`
 `;
 
 const ErrorLabel = styled.div`
-  color: rgba(225, 50, 50, 1);
+  color: var(--color-error);
   text-transform: uppercase;
   font-size: 0.8125rem;
   letter-spacing: 0.0125rem;

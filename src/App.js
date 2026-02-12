@@ -5,6 +5,7 @@ import { ConfigProvider } from "./contexts/ConfigContext";
 import { StyleSheetManager } from "styled-components";
 import isPropValid from "@emotion/is-prop-valid";
 import { MoreMenuProvider, useMoreMenu } from "./contexts/MoreMenuContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 import { CreateGroup } from "./pages/CreateGroup";
 import { ViewGroup } from "./pages/ViewGroup";
@@ -500,11 +501,13 @@ function AppContent() {
 function App() {
   return (
     <StyleSheetManager shouldForwardProp={shouldForwardProp}>
-      <ConfigProvider>
-        <MoreMenuProvider>
-          <AppContent />
-        </MoreMenuProvider>
-      </ConfigProvider>
+      <ThemeProvider>
+        <ConfigProvider>
+          <MoreMenuProvider>
+            <AppContent />
+          </MoreMenuProvider>
+        </ConfigProvider>
+      </ThemeProvider>
     </StyleSheetManager>
   );
 }

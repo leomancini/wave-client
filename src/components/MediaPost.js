@@ -57,7 +57,7 @@ const MetadataAndActions = styled.div`
 
 const Time = styled.p`
   height: 1.25rem;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-muted);
   transition: color 1s;
   white-space: nowrap;
   flex-shrink: 0;
@@ -66,16 +66,15 @@ const Time = styled.p`
   ${({ isUnread }) =>
     isUnread &&
     `
-      color: rgba(0, 122, 255, 1);
+      color: var(--color-accent);
     `}
 `;
 
 const UnreadIndicator = styled.div`
   width: 0.5rem;
   height: 0.5rem;
-  background-color: rgba(0, 122, 255, 1);
-  box-shadow: 0px 0px 24px rgba(0, 122, 255, 0.5),
-    0px 2px 4px rgba(0, 122, 255, 0.25);
+  background-color: var(--color-accent);
+  box-shadow: var(--color-accent-shadow);
   border-radius: 50%;
   opacity: 0;
   transition: opacity 1s;
@@ -93,7 +92,7 @@ const ShareButton = styled.button`
   font-size: 1rem;
   vertical-align: 2px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-share-btn);
   cursor: pointer;
   user-select: none;
   background-color: transparent;
@@ -101,17 +100,17 @@ const ShareButton = styled.button`
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      color: rgba(0, 0, 0, 0.7);
+      color: var(--color-share-btn-hover);
     }
   }
 
   &:active:not(:disabled) {
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--color-share-btn-hover);
     transform: scale(0.9);
   }
 
   &:disabled {
-    color: rgba(0, 0, 0, 0.3);
+    color: var(--color-share-btn-disabled);
     cursor: not-allowed;
   }
 `;
@@ -189,7 +188,7 @@ const AddReactionButton = styled.button`
   text-align: center;
   outline: none;
   border: none;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
   border-radius: 1.375rem;
   font-size: 1.25rem;
   height: 2.75rem;
@@ -210,34 +209,34 @@ const AddReactionButton = styled.button`
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      background-color: rgba(0, 0, 0, 0.075);
+      background-color: var(--color-surface-hover);
       outline: none;
     }
   }
 
   &:active:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface-active);
     transform: scale(0.9) translateZ(0);
     backface-visibility: hidden;
   }
 
   &.selected {
-    background-color: rgba(0, 0, 0, 0);
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0px 1px 8px rgba(0, 0, 0, 0.15);
+    background-color: transparent;
+    box-shadow: var(--shadow-reaction-selected);
 
     @media (hover: hover) {
       &:hover {
-        background-color: rgba(0, 0, 0, 0);
+        background-color: transparent;
       }
     }
 
     &:active {
-      background-color: rgba(0, 0, 0, 0);
+      background-color: transparent;
     }
   }
 
   &:disabled {
-    background: rgba(0, 0, 0, 0.025);
+    background: var(--color-reaction-btn-disabled-bg);
     cursor: not-allowed;
 
     ${ReactionEmoji} {

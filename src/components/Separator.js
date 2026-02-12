@@ -7,6 +7,6 @@ export const Separator = styled.div`
 
   height: 2px;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--color-separator);
   border-radius: 1rem;
 `;

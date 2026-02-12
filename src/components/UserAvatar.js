@@ -6,8 +6,8 @@ export const UserAvatar = styled.div`
   min-width: 2.5rem;
   min-height: 2.5rem;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.15);
-  color: white;
+  background-color: var(--color-avatar-bg);
+  color: var(--color-on-primary);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -36,9 +36,9 @@ const GroupLink = styled.a`
 `;
 
 const GroupListItem = styled.div`
-  background-color: white;
+  background-color: var(--color-bg);
   border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.15), 0px 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-elevation-1-light);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -59,13 +59,12 @@ const GroupListItem = styled.div`
 
   &:hover {
     transform: scale(1.02);
-    box-shadow: 0px 0px 48px rgba(0, 0, 0, 0.1),
-      0px 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-elevation-2);
   }
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-elevation-1-active);
     opacity: 0.8;
   }
 
@@ -82,12 +81,12 @@ const GroupListItem = styled.div`
 
   &::before {
     left: -0.125rem;
-    background: linear-gradient(to right, white 15%, transparent 100%);
+    background: linear-gradient(to right, var(--color-card-fade) 15%, transparent 100%);
   }
 
   &::after {
     right: -0.125rem;
-    background: linear-gradient(to left, white 15%, transparent 100%);
+    background: linear-gradient(to left, var(--color-card-fade) 15%, transparent 100%);
   }
 `;
 
@@ -115,12 +114,11 @@ const GroupValueContainer = styled.div`
 `;
 
 const Badge = styled.div`
-  background: rgba(0, 122, 255, 1);
+  background: var(--color-accent);
   padding: 0.5rem 0.875rem;
   border-radius: 2rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 1);
+  color: var(--color-on-primary);
+  font-size: 1rem;
   font-size: 1rem;
   font-weight: bold;
   min-width: 1rem;

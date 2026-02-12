@@ -15,7 +15,7 @@ const TextFieldContainer = styled.div`
 
 const InputBase = css`
   width: 100%;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
   border: none;
   border-radius: 1.375rem;
   padding: 0.75rem 5rem 0.75rem 1rem;
@@ -30,34 +30,37 @@ const InputBase = css`
       : "none"};
 
   &::placeholder {
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--color-text-placeholder);
   }
 
   &:active,
   &:focus {
     background: ${(props) =>
-      props.disabled ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.075)"};
+      props.disabled ? "var(--color-surface)" : "var(--color-surface-hover)"};
     outline: none;
   }
 
   &::selection {
     background: ${(props) =>
-      props.disabled ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 1)"};
-    color: ${(props) => (props.disabled ? "rgba(0, 0, 0, 0.5)" : "white")};
+      props.disabled
+        ? "var(--color-surface-active)"
+        : "var(--color-selection-bg)"};
+    color: ${(props) =>
+      props.disabled ? "var(--color-text-muted)" : "var(--color-selection-text)"};
   }
 
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px #ececec inset !important;
+    -webkit-box-shadow: 0 0 0 30px var(--color-autofill-shadow) inset !important;
     -webkit-text-fill-color: inherit !important;
   }
 
   ${({ disabled }) =>
     disabled &&
     css`
-      background: rgba(0, 0, 0, 0.025);
-      color: rgba(0, 0, 0, 0.25);
+      background: var(--color-surface-disabled);
+      color: var(--color-text-disabled);
       cursor: not-allowed;
       -webkit-user-select: none !important;
       -moz-user-select: none !important;
@@ -67,11 +70,11 @@ const InputBase = css`
 
       &:active,
       &:focus {
-        background: rgba(0, 0, 0, 0.025);
+        background: var(--color-surface-disabled);
       }
 
       &::placeholder {
-        color: rgba(0, 0, 0, 0.2);
+        color: var(--color-text-placeholder-disabled);
       }
     `}
 
@@ -140,14 +143,14 @@ const LeftAccessoryContainer = styled.div`
 `;
 
 const TopContentContainer = styled.div`
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
   border-top-left-radius: 1.375rem;
   border-top-right-radius: 1.375rem;
   padding: 0.75rem 0.75rem 0.25rem 0.75rem;
 `;
 
 const BottomContentContainer = styled.div`
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
   border-bottom-left-radius: 1.375rem;
   border-bottom-right-radius: 1.375rem;
   padding: 0.25rem 0.75rem 0.75rem 0.75rem;
@@ -157,7 +160,7 @@ const BottomContentContainer = styled.div`
   ${({ isFocused }) =>
     isFocused &&
     css`
-      background: rgba(0, 0, 0, 0.075);
+      background: var(--color-surface-hover);
     `}
 `;
 
@@ -173,9 +176,9 @@ const InlineLabel = styled.div`
 `;
 
 const Button = styled.button`
-  background: rgba(0, 0, 0, 1);
+  background: var(--color-btn-primary-bg);
   width: 3.5rem;
-  color: white;
+  color: var(--color-on-primary);
   border: none;
   border-radius: 3rem;
   padding: 0.5rem 1rem;
@@ -195,7 +198,7 @@ const Button = styled.button`
 
   &:active,
   &:focus {
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--color-btn-primary-bg-active);
   }
 `;
 

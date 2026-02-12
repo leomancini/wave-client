@@ -34,7 +34,7 @@ const VideoContainer = styled.div`
   overflow: hidden;
   border-radius: 2rem;
   background: #000;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevation-1);
   overflow: hidden;
 
   #qr-reader {
@@ -81,7 +81,7 @@ const ErrorMessage = styled.div`
   align-items: center;
   border-radius: 2rem;
   height: 3rem;
-  color: red;
+  color: var(--color-error);
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
 

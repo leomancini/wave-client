@@ -11,9 +11,9 @@ export const EmptyCard = styled.div`
   gap: 1rem;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
   border-radius: 2rem;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevation-1);
 
   p {
     margin: 0;
@@ -21,7 +21,7 @@ export const EmptyCard = styled.div`
     text-align: center;
     font-size: 1.125rem;
     line-height: 1.5rem;
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--color-text-faint);
   }
 `;
 
@@ -35,12 +35,12 @@ export const InlineEmptyCard = styled.div`
   gap: 1rem;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
   border-radius: 1rem;
   margin: 0;
   padding: 2rem;
   text-align: center;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-muted);
 `;

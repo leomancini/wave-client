@@ -84,7 +84,7 @@ const MetadataRight = styled.div`
 `;
 
 const Time = styled.div`
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-muted);
   white-space: nowrap;
   flex-shrink: 0;
   min-width: fit-content;
@@ -94,13 +94,13 @@ const Text = styled.div`
   user-select: text;
 
   &::selection {
-    background-color: rgba(0, 0, 0, 1);
-    color: white;
+    background-color: var(--color-selection-bg);
+    color: var(--color-selection-text);
   }
 `;
 
 const Link = styled.a`
-  color: #000000;
+  color: var(--color-link);
   font-weight: 500;
   text-decoration: underline;
   word-break: break-all;
@@ -110,7 +110,7 @@ const Link = styled.a`
   }
 
   &:active {
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--color-link-active);
   }
 `;
 
@@ -129,7 +129,7 @@ const CommentMediaContainer = styled.div`
   border-radius: 0.5rem;
   overflow: hidden;
   margin-top: 0.25rem;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-comment-media);
 `;
 
 const CommentMediaInner = styled.div`
@@ -163,7 +163,7 @@ const PreviewContainer = styled.div`
   border-radius: 0.5rem;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15), 0px 0px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-comment-media);
 `;
 
 const PreviewImage = styled.img`
@@ -188,8 +188,8 @@ const RemovePreviewButton = styled.button`
   height: 1.5rem;
   border-radius: 0.25rem;
   border: none;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
+  background: var(--color-remove-preview-bg);
+  color: var(--color-on-primary);
   font-size: 0.75rem;
   font-weight: bold;
   cursor: pointer;
@@ -204,7 +204,7 @@ const CameraButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.35);
+  color: var(--color-icon-muted);
   font-size: 0.875rem;
   padding: 0;
   display: flex;
@@ -212,11 +212,11 @@ const CameraButton = styled.button`
   justify-content: center;
 
   &:active {
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--color-icon-muted-active);
   }
 
   &:disabled {
-    color: rgba(0, 0, 0, 0.15);
+    color: var(--color-icon-muted-disabled);
     cursor: not-allowed;
   }
 `;
@@ -253,7 +253,7 @@ const AddReactionTrigger = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: rgba(0, 0, 0, 0.35);
+  color: var(--color-icon-muted);
   font-size: 0.875rem;
   padding: 0.5rem;
   margin: -0.5rem;
@@ -267,12 +267,12 @@ const AddReactionTrigger = styled.button`
   flex-shrink: 0;
 
   &:active:not(:disabled) {
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--color-icon-muted-active);
     transform: scale(0.9);
   }
 
   &:disabled {
-    color: rgba(0, 0, 0, 0.15);
+    color: var(--color-icon-muted-disabled);
     cursor: not-allowed;
   }
 `;
@@ -284,7 +284,7 @@ const EmojiOption = styled.button`
   height: 1.5rem;
   outline: none;
   border: none;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
   border-radius: 1rem;
   font-size: 0.75rem;
   cursor: pointer;
@@ -294,22 +294,22 @@ const EmojiOption = styled.button`
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      background-color: rgba(0, 0, 0, 0.075);
+      background-color: var(--color-surface-hover);
     }
   }
 
   &:active:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface-active);
     transform: scale(0.9);
   }
 
   &.selected {
-    background-color: rgba(0, 0, 0, 0);
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.12);
+    background-color: transparent;
+    box-shadow: var(--shadow-emoji-selected);
   }
 
   &:disabled {
-    background: rgba(0, 0, 0, 0.025);
+    background: var(--color-reaction-btn-disabled-bg);
     cursor: not-allowed;
     opacity: 0.4;
   }

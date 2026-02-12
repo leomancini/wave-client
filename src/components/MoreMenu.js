@@ -5,6 +5,7 @@ import Picker from "@emoji-mart/react";
 
 import { NotificationContext, AppContext } from "../App";
 import { useConfig } from "../contexts/ConfigContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { useDetectDeviceType } from "../utilities/detectDeviceType";
@@ -43,7 +44,7 @@ const Container = styled.div`
   max-height: 100vh;
   height: 100%;
   min-height: 100%;
-  background-color: white;
+  background-color: var(--color-bg);
   z-index: 1000;
   pointer-events: none;
   will-change: transform, opacity;
@@ -61,7 +62,7 @@ const Container = styled.div`
   transform: translate3d(calc(-100% - 2rem), 0, 0);
   transition: ${(props) =>
     props.isResizing ? "none" : "transform 0.4s ease-in-out"};
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevation-1);
   opacity: 1;
   visibility: visible;
 
@@ -110,7 +111,7 @@ const Header = styled.div`
   flex-direction: column;
   justify-content: center;
   position: relative;
-  background: white;
+  background: var(--color-bg);
   z-index: 1;
   transform: translateZ(0);
   will-change: transform;
@@ -141,8 +142,8 @@ const HeaderShadow = styled.div`
   height: 1rem;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0) 100%
+    var(--color-header-gradient-start) 0%,
+    var(--color-header-gradient-end) 100%
   );
   pointer-events: none;
   transform: translateZ(0);
@@ -157,7 +158,7 @@ const Content = styled.div`
   padding-top: 2rem;
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--color-bg);
   gap: 2.5rem;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -190,7 +191,7 @@ const SectionLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-muted);
   letter-spacing: 0.05rem;
   flex: 1;
 `;
@@ -218,7 +219,7 @@ const QRCodeContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevation-1);
   font-size: 0;
   margin-bottom: 2rem;
   border-radius: 2rem;
@@ -233,9 +234,8 @@ const EmojiPickerContainer = styled.div`
   em-emoji-picker {
     width: 100%;
     min-width: 100%;
-    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-elevation-1);
     --border-radius: 1rem;
-    --rgb-accent: 0, 0, 0;
   }
 `;
 
@@ -263,7 +263,7 @@ const ReactionButton = styled.button`
   text-align: center;
   outline: none;
   border: none;
-  background-color: white;
+  background-color: var(--color-bg);
   border-radius: 1.375rem;
   font-size: 1.25rem;
   height: 2.75rem;
@@ -280,18 +280,18 @@ const ReactionButton = styled.button`
   -webkit-perspective: 1000;
   box-sizing: border-box;
   user-select: none;
-  border: 2px dashed rgba(0, 0, 0, 0.1);
+  border: 2px dashed var(--color-border);
 
   @media (hover: hover) {
     &:hover:not(:disabled) {
-      border-color: rgba(0, 0, 0, 0.15);
-      background-color: rgba(0, 0, 0, 0.05);
+      border-color: var(--color-border-hover);
+      background-color: var(--color-surface);
       outline: none;
     }
   }
 
   &:active:not(:disabled) {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--color-surface-active);
     transform: scale(0.9) translateZ(0);
     backface-visibility: hidden;
   }
@@ -300,24 +300,24 @@ const ReactionButton = styled.button`
     props.selected &&
     `
       border-style: solid;
-      border-color: rgba(0, 0, 0, 0.5);
-      background-color: rgba(0, 0, 0, 0.05);
+      border-color: var(--color-border-selected);
+      background-color: var(--color-surface);
 
       @media (hover: hover) {
         &:hover:not(:disabled) {
-          border-color: rgba(0, 0, 0, 0.5);
-          background-color: rgba(0, 0, 0, 0.05);
+          border-color: var(--color-border-selected);
+          background-color: var(--color-surface);
         }
       }
 
       &:active:not(:disabled) {
-        border-color: rgba(0, 0, 0, 0.5);
+        border-color: var(--color-border-selected);
       }
   `}
 
   &:disabled {
     opacity: 0.65;
-    background: white;
+    background: var(--color-bg);
     cursor: not-allowed;
     color: inherit;
   }
@@ -354,6 +354,7 @@ export const MoreMenu = ({
   onUserUpdate
 }) => {
   const { config } = useConfig();
+  const { themePreference, setThemePreference, getResolvedTheme } = useTheme();
   const contentRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const resizeTimerRef = useRef(null);
@@ -765,7 +766,7 @@ export const MoreMenu = ({
                     <Picker
                       data={data}
                       dynamicWidth={true}
-                      theme="light"
+                      theme={getResolvedTheme()}
                       previewPosition="none"
                       maxFrequentRows="0"
                       emojiSize={32}
@@ -781,6 +782,16 @@ export const MoreMenu = ({
                   </EmojiPickerContainer>
                 )}
               </SectionContent>
+            </Section>
+            <Section>
+              <SectionHeader>
+                <SectionLabel>Appearance</SectionLabel>
+              </SectionHeader>
+              <SegmentedController
+                options={["System", "Light", "Dark"]}
+                selectedOption={themePreference}
+                setSelectedOption={setThemePreference}
+              />
             </Section>
             <Section>
               <SectionHeader>
@@ -1031,7 +1042,7 @@ export const MoreMenu = ({
                       });
                     }}
                   />
-                  <span style={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.4)", textAlign: "left" }}>
+                  <span style={{ fontSize: "0.75rem", color: "var(--color-text-faint)", textAlign: "left" }}>
                     Don't share this link with anyone else. This is your password to post in this WAVE.
                   </span>
                 </div>

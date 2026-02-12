@@ -7,7 +7,7 @@ import { Spinner } from "./Spinner";
 const StyledButton = styled.button`
   position: relative;
   line-height: 0.5rem;
-  color: rgba(255, 255, 255, 1);
+  color: var(--color-on-primary);
   border: none;
   border-radius: 2rem;
   width: 100%;
@@ -38,17 +38,20 @@ const StyledButton = styled.button`
 
   &:active {
     transform: ${(props) => (props.disabled ? "none" : "scale(0.9)")};
-    background: rgba(0, 0, 0, ${(props) => (props.disabled ? 0.5 : 0.75)});
+    background: ${(props) =>
+      props.disabled
+        ? "var(--color-btn-primary-bg-disabled)"
+        : "var(--color-btn-primary-bg-active)"};
     color: ${(props) => {
       switch (props.prominence) {
         case "primary":
-          return "rgba(255, 255, 255, 1)";
+          return "var(--color-on-primary)";
         case "secondary":
-          return "rgba(0, 0, 0, 1)";
+          return "var(--color-primary)";
         case "tertiary":
-          return "rgba(0, 0, 0, 1)";
+          return "var(--color-primary)";
         default:
-          return "rgba(255, 255, 255, 1)";
+          return "var(--color-on-primary)";
       }
     }};
   }
@@ -95,24 +98,26 @@ const StyledButton = styled.button`
   ${(props) => {
     const background = {
       primary: {
-        default: `rgba(0, 0, 0, ${props.disabled ? 0.5 : 1})`,
-        hover: `rgba(0, 0, 0, ${props.disabled ? 0.25 : 1})`,
-        active: `rgba(0, 0, 0, ${props.disabled ? 0.25 : 0.75})`
+        default: props.disabled
+          ? "var(--color-btn-primary-bg-disabled)"
+          : "var(--color-btn-primary-bg)",
+        hover: "var(--color-btn-primary-bg-hover)",
+        active: "var(--color-btn-primary-bg-active)"
       },
       secondary: {
-        default: `rgba(0, 0, 0, ${props.disabled ? 0.05 : 0.05})`,
-        hover: `rgba(0, 0, 0, ${props.disabled ? 0.1 : 0.1})`,
-        active: `rgba(0, 0, 0, ${props.disabled ? 0.15 : 0.15})`
+        default: "var(--color-btn-secondary-bg)",
+        hover: "var(--color-btn-secondary-bg-hover)",
+        active: "var(--color-btn-secondary-bg-active)"
       },
       destructive: {
-        default: `rgba(200, 0, 0, ${props.disabled ? 0.5 : 1})`,
-        hover: `rgba(180, 0, 0, ${props.disabled ? 0.5 : 1})`,
-        active: `rgba(200, 0, 0, ${props.disabled ? 0.5 : 1})`
+        default: "var(--color-destructive)",
+        hover: "var(--color-destructive-hover)",
+        active: "var(--color-destructive)"
       },
       tertiary: {
-        default: "rgba(0, 0, 0, 0)",
-        hover: "rgba(0, 0, 0, 0)",
-        active: "rgba(0, 0, 0, 0)"
+        default: "transparent",
+        hover: "transparent",
+        active: "transparent"
       }
     };
 
@@ -123,11 +128,11 @@ const StyledButton = styled.button`
       color: ${(() => {
         switch (prominence) {
           case "secondary":
-            return `rgba(0, 0, 0, ${props.disabled ? 0.5 : 0.75})`;
+            return "var(--color-btn-secondary-text)";
           case "tertiary":
-            return "rgba(0, 0, 0, 0.6)";
+            return "var(--color-btn-tertiary-text)";
           default:
-            return "white";
+            return "var(--color-on-primary)";
         }
       })()};
 

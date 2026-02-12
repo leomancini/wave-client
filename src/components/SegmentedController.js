@@ -9,7 +9,7 @@ const SegmentedControllerContainer = styled.div`
   border-radius: 2rem;
   padding: 0.25rem;
   gap: 0.5rem;
-  background: rgba(0, 0, 0, ${(props) => (props.isLoading ? "0.05" : "0.05")});
+  background: var(--color-seg-bg);
   box-sizing: border-box;
   transition: all 0.2s;
 
@@ -23,7 +23,8 @@ const SegmentedControllerContainer = styled.div`
 
 const Option = styled.div`
   flex: 1;
-  background: rgba(0, 0, 0, ${(props) => (props.isSelected ? "1" : "0")});
+  background: ${(props) =>
+    props.isSelected ? "var(--color-seg-selected)" : "transparent"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,13 +39,13 @@ const Option = styled.div`
     !props.disabled &&
     `
     &:active {
-      background: rgba(0, 0, 0, ${props.isSelected ? "1" : "0.075"});
+      background: ${props.isSelected ? "var(--color-seg-selected)" : "var(--color-seg-hover)"};
       transform: scale(${props.isSelected ? "1" : "0.9"});
     }
 
     @media (hover: hover) {
       &:hover {
-        background: rgba(0, 0, 0, ${props.isSelected ? "1" : "0.075"});
+        background: ${props.isSelected ? "var(--color-seg-selected)" : "var(--color-seg-hover)"};
       }
     }
   `}
@@ -53,7 +54,10 @@ const Option = styled.div`
 const OptionLabel = styled.div`
   font-weight: bold;
   transition: all 0.2s;
-  color: ${(props) => (props.isSelected ? "#fff" : "rgba(0, 0, 0, 0.75)")};
+  color: ${(props) =>
+    props.isSelected
+      ? "var(--color-seg-text-selected)"
+      : "var(--color-seg-text)"};
 `;
 
 export const SegmentedController = ({

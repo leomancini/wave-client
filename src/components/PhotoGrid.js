@@ -10,14 +10,14 @@ const GridWrapper = styled.div`
   border-radius: 2rem;
 
   ${({ isGrid }) => !isGrid && `
-    box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-elevation-1);
   `}
 `;
 
 const GridContainer = styled.div`
   position: relative;
   border-radius: 2rem;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
 
   ${({ isGrid }) => !isGrid && `
     overflow: hidden;
@@ -36,7 +36,7 @@ const Grid = styled.div`
   display: grid;
   gap: 4px;
   font-size: 0;
-  background-color: white;
+  background-color: var(--color-bg);
 
   ${({ count }) => {
     if (count === 2) {
@@ -63,7 +63,7 @@ const Grid = styled.div`
 `;
 
 const GridCellWrapper = styled.div`
-  box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevation-1);
   overflow: hidden;
 
   ${({ index, count }) => {
@@ -105,7 +105,7 @@ const GridCell = styled.div`
   height: 100%;
   overflow: hidden;
   border-radius: inherit;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
 `;
 
@@ -123,11 +123,11 @@ const MoreOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-on-primary);
   font-size: 2rem;
   font-weight: bold;
 `;
