@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCamera, faFaceSmile } from "@fortawesome/free-regular-svg-icons";
 
+import { useConfig } from "../contexts/ConfigContext";
 import { formatDateTime } from "../utilities/formatDateTime";
 import { parseUrlsInText } from "../utilities/formatDateTime";
 
@@ -33,10 +37,26 @@ const ListItem = styled.div`
 const CommentContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   padding: 0 0.5rem;
   justify-content: space-between;
   width: 100%;
+`;
+
+const CommentBody = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: flex-start;
+`;
+
+const CommentBodyLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 `;
 
 const Metadata = styled.div`
@@ -55,6 +75,13 @@ const Name = styled.div`
   flex-shrink: 1;
   min-width: 0;
   max-width: calc(100% - 120px);
+`;
+
+const MetadataRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const Time = styled.div`
@@ -96,45 +123,325 @@ const SpinnerContainer = styled.div`
   height: 1.25rem;
 `;
 
-const Comment = ({ name, text, timestamp, disabled }) => {
-  const textParts = parseUrlsInText(text);
+const CommentMediaImage = styled.img`
+  max-width: 10rem;
+  max-height: 10rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  margin-top: 0.25rem;
+`;
+
+const CommentMediaVideo = styled.video`
+  max-width: 10rem;
+  max-height: 10rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  margin-top: 0.25rem;
+`;
+
+const PreviewContainer = styled.div`
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+`;
+
+const PreviewImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const PreviewVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const RemovePreviewButton = styled.button`
+  position: absolute;
+  top: 0.125rem;
+  right: 0.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.625rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+`;
+
+const CameraButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 0.875rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.15);
+    cursor: not-allowed;
+  }
+`;
+
+const CommentReactionsRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  min-height: 1.25rem;
+`;
+
+const CommentReaction = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: calc(1.25rem + 0.375rem);
+`;
+
+const CommentReactionEmoji = styled.span`
+  font-size: 1.25rem;
+`;
+
+const ReactionButtonRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  align-items: center;
+`;
+
+const AddReactionTrigger = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  width: calc(0.875rem + 1rem);
+  height: calc(0.875rem + 1rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  user-select: none;
+  flex-shrink: 0;
+
+  &:active:not(:disabled) {
+    color: rgba(0, 0, 0, 0.6);
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.15);
+    cursor: not-allowed;
+  }
+`;
+
+const EmojiOption = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 1.5rem;
+  outline: none;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  padding: 0 0.5rem;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: rgba(0, 0, 0, 0.075);
+    }
+  }
+
+  &:active:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.9);
+  }
+
+  &.selected {
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1), 0px 1px 6px rgba(0, 0, 0, 0.12);
+  }
+
+  &:disabled {
+    background: rgba(0, 0, 0, 0.025);
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+`;
+
+const Comment = ({
+  name,
+  text,
+  timestamp,
+  reactions,
+  reactionEmojis,
+  onReact,
+  userId,
+  isPendingReaction,
+  disabled,
+  media,
+  groupId
+}) => {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const textParts = text ? parseUrlsInText(text) : [];
+
+  const groupedReactions = (reactions || []).reduce((acc, r) => {
+    if (!acc[r.reaction]) {
+      acc[r.reaction] = { users: [], isPending: r.isPending };
+    }
+    acc[r.reaction].users.push(r.user.name);
+    acc[r.reaction].isPending = acc[r.reaction].isPending || r.isPending;
+    return acc;
+  }, {});
+
+  const hasUserReaction = (emoji) =>
+    (reactions || []).some((r) => r.user.id === userId && r.reaction === emoji);
+
+  const handleEmojiSelect = (emoji) => {
+    onReact(emoji);
+    setShowEmojiPicker(false);
+  };
 
   return (
     <CommentContainer>
       <Metadata>
         <Name>{name}</Name>
-        <Time>
-          {timestamp === "new" ? (
-            <SpinnerContainer>
-              <Spinner size="small" />
-            </SpinnerContainer>
+        <MetadataRight>
+          {showEmojiPicker ? (
+            <ReactionButtonRow>
+              {reactionEmojis?.map((emoji, i) => (
+                <EmojiOption
+                  key={i}
+                  className={hasUserReaction(emoji) ? "selected" : ""}
+                  onClick={() => handleEmojiSelect(emoji)}
+                  disabled={disabled || isPendingReaction}
+                >
+                  {emoji}
+                </EmojiOption>
+              ))}
+            </ReactionButtonRow>
           ) : (
-            timestamp
+            <Time>
+              {timestamp === "new" ? (
+                <SpinnerContainer>
+                  <Spinner size="small" />
+                </SpinnerContainer>
+              ) : (
+                timestamp
+              )}
+            </Time>
           )}
-        </Time>
-      </Metadata>
-      <Text>
-        {textParts.map((part, index) =>
-          part.type === "link" ? (
-            <Link
-              key={index}
-              href={part.url}
-              target="_blank"
-              rel="noopener noreferrer"
+          {timestamp !== "new" && (
+            <AddReactionTrigger
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              disabled={disabled || isPendingReaction}
             >
-              {part.content}
-            </Link>
-          ) : (
-            <span key={index}>{part.content}</span>
-          )
-        )}
-      </Text>
+              <FontAwesomeIcon
+                icon={showEmojiPicker ? faXmark : faFaceSmile}
+              />
+            </AddReactionTrigger>
+          )}
+        </MetadataRight>
+      </Metadata>
+      <CommentBody>
+        <CommentBodyLeft>
+          {text && (
+            <Text>
+              {textParts.map((part, index) =>
+                part.type === "link" ? (
+                  <Link
+                    key={index}
+                    href={part.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {part.content}
+                  </Link>
+                ) : (
+                  <span key={index}>{part.content}</span>
+                )
+              )}
+            </Text>
+          )}
+          {media && media.localUrl && media.isVideo && (
+            <CommentMediaVideo src={media.localUrl} muted playsInline />
+          )}
+          {media && media.localUrl && !media.isVideo && (
+            <CommentMediaImage src={media.localUrl} alt="" />
+          )}
+          {media && media.mediaId && media.mediaType === "video" && (
+            <CommentMediaVideo
+              src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+          )}
+          {media && media.mediaId && media.mediaType === "image" && (
+            <CommentMediaImage
+              src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+              alt=""
+            />
+          )}
+          {Object.keys(groupedReactions).length > 0 && (
+            <CommentReactionsRow>
+              {Object.entries(groupedReactions).map(
+                ([emoji, { users, isPending }]) => (
+                  <CommentReaction key={emoji}>
+                    <CommentReactionEmoji>{emoji}</CommentReactionEmoji>
+                    {users.join(", ")}
+                    {isPending && (
+                      <SpinnerContainer>
+                        <Spinner size="small" />
+                      </SpinnerContainer>
+                    )}
+                  </CommentReaction>
+                )
+              )}
+            </CommentReactionsRow>
+          )}
+        </CommentBodyLeft>
+      </CommentBody>
     </CommentContainer>
   );
 };
 
 export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
+  const { config } = useConfig();
   const [newComments, setNewComments] = useState([]);
+  const [commentReactions, setCommentReactions] = useState({});
+  const [pendingReactions, setPendingReactions] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Support both post-level and legacy item-level
   const targetId = postId || item?.metadata?.itemId;
@@ -143,19 +450,159 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
     ? `${process.env.REACT_APP_API_URL}/media/${groupId}/post/${targetId}/comment`
     : `${process.env.REACT_APP_API_URL}/media/${groupId}/${targetId}/comment`;
 
-  const onSubmit = async (comment) => {
-    const timestamp = new Date().toISOString();
-    setNewComments([...newComments, { text: comment, timestamp }]);
+  const getReactionsForComment = (commentIndex) => {
+    if (commentReactions[commentIndex] !== undefined) {
+      return commentReactions[commentIndex];
+    }
+    return comments[commentIndex]?.reactions || [];
+  };
+
+  const addCommentReaction = async (commentIndex, reaction) => {
+    const currentReactions = getReactionsForComment(commentIndex);
+    let isRemoving = currentReactions.some(
+      (r) => r.user.id === user.id && r.reaction === reaction
+    );
+
+    setPendingReactions((prev) => ({ ...prev, [commentIndex]: true }));
+
+    // Optimistic update
+    setCommentReactions((prev) => {
+      const reactions = [...(prev[commentIndex] !== undefined ? prev[commentIndex] : comments[commentIndex]?.reactions || [])];
+
+      if (isRemoving) {
+        return {
+          ...prev,
+          [commentIndex]: reactions
+            .filter((r) => !(r.user.id === user.id && r.reaction === reaction))
+            .map((r) => (r.user.id === user.id ? { ...r, isPending: true } : r))
+        };
+      } else {
+        const filtered = reactions.filter((r) => r.user.id !== user.id);
+        return {
+          ...prev,
+          [commentIndex]: [
+            ...filtered,
+            { user, reaction, isPending: true }
+          ]
+        };
+      }
+    });
 
     try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/media/${groupId}/post/${targetId}/comment/${commentIndex}/reactions`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, reaction })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add reaction");
+      }
+
+      // Resolve optimistic update
+      setCommentReactions((prev) => {
+        const reactions = prev[commentIndex] || [];
+        return {
+          ...prev,
+          [commentIndex]: reactions.map((r) =>
+            r.isPending ? { ...r, isPending: false } : r
+          )
+        };
+      });
+    } catch (error) {
+      console.error("Error adding comment reaction:", error);
+      // Revert optimistic update
+      setCommentReactions((prev) => {
+        const original = comments[commentIndex]?.reactions || [];
+        return { ...prev, [commentIndex]: original };
+      });
+    } finally {
+      setPendingReactions((prev) => ({ ...prev, [commentIndex]: false }));
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setFilePreview({
+      url: URL.createObjectURL(file),
+      isVideo: file.type.startsWith("video/")
+    });
+  };
+
+  const clearSelectedFile = () => {
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview.url);
+    }
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const onSubmit = async (comment) => {
+    const hasMedia = !!selectedFile;
+    const hasText = comment && comment.trim().length > 0;
+
+    if (!hasText && !hasMedia) return;
+
+    const timestamp = new Date().toISOString();
+    const optimisticMedia = filePreview
+      ? { localUrl: filePreview.url, isVideo: filePreview.isVideo }
+      : null;
+
+    setNewComments((prev) => [
+      ...prev,
+      { text: comment || "", timestamp, media: optimisticMedia }
+    ]);
+
+    const fileToUpload = selectedFile;
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    try {
+      let mediaData = null;
+
+      if (hasMedia) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("media", fileToUpload);
+        formData.append("userId", user.id);
+
+        const uploadResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/media/${groupId}/post/${targetId}/comment-media`,
+          { method: "POST", body: formData }
+        );
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload comment media");
+        }
+
+        mediaData = await uploadResponse.json();
+        setIsUploading(false);
+      }
+
       const response = await fetch(apiPath, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          comment
+          comment: comment || "",
+          media: mediaData
+            ? {
+                mediaId: mediaData.mediaId,
+                mediaType: mediaData.mediaType,
+                dimensions: mediaData.dimensions
+              }
+            : undefined
         })
       });
 
@@ -163,47 +610,109 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
         throw new Error("Failed to add comment");
       }
 
+      if (optimisticMedia) {
+        URL.revokeObjectURL(optimisticMedia.localUrl);
+      }
+
       comments.push({
-        comment,
+        comment: comment || "",
         timestamp,
-        user: { id: user.id, name: user.name }
+        user: { id: user.id, name: user.name },
+        reactions: [],
+        media: mediaData
+          ? {
+              mediaId: mediaData.mediaId,
+              mediaType: mediaData.mediaType,
+              dimensions: mediaData.dimensions
+            }
+          : undefined
       });
 
-      setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
+      setNewComments((prev) => prev.filter((c) => c.timestamp !== timestamp));
     } catch (error) {
       console.error("Error adding comment:", error);
       alert("Failed to add comment. Please try again.");
-      setNewComments(newComments.filter((c) => c.timestamp !== timestamp));
+      setIsUploading(false);
+      setNewComments((prev) => prev.filter((c) => c.timestamp !== timestamp));
     }
   };
 
   return (
     <Container>
       <List isEmpty={comments.length === 0 && newComments.length === 0}>
-        {comments.map((comment) => (
+        {comments.map((comment, index) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
             <Comment
               name={comment.user.name}
               text={comment.comment}
               timestamp={formatDateTime(comment.timestamp, "short")}
+              reactions={getReactionsForComment(index)}
+              reactionEmojis={config.reactions}
+              onReact={(emoji) => addCommentReaction(index, emoji)}
+              userId={user.id}
+              isPendingReaction={pendingReactions[index]}
+              disabled={disabled}
+              media={comment.media}
+              groupId={groupId}
             />
           </ListItem>
         ))}
         {newComments.map((comment) => (
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
-            <Comment name={user.name} text={comment.text} timestamp="new" />
+            <Comment
+              name={user.name}
+              text={comment.text}
+              timestamp="new"
+              reactions={[]}
+              reactionEmojis={config.reactions}
+              onReact={() => {}}
+              userId={user.id}
+              disabled={disabled}
+              media={comment.media}
+              groupId={groupId}
+            />
           </ListItem>
         ))}
       </List>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        onChange={handleFileSelect}
+        style={{ display: "none" }}
+      />
       <TextField
         id={`post-${targetId}-comment-text-field`}
         placeholder="Write a comment..."
         onSubmit={onSubmit}
         buttonLabel="↑"
         multiLine={true}
-        disabled={disabled}
+        disabled={disabled || isUploading}
+        forceShowButton={!!selectedFile}
+        leftAccessory={
+          <CameraButton
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled || isUploading}
+          >
+            <FontAwesomeIcon icon={faCamera} />
+          </CameraButton>
+        }
+        topContent={
+          filePreview ? (
+            <PreviewContainer>
+              {filePreview.isVideo ? (
+                <PreviewVideo src={filePreview.url} muted />
+              ) : (
+                <PreviewImage src={filePreview.url} alt="" />
+              )}
+              <RemovePreviewButton onClick={clearSelectedFile}>
+                ✕
+              </RemovePreviewButton>
+            </PreviewContainer>
+          ) : null
+        }
       />
     </Container>
   );

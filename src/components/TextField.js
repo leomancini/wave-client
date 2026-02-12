@@ -7,7 +7,7 @@ import { Spinner } from "./Spinner";
 const TextFieldContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0;
   position: relative;
   width: 100%;
   font-size: 0;
@@ -80,6 +80,19 @@ const InputBase = css`
     css`
       padding-left: 5rem;
     `}
+
+  ${({ hasLeftAccessory }) =>
+    hasLeftAccessory &&
+    css`
+      padding-left: 2.75rem;
+    `}
+
+  ${({ hasTopContent }) =>
+    hasTopContent &&
+    css`
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    `}
 `;
 
 const Input = styled.input`
@@ -107,6 +120,23 @@ const AccessoryContainer = styled.div`
   display: flex;
   align-items: center;
   z-index: 2;
+`;
+
+const LeftAccessoryContainer = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+`;
+
+const TopContentContainer = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+  border-top-left-radius: 1.375rem;
+  border-top-right-radius: 1.375rem;
+  padding: 0.75rem 0.75rem 0.25rem 0.75rem;
 `;
 
 const InlineLabel = styled.div`
@@ -170,6 +200,9 @@ export const TextField = forwardRef(
       inputMode = "text",
       autocomplete = "off",
       animationsEnabled = true,
+      forceShowButton = false,
+      leftAccessory,
+      topContent,
       ...props
     },
     ref
@@ -186,20 +219,27 @@ export const TextField = forwardRef(
 
     useEffect(() => {
       const shouldShowButton =
-        (previousValue || value) &&
-        buttonLabel &&
-        !isSubmitted &&
-        value !== previousValue &&
-        valueIsValid;
+        (forceShowButton && buttonLabel) ||
+        ((previousValue || value) &&
+          buttonLabel &&
+          !isSubmitted &&
+          value !== previousValue &&
+          valueIsValid);
 
       setShouldShowButton(shouldShowButton);
-    }, [previousValue, value, buttonLabel, isSubmitted, valueIsValid]);
+    }, [previousValue, value, buttonLabel, isSubmitted, valueIsValid, forceShowButton]);
 
     const currentValue = value;
 
     return (
       <TextFieldContainer>
+        {topContent && (
+          <TopContentContainer>{topContent}</TopContentContainer>
+        )}
         <div style={{ position: "relative" }}>
+          {leftAccessory && (
+            <LeftAccessoryContainer>{leftAccessory}</LeftAccessoryContainer>
+          )}
           {label && <InlineLabel>{label}</InlineLabel>}
           {multiLine ? (
             <TextArea
@@ -218,6 +258,8 @@ export const TextField = forwardRef(
               data-1p-ignore
               autoComplete={autocomplete}
               hasLabel={!!label}
+              hasLeftAccessory={!!leftAccessory}
+              hasTopContent={!!topContent}
               hasAccessory={!!accessory && !shouldShowButton}
               onChange={(e) => {
                 if (onChange) {
@@ -269,6 +311,8 @@ export const TextField = forwardRef(
               data-1p-ignore
               autoComplete={autocomplete}
               hasLabel={!!label}
+              hasLeftAccessory={!!leftAccessory}
+              hasTopContent={!!topContent}
               hasAccessory={!!accessory && !shouldShowButton}
               onChange={(e) => {
                 if (onChange) {
