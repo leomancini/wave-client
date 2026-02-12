@@ -124,6 +124,7 @@ const SpinnerContainer = styled.div`
 
 const CommentMediaContainer = styled.div`
   display: inline-block;
+  align-self: flex-start;
   position: relative;
   border-radius: 0.5rem;
   overflow: hidden;
