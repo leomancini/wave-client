@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faCamera, faFaceSmile } from "@fortawesome/free-regular-svg-icons";
 
-import { useConfig } from "../contexts/ConfigContext";
 import { formatDateTime } from "../utilities/formatDateTime";
 import { parseUrlsInText } from "../utilities/formatDateTime";
 
@@ -295,12 +294,13 @@ const EmojiOption = styled.button`
   }
 `;
 
+const COMMENT_REACTION_EMOJIS = ["❤️", "✅", "👍", "😂", "🌊"];
+
 const Comment = ({
   name,
   text,
   timestamp,
   reactions,
-  reactionEmojis,
   onReact,
   userId,
   isPendingReaction,
@@ -309,6 +309,7 @@ const Comment = ({
   groupId
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const lastTapRef = useRef(0);
   const textParts = text ? parseUrlsInText(text) : [];
 
   const groupedReactions = (reactions || []).reduce((acc, r) => {
@@ -328,6 +329,29 @@ const Comment = ({
     setShowEmojiPicker(false);
   };
 
+  const handleDoubleTap = (e) => {
+    if (disabled || isPendingReaction || timestamp === "new") return;
+    const currentTime = new Date().getTime();
+    const isTouch = e.type === "touchend";
+
+    if (isTouch) {
+      e.preventDefault();
+      if (lastTapRef.current && currentTime - lastTapRef.current < 300) {
+        onReact("❤️");
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = currentTime;
+      }
+    } else {
+      if (lastTapRef.current && currentTime - lastTapRef.current < 300) {
+        onReact("❤️");
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = currentTime;
+      }
+    }
+  };
+
   return (
     <CommentContainer>
       <Metadata>
@@ -335,7 +359,7 @@ const Comment = ({
         <MetadataRight>
           {showEmojiPicker ? (
             <ReactionButtonRow>
-              {reactionEmojis?.map((emoji, i) => (
+              {COMMENT_REACTION_EMOJIS.map((emoji, i) => (
                 <EmojiOption
                   key={i}
                   className={hasUserReaction(emoji) ? "selected" : ""}
@@ -369,7 +393,7 @@ const Comment = ({
           )}
         </MetadataRight>
       </Metadata>
-      <CommentBody>
+      <CommentBody onClick={handleDoubleTap} onTouchEnd={handleDoubleTap}>
         <CommentBodyLeft>
           {text && (
             <Text>
@@ -434,7 +458,6 @@ const Comment = ({
 };
 
 export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
-  const { config } = useConfig();
   const [newComments, setNewComments] = useState([]);
   const [commentReactions, setCommentReactions] = useState({});
   const [pendingReactions, setPendingReactions] = useState({});
@@ -648,7 +671,6 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
               text={comment.comment}
               timestamp={formatDateTime(comment.timestamp, "short")}
               reactions={getReactionsForComment(index)}
-              reactionEmojis={config.reactions}
               onReact={(emoji) => addCommentReaction(index, emoji)}
               userId={user.id}
               isPendingReaction={pendingReactions[index]}
@@ -666,7 +688,6 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
               text={comment.text}
               timestamp="new"
               reactions={[]}
-              reactionEmojis={config.reactions}
               onReact={() => {}}
               userId={user.id}
               disabled={disabled}
