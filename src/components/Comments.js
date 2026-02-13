@@ -124,12 +124,13 @@ const SpinnerContainer = styled.div`
 `;
 
 const CommentMediaContainer = styled.div`
-  display: inline-block;
+  display: block;
   align-self: flex-start;
   position: relative;
   border-radius: 0.5rem;
   overflow: hidden;
   margin-top: 0.25rem;
+  max-width: calc(50% - 2px);
   box-shadow: var(--shadow-comment-media);
 `;
 
@@ -143,16 +144,16 @@ const CommentMediaInner = styled.div`
 `;
 
 const CommentMediaImage = styled.img`
-  max-width: 14rem;
-  max-height: 14rem;
+  width: 100%;
+  max-height: 20rem;
   border-radius: 0.5rem;
   object-fit: cover;
   display: block;
 `;
 
 const CommentMediaVideo = styled.video`
-  max-width: 14rem;
-  max-height: 14rem;
+  width: 100%;
+  max-height: 20rem;
   border-radius: 0.5rem;
   object-fit: cover;
   display: block;
