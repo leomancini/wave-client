@@ -335,6 +335,7 @@ const Comment = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const lastTapRef = useRef(0);
   const transformRef = useRef(null);
+  const wasPinchRef = useRef(false);
   const textParts = text ? parseUrlsInText(text) : [];
 
   const groupedReactions = (reactions || []).reduce((acc, r) => {
@@ -356,7 +357,11 @@ const Comment = ({
 
   const handleDoubleTap = (e) => {
     if (disabled || isPendingReaction || timestamp === "new") return;
-    if (e.target.closest("button") || e.target.closest(".react-transform-wrapper")) return;
+    if (e.target.closest("button")) return;
+    if (wasPinchRef.current) {
+      wasPinchRef.current = false;
+      return;
+    }
     const currentTime = new Date().getTime();
     const isTouch = e.type === "touchend";
 
@@ -379,7 +384,13 @@ const Comment = ({
   };
 
   return (
-    <CommentContainer onClick={handleDoubleTap} onTouchEnd={handleDoubleTap}>
+    <CommentContainer
+      onClick={handleDoubleTap}
+      onTouchEnd={handleDoubleTap}
+      onTouchMove={(e) => {
+        if (e.touches.length >= 2) wasPinchRef.current = true;
+      }}
+    >
       <Metadata>
         <Name>{name}</Name>
         <MetadataRight>
