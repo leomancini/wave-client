@@ -376,7 +376,7 @@ const Comment = ({
   };
 
   return (
-    <CommentContainer>
+    <CommentContainer onClick={handleDoubleTap} onTouchEnd={handleDoubleTap}>
       <Metadata>
         <Name>{name}</Name>
         <MetadataRight>
@@ -416,7 +416,7 @@ const Comment = ({
           )}
         </MetadataRight>
       </Metadata>
-      <CommentBody onClick={handleDoubleTap} onTouchEnd={handleDoubleTap}>
+      <CommentBody>
         <CommentBodyLeft>
           {text && (
             <Text>
