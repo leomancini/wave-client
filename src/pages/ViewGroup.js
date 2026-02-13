@@ -208,8 +208,13 @@ export const ViewGroup = ({ groupId, userId }) => {
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data.type === "NOTIFICATION_CLICKED") {
           const itemId = event.data.data?.itemId;
+          const commentIndex = event.data.data?.commentIndex;
           if (itemId) {
-            setScrollToItemId(itemId);
+            setScrollToItemId(
+              commentIndex !== undefined
+                ? `${itemId}-comment-${commentIndex}`
+                : itemId
+            );
           }
         }
       });

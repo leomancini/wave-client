@@ -32,6 +32,7 @@ const ListItem = styled.div`
   flex-direction: row;
   gap: 0rem;
   justify-content: space-between;
+  scroll-margin-top: 1.5rem;
 `;
 
 const CommentContainer = styled.div`
@@ -333,6 +334,7 @@ const Comment = ({
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const lastTapRef = useRef(0);
+  const transformRef = useRef(null);
   const textParts = text ? parseUrlsInText(text) : [];
 
   const groupedReactions = (reactions || []).reduce((acc, r) => {
@@ -354,7 +356,7 @@ const Comment = ({
 
   const handleDoubleTap = (e) => {
     if (disabled || isPendingReaction || timestamp === "new") return;
-    if (e.target.closest("button")) return;
+    if (e.target.closest("button") || e.target.closest(".react-transform-wrapper")) return;
     const currentTime = new Date().getTime();
     const isTouch = e.type === "touchend";
 
@@ -445,15 +447,20 @@ const Comment = ({
             </CommentMediaContainer>
           )}
           {media && media.localUrl && !media.isVideo && (
-            <CommentMediaContainer>
+            <CommentMediaContainer
+              onTouchEnd={() => {
+                if (transformRef.current) transformRef.current.resetTransform();
+              }}
+            >
               <CommentMediaInner isUploading={!media.isDoneUploading}>
                 <TransformWrapper
                   initialScale={1}
-                  minScale={1}
+                  minScale={1.4}
                   maxScale={4}
                   centerOnInit={true}
                   doubleClick={{ disabled: true }}
                   disabled={!media.isDoneUploading}
+                  ref={transformRef}
                   limitToBounds={true}
                   panning={{ disabled: true }}
                 >
@@ -478,14 +485,19 @@ const Comment = ({
             </CommentMediaContainer>
           )}
           {media && !media.localUrl && media.mediaId && media.mediaType === "image" && (
-            <CommentMediaContainer>
+            <CommentMediaContainer
+              onTouchEnd={() => {
+                if (transformRef.current) transformRef.current.resetTransform();
+              }}
+            >
               <CommentMediaInner isUploading={false}>
                 <TransformWrapper
                   initialScale={1}
-                  minScale={1}
+                  minScale={1.4}
                   maxScale={4}
                   centerOnInit={true}
                   doubleClick={{ disabled: true }}
+                  ref={transformRef}
                   limitToBounds={true}
                   panning={{ disabled: true }}
                 >
@@ -746,7 +758,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
     <Container>
       <List isEmpty={comments.length === 0 && newComments.length === 0}>
         {comments.map((comment, index) => (
-          <ListItem key={`comment-${comment.timestamp}`}>
+          <ListItem key={`comment-${comment.timestamp}`} id={`${targetId}-comment-${index}`}>
             <Separator />
             <Comment
               name={comment.user.name}
