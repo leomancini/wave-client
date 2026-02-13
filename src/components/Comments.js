@@ -184,13 +184,13 @@ const RemovePreviewButton = styled.button`
   position: absolute;
   top: 0.25rem;
   right: 0.25rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
   border: none;
   background: var(--color-remove-preview-bg);
   color: var(--color-on-primary);
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -448,7 +448,7 @@ const Comment = ({
               </CommentMediaInner>
             </CommentMediaContainer>
           )}
-          {media && media.mediaId && media.mediaType === "video" && (
+          {media && !media.localUrl && media.mediaId && media.mediaType === "video" && (
             <CommentMediaContainer>
               <CommentMediaInner isUploading={false}>
                 <CommentMediaVideo
@@ -461,7 +461,7 @@ const Comment = ({
               </CommentMediaInner>
             </CommentMediaContainer>
           )}
-          {media && media.mediaId && media.mediaType === "image" && (
+          {media && !media.localUrl && media.mediaId && media.mediaType === "image" && (
             <CommentMediaContainer>
               <CommentMediaInner isUploading={false}>
                 <CommentMediaImage
@@ -689,10 +689,6 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
         throw new Error("Failed to add comment");
       }
 
-      if (optimisticMedia) {
-        URL.revokeObjectURL(optimisticMedia.localUrl);
-      }
-
       comments.push({
         comment: comment || "",
         timestamp,
@@ -702,7 +698,9 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
           ? {
               mediaId: mediaData.mediaId,
               mediaType: mediaData.mediaType,
-              dimensions: mediaData.dimensions
+              dimensions: mediaData.dimensions,
+              localUrl: optimisticMedia?.localUrl,
+              isDoneUploading: true
             }
           : undefined
       });
