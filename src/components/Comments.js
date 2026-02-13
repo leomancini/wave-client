@@ -354,6 +354,7 @@ const Comment = ({
 
   const handleDoubleTap = (e) => {
     if (disabled || isPendingReaction || timestamp === "new") return;
+    if (e.target.closest("button")) return;
     const currentTime = new Date().getTime();
     const isTouch = e.type === "touchend";
 
