@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faCamera, faFaceSmile } from "@fortawesome/free-regular-svg-icons";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 import { formatDateTime } from "../utilities/formatDateTime";
 import { parseUrlsInText } from "../utilities/formatDateTime";
@@ -142,16 +143,16 @@ const CommentMediaInner = styled.div`
 `;
 
 const CommentMediaImage = styled.img`
-  max-width: 10rem;
-  max-height: 10rem;
+  max-width: 14rem;
+  max-height: 14rem;
   border-radius: 0.5rem;
   object-fit: cover;
   display: block;
 `;
 
 const CommentMediaVideo = styled.video`
-  max-width: 10rem;
-  max-height: 10rem;
+  max-width: 14rem;
+  max-height: 14rem;
   border-radius: 0.5rem;
   object-fit: cover;
   display: block;
@@ -444,7 +445,20 @@ const Comment = ({
           {media && media.localUrl && !media.isVideo && (
             <CommentMediaContainer>
               <CommentMediaInner isUploading={!media.isDoneUploading}>
-                <CommentMediaImage src={media.localUrl} alt="" />
+                <TransformWrapper
+                  initialScale={1}
+                  minScale={1}
+                  maxScale={4}
+                  centerOnInit={true}
+                  doubleClick={{ disabled: true }}
+                  disabled={!media.isDoneUploading}
+                  limitToBounds={true}
+                  panning={{ disabled: true }}
+                >
+                  <TransformComponent>
+                    <CommentMediaImage src={media.localUrl} alt="" />
+                  </TransformComponent>
+                </TransformWrapper>
               </CommentMediaInner>
             </CommentMediaContainer>
           )}
@@ -464,10 +478,22 @@ const Comment = ({
           {media && !media.localUrl && media.mediaId && media.mediaType === "image" && (
             <CommentMediaContainer>
               <CommentMediaInner isUploading={false}>
-                <CommentMediaImage
-                  src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
-                  alt=""
-                />
+                <TransformWrapper
+                  initialScale={1}
+                  minScale={1}
+                  maxScale={4}
+                  centerOnInit={true}
+                  doubleClick={{ disabled: true }}
+                  limitToBounds={true}
+                  panning={{ disabled: true }}
+                >
+                  <TransformComponent>
+                    <CommentMediaImage
+                      src={`${process.env.REACT_APP_API_URL}/comment-media/${groupId}/${media.mediaId}`}
+                      alt=""
+                    />
+                  </TransformComponent>
+                </TransformWrapper>
               </CommentMediaInner>
             </CommentMediaContainer>
           )}
