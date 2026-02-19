@@ -1,4 +1,4 @@
-import { useState, forwardRef, useEffect } from "react";
+import { useState, forwardRef, useEffect, useRef, useCallback } from "react";
 import styled, { css } from "styled-components";
 
 import TextareaAutosize from "react-textarea-autosize";
@@ -116,6 +116,40 @@ const TextArea = styled(TextareaAutosize)`
   min-height: 2.75rem;
 `;
 
+const HighlightOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  color: ${({ $textColor }) => $textColor || "var(--color-primary)"};
+  font-size: 1rem;
+  line-height: 1.25rem;
+  font-family: inherit;
+  border: none;
+  border-radius: 1.375rem;
+  box-sizing: border-box;
+
+  ${({ $hasLabel }) =>
+    $hasLabel
+      ? css`
+          padding: 0.75rem 5rem 0.75rem 5rem;
+        `
+      : css`
+          padding: 0.75rem 5rem 0.75rem 1rem;
+        `}
+
+  ${({ $hasLeftAccessory }) =>
+    $hasLeftAccessory &&
+    css`
+      padding-left: 2.75rem;
+    `}
+`;
+
 const SpinnerContainer = styled.div`
   position: absolute;
   right: 1rem;
@@ -230,6 +264,7 @@ export const TextField = forwardRef(
       leftAccessory,
       topContent,
       bottomContent,
+      renderHighlight,
       ...props
     },
     ref
@@ -239,6 +274,27 @@ export const TextField = forwardRef(
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [shouldShowButton, setShouldShowButton] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const highlightRef = useRef(null);
+    const internalRef = useRef(null);
+
+    const mergeRefs = useCallback(
+      (node) => {
+        internalRef.current = node;
+        if (typeof ref === "function") {
+          ref(node);
+        } else if (ref) {
+          ref.current = node;
+        }
+      },
+      [ref]
+    );
+
+    // Sync scroll position between textarea and highlight overlay
+    const syncScroll = useCallback(() => {
+      if (internalRef.current && highlightRef.current) {
+        highlightRef.current.scrollTop = internalRef.current.scrollTop;
+      }
+    }, []);
 
     useEffect(() => {
       setValue(initialValue);
@@ -270,61 +326,86 @@ export const TextField = forwardRef(
           )}
           {label && <InlineLabel>{label}</InlineLabel>}
           {multiLine ? (
-            <TextArea
-              ref={ref}
-              id={id}
-              value={currentValue}
-              placeholder={placeholder}
-              maxRows={99999}
-              isLoading={isLoading}
-              inputMode={inputMode}
-              pattern={
-                inputMode === "numeric" || inputMode === "tel"
-                  ? "[0-9]*"
-                  : undefined
-              }
-              data-1p-ignore
-              autoComplete={autocomplete}
-              hasLabel={!!label}
-              hasLeftAccessory={!!leftAccessory}
-              hasTopContent={!!topContent}
-              hasBottomContent={!!bottomContent}
-              hasAccessory={!!accessory && !shouldShowButton}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              onChange={(e) => {
-                if (onChange) {
-                  onChange(e.target.value);
+            <>
+              <TextArea
+                ref={mergeRefs}
+                id={id}
+                value={currentValue}
+                placeholder={placeholder}
+                maxRows={99999}
+                isLoading={isLoading}
+                inputMode={inputMode}
+                pattern={
+                  inputMode === "numeric" || inputMode === "tel"
+                    ? "[0-9]*"
+                    : undefined
                 }
-
-                if (handleChange) {
-                  handleChange(e.target.value);
-                }
-
-                setValue(e.target.value);
-                setIsSubmitted(false);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-
-                  if (buttonLabel && shouldShowButton) {
-                    onSubmit(value);
-                    setIsSubmitted(true);
+                data-1p-ignore
+                autoComplete={autocomplete}
+                hasLabel={!!label}
+                hasLeftAccessory={!!leftAccessory}
+                hasTopContent={!!topContent}
+                hasBottomContent={!!bottomContent}
+                hasAccessory={!!accessory && !shouldShowButton}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onScroll={renderHighlight ? syncScroll : undefined}
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange(e.target.value);
                   }
 
-                  if (clearValueOnSubmit) {
-                    setValue("");
-                  } else {
-                    setPreviousValue(value);
+                  if (handleChange) {
+                    handleChange(e.target.value);
                   }
+
+                  setValue(e.target.value);
+                  setIsSubmitted(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+
+                    if (buttonLabel && shouldShowButton) {
+                      onSubmit(value);
+                      setIsSubmitted(true);
+                    }
+
+                    if (clearValueOnSubmit) {
+                      setValue("");
+                    } else {
+                      setPreviousValue(value);
+                    }
+                  }
+                }}
+                disabled={disabled}
+                readOnly={disabled}
+                maxLength={maxLength}
+                animationsEnabled={animationsEnabled}
+                style={
+                  renderHighlight
+                    ? {
+                        color: "transparent",
+                        caretColor: "var(--color-primary)"
+                      }
+                    : undefined
                 }
-              }}
-              disabled={disabled}
-              readOnly={disabled}
-              maxLength={maxLength}
-              animationsEnabled={animationsEnabled}
-            />
+              />
+              {renderHighlight && (
+                <HighlightOverlay
+                  ref={highlightRef}
+                  $hasLabel={!!label}
+                  $hasLeftAccessory={!!leftAccessory}
+                  $textColor={
+                    disabled
+                      ? "var(--color-text-disabled)"
+                      : "var(--color-primary)"
+                  }
+                >
+                  {renderHighlight(currentValue)}
+                </HighlightOverlay>
+              )}
+            </>
           ) : (
             <Input
               ref={ref}

@@ -105,3 +105,94 @@ export const parseUrlsInText = (text) => {
 
   return parts.length > 0 ? parts : [{ type: "text", content: text }];
 };
+
+/**
+ * Parses comment text for URLs and @mentions.
+ * For @mentions, checks if the name after @ matches any group member (case-insensitive).
+ * Tries longest user name match first (greedy).
+ * @param {string} text - The comment text to process
+ * @param {Array} users - Array of {id, name} group members
+ * @returns {Array} Array of {type: "text"|"link"|"mention", content, url?, userId?}
+ */
+export const parseCommentText = (text, users = []) => {
+  if (!text) return [];
+
+  // First pass: find all URLs so we don't match @mentions inside URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urlRanges = [];
+  let urlMatch;
+  while ((urlMatch = urlRegex.exec(text)) !== null) {
+    urlRanges.push({ start: urlMatch.index, end: urlMatch.index + urlMatch[0].length });
+  }
+
+  const isInsideUrl = (index) =>
+    urlRanges.some((r) => index >= r.start && index < r.end);
+
+  // Sort users by name length descending for greedy matching
+  const sortedUsers = [...users].sort((a, b) => b.name.length - a.name.length);
+
+  // Find all mention positions
+  const mentions = [];
+  const atRegex = /@/g;
+  let atMatch;
+  while ((atMatch = atRegex.exec(text)) !== null) {
+    if (isInsideUrl(atMatch.index)) continue;
+
+    const afterAt = text.slice(atMatch.index + 1);
+    for (const user of sortedUsers) {
+      if (afterAt.toLowerCase().startsWith(user.name.toLowerCase())) {
+        // Check that the character after the name is a word boundary
+        const charAfter = afterAt[user.name.length];
+        if (!charAfter || /[^a-zA-Z0-9]/.test(charAfter)) {
+          mentions.push({
+            start: atMatch.index,
+            end: atMatch.index + 1 + user.name.length,
+            name: user.name,
+            userId: user.id
+          });
+          break; // Found longest match, stop
+        }
+      }
+    }
+  }
+
+  // Now build parts array combining URLs and mentions, processing left to right
+  const specialRanges = [
+    ...urlRanges.map((r) => ({ ...r, type: "url" })),
+    ...mentions.map((m) => ({ start: m.start, end: m.end, type: "mention", name: m.name, userId: m.userId }))
+  ].sort((a, b) => a.start - b.start);
+
+  const parts = [];
+  let lastIndex = 0;
+
+  for (const range of specialRanges) {
+    if (range.start < lastIndex) continue; // Skip overlapping ranges
+
+    if (range.start > lastIndex) {
+      parts.push({ type: "text", content: text.slice(lastIndex, range.start) });
+    }
+
+    if (range.type === "url") {
+      const fullUrl = text.slice(range.start, range.end);
+      parts.push({
+        type: "link",
+        content: fullUrl.replace(/^https?:\/\//, ""),
+        url: fullUrl
+      });
+    } else if (range.type === "mention") {
+      parts.push({
+        type: "mention",
+        content: range.name,
+        userId: range.userId
+      });
+    }
+
+    lastIndex = range.end;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ type: "text", content: text.slice(lastIndex) });
+  }
+
+  return parts.length > 0 ? parts : [{ type: "text", content: text }];
+};

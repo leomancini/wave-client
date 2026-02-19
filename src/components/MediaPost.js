@@ -429,6 +429,7 @@ export const MediaPost = forwardRef(
       post,
       groupId,
       user,
+      users,
       isUnread,
       onLoad,
       isUploadedThisPageLoad,
@@ -646,6 +647,7 @@ export const MediaPost = forwardRef(
           post={post}
           groupId={groupId}
           user={user}
+          users={users}
           disabled={isUploadedThisPageLoad && !isDoneUploading}
         />
       </Container>

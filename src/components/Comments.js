@@ -1,12 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faCamera, faFaceSmile } from "@fortawesome/free-regular-svg-icons";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
-import { formatDateTime } from "../utilities/formatDateTime";
-import { parseUrlsInText } from "../utilities/formatDateTime";
+import { formatDateTime, parseCommentText } from "../utilities/formatDateTime";
 
 import { TextField } from "./TextField";
 import { Spinner } from "./Spinner";
@@ -114,6 +113,10 @@ const Link = styled.a`
   &:active {
     color: var(--color-link-active);
   }
+`;
+
+const Mention = styled.span`
+  font-weight: bold;
 `;
 
 const SpinnerContainer = styled.div`
@@ -327,6 +330,7 @@ const Comment = ({
   reactions,
   onReact,
   userId,
+  users,
   isPendingReaction,
   disabled,
   media,
@@ -336,7 +340,7 @@ const Comment = ({
   const lastTapRef = useRef(0);
   const transformRef = useRef(null);
   const wasPinchRef = useRef(false);
-  const textParts = text ? parseUrlsInText(text) : [];
+  const textParts = text ? parseCommentText(text, users) : [];
 
   const groupedReactions = (reactions || []).reduce((acc, r) => {
     if (!acc[r.reaction]) {
@@ -444,6 +448,8 @@ const Comment = ({
                   >
                     {part.content}
                   </Link>
+                ) : part.type === "mention" ? (
+                  <Mention key={index}>@{part.content}</Mention>
                 ) : (
                   <span key={index}>{part.content}</span>
                 )
@@ -545,7 +551,7 @@ const Comment = ({
   );
 };
 
-export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
+export const Comments = ({ postId, post, item, groupId, user, users, disabled }) => {
   const [newComments, setNewComments] = useState([]);
   const [commentReactions, setCommentReactions] = useState({});
   const [pendingReactions, setPendingReactions] = useState({});
@@ -765,6 +771,29 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
     }
   };
 
+  const renderHighlight = useCallback(
+    (text) => {
+      if (!text) return null;
+      const parts = parseCommentText(text, users);
+      return parts.map((part, index) =>
+        part.type === "mention" ? (
+          <span
+            key={index}
+            style={{
+              backgroundColor: "var(--color-surface-active)",
+              borderRadius: "0.25rem"
+            }}
+          >
+            @{part.content}
+          </span>
+        ) : (
+          <span key={index}>{part.content}</span>
+        )
+      );
+    },
+    [users]
+  );
+
   return (
     <Container>
       <List isEmpty={comments.length === 0 && newComments.length === 0}>
@@ -778,6 +807,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
               reactions={getReactionsForComment(index)}
               onReact={(emoji) => addCommentReaction(index, emoji)}
               userId={user.id}
+              users={users}
               isPendingReaction={pendingReactions[index]}
               disabled={disabled}
               media={comment.media}
@@ -795,6 +825,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
               reactions={[]}
               onReact={() => {}}
               userId={user.id}
+              users={users}
               disabled={disabled}
               media={comment.media}
               groupId={groupId}
@@ -817,6 +848,7 @@ export const Comments = ({ postId, post, item, groupId, user, disabled }) => {
         multiLine={true}
         disabled={disabled || isUploading}
         forceShowButton={!!selectedFile}
+        renderHighlight={users && users.length > 0 ? renderHighlight : undefined}
         leftAccessory={
           !filePreview ? (
             <CameraButton

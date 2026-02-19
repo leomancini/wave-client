@@ -731,6 +731,7 @@ export const ViewGroup = ({ groupId, userId }) => {
                 post={post}
                 groupId={groupId}
                 user={user}
+                users={users}
                 isUnread={post.isUnread}
                 onLoad={(postId) => markAsRead(postId)}
                 isUploadedThisPageLoad={post.isUploadedThisPageLoad}
