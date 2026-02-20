@@ -708,9 +708,9 @@ export const ViewGroup = ({ groupId, userId }) => {
         <Banner
           prominence="announcement"
           label="NEW"
-          date="February 19, 2026"
+          date="February 20, 2026"
           messages={[
-            "You can now <strong>@mention</strong> people in comments and <strong>@Claude</strong> to get AI responses! Mentioned users get notified based on their preferences."
+            "You can now ask <strong>@Claude</strong> questions in the comments!"
           ]}
         />
         {shouldShowPushNotificationBanner && (
