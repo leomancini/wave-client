@@ -710,7 +710,7 @@ export const ViewGroup = ({ groupId, userId }) => {
           label="NEW"
           date="February 19, 2026"
           messages={[
-            "You can now <strong>@mention</strong> people in comments! They'll get notified based on their notification preferences."
+            "You can now <strong>@mention</strong> people in comments and <strong>@Claude</strong> to get AI responses! Mentioned users get notified based on their preferences."
           ]}
         />
         {shouldShowPushNotificationBanner && (
