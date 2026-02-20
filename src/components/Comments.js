@@ -123,8 +123,9 @@ const SpinnerContainer = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
 `;
 
 const CommentMediaContainer = styled.div`
@@ -398,31 +399,29 @@ const Comment = ({
       <Metadata>
         <Name>{name}</Name>
         <MetadataRight>
-          {showEmojiPicker ? (
-            <ReactionButtonRow>
-              {COMMENT_REACTION_EMOJIS.map((emoji, i) => (
-                <EmojiOption
-                  key={i}
-                  className={hasUserReaction(emoji) ? "selected" : ""}
-                  onClick={() => handleEmojiSelect(emoji)}
-                  disabled={disabled || isPendingReaction}
-                >
-                  {emoji}
-                </EmojiOption>
-              ))}
-            </ReactionButtonRow>
-          ) : (
-            <Time>
-              {timestamp === "new" ? (
-                <SpinnerContainer>
-                  <Spinner size="small" />
-                </SpinnerContainer>
-              ) : (
-                timestamp
-              )}
-            </Time>
-          )}
           {timestamp !== "new" && (
+            showEmojiPicker ? (
+              <ReactionButtonRow>
+                {COMMENT_REACTION_EMOJIS.map((emoji, i) => (
+                  <EmojiOption
+                    key={i}
+                    className={hasUserReaction(emoji) ? "selected" : ""}
+                    onClick={() => handleEmojiSelect(emoji)}
+                    disabled={disabled || isPendingReaction}
+                  >
+                    {emoji}
+                  </EmojiOption>
+                ))}
+              </ReactionButtonRow>
+            ) : (
+              <Time>{timestamp}</Time>
+            )
+          )}
+          {timestamp === "new" ? (
+            <SpinnerContainer>
+              <Spinner size="small" />
+            </SpinnerContainer>
+          ) : (
             <AddReactionTrigger
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               disabled={disabled || isPendingReaction}
