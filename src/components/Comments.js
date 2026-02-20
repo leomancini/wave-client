@@ -746,6 +746,8 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
         throw new Error("Failed to add comment");
       }
 
+      const responseData = await response.json();
+
       comments.push({
         comment: comment || "",
         timestamp,
@@ -763,6 +765,45 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
       });
 
       setNewComments((prev) => prev.filter((c) => c.timestamp !== timestamp));
+
+      // If Claude is generating a reply, show a loading comment and poll
+      if (responseData.claudeReplyPending) {
+        const claudeTimestamp = "claude-pending";
+        setNewComments((prev) => [
+          ...prev,
+          { text: "", timestamp: claudeTimestamp, isClaudeLoading: true, claudeName: "Claude" }
+        ]);
+
+        const pollForReply = async () => {
+          const pollUrl = `${process.env.REACT_APP_API_URL}/media/${groupId}/post/${targetId}/claude-reply?after=${encodeURIComponent(timestamp)}`;
+          for (let i = 0; i < 30; i++) {
+            await new Promise((r) => setTimeout(r, 1000));
+            try {
+              const pollRes = await fetch(pollUrl);
+              const pollData = await pollRes.json();
+              if (pollData.ready) {
+                comments.push({
+                  comment: pollData.comment,
+                  timestamp: pollData.timestamp,
+                  user: { id: "claude-ai", name: "Claude" },
+                  reactions: []
+                });
+                setNewComments((prev) =>
+                  prev.filter((c) => c.timestamp !== claudeTimestamp)
+                );
+                return;
+              }
+            } catch (e) {
+              // Ignore poll errors, keep trying
+            }
+          }
+          // Timed out — remove loading comment
+          setNewComments((prev) =>
+            prev.filter((c) => c.timestamp !== claudeTimestamp)
+          );
+        };
+        pollForReply();
+      }
     } catch (error) {
       console.error("Error adding comment:", error);
       alert(error.message || "Failed to add comment. Please try again.");
@@ -819,12 +860,12 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
           <ListItem key={`comment-${comment.timestamp}`}>
             <Separator />
             <Comment
-              name={user.name}
-              text={comment.text}
+              name={comment.claudeName || user.name}
+              text={comment.isClaudeLoading ? "Thinking..." : comment.text}
               timestamp="new"
               reactions={[]}
               onReact={() => {}}
-              userId={user.id}
+              userId={comment.isClaudeLoading ? "claude-ai" : user.id}
               users={users}
               disabled={disabled}
               media={comment.media}
