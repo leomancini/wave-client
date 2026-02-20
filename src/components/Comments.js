@@ -811,6 +811,22 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
     }
   };
 
+  const transformValue = useCallback(
+    (text) => {
+      if (!text || !users || users.length === 0) return text;
+      const parts = parseCommentText(text, users);
+      return parts
+        .map((part) => {
+          if (part.type === "mention") {
+            return `@${part.content}`;
+          }
+          return part.content;
+        })
+        .join("");
+    },
+    [users]
+  );
+
   const renderHighlight = useCallback(
     (text) => {
       if (!text) return null;
@@ -889,6 +905,7 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
         disabled={disabled || isUploading}
         forceShowButton={!!selectedFile}
         renderHighlight={users && users.length > 0 ? renderHighlight : undefined}
+        transformValue={users && users.length > 0 ? transformValue : undefined}
         leftAccessory={
           !filePreview ? (
             <CameraButton

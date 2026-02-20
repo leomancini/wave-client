@@ -265,6 +265,7 @@ export const TextField = forwardRef(
       topContent,
       bottomContent,
       renderHighlight,
+      transformValue,
       ...props
     },
     ref
@@ -351,15 +352,33 @@ export const TextField = forwardRef(
                 onBlur={() => setIsFocused(false)}
                 onScroll={renderHighlight ? syncScroll : undefined}
                 onChange={(e) => {
+                  let newValue = e.target.value;
+
+                  if (transformValue) {
+                    const transformed = transformValue(newValue);
+                    if (transformed !== newValue) {
+                      const cursorPos = e.target.selectionStart;
+                      const lengthDiff = transformed.length - newValue.length;
+                      newValue = transformed;
+                      // Restore cursor position after React re-render
+                      requestAnimationFrame(() => {
+                        if (internalRef.current) {
+                          const newPos = cursorPos + lengthDiff;
+                          internalRef.current.setSelectionRange(newPos, newPos);
+                        }
+                      });
+                    }
+                  }
+
                   if (onChange) {
-                    onChange(e.target.value);
+                    onChange(newValue);
                   }
 
                   if (handleChange) {
-                    handleChange(e.target.value);
+                    handleChange(newValue);
                   }
 
-                  setValue(e.target.value);
+                  setValue(newValue);
                   setIsSubmitted(false);
                 }}
                 onKeyDown={(e) => {

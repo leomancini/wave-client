@@ -153,6 +153,7 @@ export const parseCommentText = (text, users = []) => {
             start: atMatch.index,
             end: atMatch.index + 1 + user.name.length,
             name: user.name,
+            originalText: afterAt.slice(0, user.name.length),
             userId: user.id
           });
           break; // Found longest match, stop
@@ -164,7 +165,7 @@ export const parseCommentText = (text, users = []) => {
   // Now build parts array combining URLs and mentions, processing left to right
   const specialRanges = [
     ...urlRanges.map((r) => ({ ...r, type: "url" })),
-    ...mentions.map((m) => ({ start: m.start, end: m.end, type: "mention", name: m.name, userId: m.userId }))
+    ...mentions.map((m) => ({ start: m.start, end: m.end, type: "mention", name: m.name, originalText: m.originalText, userId: m.userId }))
   ].sort((a, b) => a.start - b.start);
 
   const parts = [];
@@ -188,6 +189,7 @@ export const parseCommentText = (text, users = []) => {
       parts.push({
         type: "mention",
         content: range.name,
+        originalText: range.originalText,
         userId: range.userId
       });
     }
