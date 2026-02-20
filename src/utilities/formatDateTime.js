@@ -128,8 +128,13 @@ export const parseCommentText = (text, users = []) => {
   const isInsideUrl = (index) =>
     urlRanges.some((r) => index >= r.start && index < r.end);
 
+  // Ensure Claude is always a matchable mention
+  const allUsers = users.some((u) => u.name.toLowerCase() === "claude")
+    ? users
+    : [...users, { id: "claude-ai", name: "Claude" }];
+
   // Sort users by name length descending for greedy matching
-  const sortedUsers = [...users].sort((a, b) => b.name.length - a.name.length);
+  const sortedUsers = [...allUsers].sort((a, b) => b.name.length - a.name.length);
 
   // Find all mention positions
   const mentions = [];
