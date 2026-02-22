@@ -441,6 +441,7 @@ export const MediaPost = forwardRef(
     const [reactions, setReactions] = useState(post.reactions || []);
     const [reactionEmojis, setReactionEmojis] = useState(config.reactions);
     const localRef = useRef(null);
+    const mediaRef = useRef(null);
     const observerRef = useRef(null);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -471,8 +472,8 @@ export const MediaPost = forwardRef(
         }
       );
 
-      if (localRef.current) {
-        observerRef.current.observe(localRef.current);
+      if (mediaRef.current) {
+        observerRef.current.observe(mediaRef.current);
       }
 
       return () => {
@@ -555,22 +556,24 @@ export const MediaPost = forwardRef(
 
     return (
       <Container id={post.postId} ref={mergeRefs}>
-        <PhotoGrid
-          items={post.items}
-          postId={post.postId}
-          groupId={groupId}
-          isUploadedThisPageLoad={isUploadedThisPageLoad}
-          isDoneUploading={isDoneUploading}
-          onDoubleClick={(e) =>
-            handleDoubleClick(e, post.postId, setReactions, {
-              groupId,
-              user,
-              reaction: config.reactions[0]
-            })
-          }
-          getImageUrl={getImageUrl}
-          getThumbnailUrl={getThumbnailUrl}
-        />
+        <div ref={mediaRef}>
+          <PhotoGrid
+            items={post.items}
+            postId={post.postId}
+            groupId={groupId}
+            isUploadedThisPageLoad={isUploadedThisPageLoad}
+            isDoneUploading={isDoneUploading}
+            onDoubleClick={(e) =>
+              handleDoubleClick(e, post.postId, setReactions, {
+                groupId,
+                user,
+                reaction: config.reactions[0]
+              })
+            }
+            getImageUrl={getImageUrl}
+            getThumbnailUrl={getThumbnailUrl}
+          />
+        </div>
         <Details>
           <Name>{post.uploader?.name || user.name}</Name>
           <MetadataAndActions>

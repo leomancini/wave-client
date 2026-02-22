@@ -592,6 +592,12 @@ export const ViewGroup = ({ groupId, userId }) => {
         itemsToMark.forEach((item) => newSet.delete(item));
         return newSet;
       });
+      // Retry failed items on the next sync interval
+      setPendingReadItems((prev) => {
+        const newSet = new Set(prev);
+        itemsToMark.forEach((item) => newSet.add(item));
+        return newSet;
+      });
     }
   };
 
