@@ -315,13 +315,25 @@ const SinglePhoto = ({
   );
 };
 
-const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploading, onDoubleClick }) => {
+const GridVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+`;
+
+const GridPhoto = ({ item, imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploading, onDoubleClick }) => {
   const deviceType = useDetectDeviceType();
   const isMobile = deviceType === "mobile";
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [touchStartY, setTouchStartY] = useState(null);
   const scrollThreshold = 10;
   const transformRef = React.useRef(null);
+  const isVideo = item?.metadata?.mediaType === "video";
 
   return (
     <GridCell
@@ -346,52 +358,75 @@ const GridPhoto = ({ imageUrl, thumbnailUrl, isUploadedThisPageLoad, isDoneUploa
           onDoubleClick(e);
         }
         setTouchStartY(null);
-        if (transformRef.current) {
+        if (!isVideo && transformRef.current) {
           transformRef.current.resetTransform();
         }
       }}
     >
-      <TransformWrapper
-        initialScale={1}
-        minScale={1.4}
-        maxScale={4}
-        centerOnInit={true}
-        doubleClick={{ disabled: true }}
-        disabled={(isUploadedThisPageLoad && !isDoneUploading) || !isMobile}
-        ref={transformRef}
-        limitToBounds={true}
-        panning={{ disabled: true }}
-      >
-        <TransformComponent
-          wrapperStyle={{ width: "100%", height: "100%" }}
-          contentStyle={{ width: "100%", height: "100%" }}
+      {isVideo ? (
+        <ImageContainer
+          isUploadedThisPageLoad={isUploadedThisPageLoad}
+          isDoneUploading={isDoneUploading}
+          isImageLoaded={isImageLoaded}
         >
-          <ImageContainer
-            isUploadedThisPageLoad={isUploadedThisPageLoad}
-            isDoneUploading={isDoneUploading}
-            isImageLoaded={isImageLoaded}
-          >
+          <GridVideo
+            src={imageUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onLoadedData={() => setIsImageLoaded(true)}
+          />
+          {!isUploadedThisPageLoad && thumbnailUrl && (
             <GridImage
-              src={imageUrl}
-              isLoaded={isImageLoaded || (isUploadedThisPageLoad && isDoneUploading)}
-              onLoad={() => setIsImageLoaded(true)}
-              style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+              src={thumbnailUrl}
+              isLoaded={true}
             />
-            {!isUploadedThisPageLoad && thumbnailUrl && (
-              <GridImage
-                src={thumbnailUrl}
-                isLoaded={true}
-              />
-            )}
-            {isUploadedThisPageLoad && (
+          )}
+        </ImageContainer>
+      ) : (
+        <TransformWrapper
+          initialScale={1}
+          minScale={1.4}
+          maxScale={4}
+          centerOnInit={true}
+          doubleClick={{ disabled: true }}
+          disabled={(isUploadedThisPageLoad && !isDoneUploading) || !isMobile}
+          ref={transformRef}
+          limitToBounds={true}
+          panning={{ disabled: true }}
+        >
+          <TransformComponent
+            wrapperStyle={{ width: "100%", height: "100%" }}
+            contentStyle={{ width: "100%", height: "100%" }}
+          >
+            <ImageContainer
+              isUploadedThisPageLoad={isUploadedThisPageLoad}
+              isDoneUploading={isDoneUploading}
+              isImageLoaded={isImageLoaded}
+            >
               <GridImage
                 src={imageUrl}
-                isLoaded={true}
+                isLoaded={isImageLoaded || (isUploadedThisPageLoad && isDoneUploading)}
+                onLoad={() => setIsImageLoaded(true)}
+                style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
               />
-            )}
-          </ImageContainer>
-        </TransformComponent>
-      </TransformWrapper>
+              {!isUploadedThisPageLoad && thumbnailUrl && (
+                <GridImage
+                  src={thumbnailUrl}
+                  isLoaded={true}
+                />
+              )}
+              {isUploadedThisPageLoad && (
+                <GridImage
+                  src={imageUrl}
+                  isLoaded={true}
+                />
+              )}
+            </ImageContainer>
+          </TransformComponent>
+        </TransformWrapper>
+      )}
     </GridCell>
   );
 };
@@ -440,6 +475,7 @@ export const PhotoGrid = ({
               count={displayItems.length}
             >
               <GridPhoto
+                item={item}
                 imageUrl={getImageUrl(item)}
                 thumbnailUrl={getThumbnailUrl(item)}
                 isUploadedThisPageLoad={isUploadedThisPageLoad}
