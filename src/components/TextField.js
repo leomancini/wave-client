@@ -48,6 +48,8 @@ const InputBase = css`
         : "var(--color-selection-bg)"};
     color: ${(props) =>
       props.disabled ? "var(--color-text-muted)" : "var(--color-selection-text)"};
+    -webkit-text-fill-color: ${(props) =>
+      props.disabled ? "var(--color-text-muted)" : "var(--color-selection-text)"};
   }
 
   &:-webkit-autofill,
@@ -127,6 +129,7 @@ const HighlightOverlay = styled.div`
   word-wrap: break-word;
   overflow: hidden;
   color: ${({ $textColor }) => $textColor || "var(--color-primary)"};
+  background: var(--color-surface);
   font-size: 1rem;
   line-height: 1.25rem;
   font-family: inherit;
@@ -405,7 +408,10 @@ export const TextField = forwardRef(
                   renderHighlight
                     ? {
                         color: "transparent",
-                        caretColor: "var(--color-primary)"
+                        caretColor: "var(--color-primary)",
+                        background: "transparent",
+                        position: "relative",
+                        zIndex: 1
                       }
                     : undefined
                 }
