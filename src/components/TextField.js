@@ -233,6 +233,7 @@ const Button = styled.button`
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  z-index: 2;
 
   &:active,
   &:focus {
