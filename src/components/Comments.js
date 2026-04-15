@@ -550,7 +550,7 @@ const Comment = ({
   );
 };
 
-export const Comments = ({ postId, post, item, groupId, user, users, disabled }) => {
+export const Comments = ({ postId, post, item, groupId, user, users, disabled, onMarkAsRead }) => {
   const [newComments, setNewComments] = useState([]);
   const [commentReactions, setCommentReactions] = useState({});
   const [pendingReactions, setPendingReactions] = useState({});
@@ -746,6 +746,8 @@ export const Comments = ({ postId, post, item, groupId, user, users, disabled })
       }
 
       const responseData = await response.json();
+
+      if (onMarkAsRead) onMarkAsRead();
 
       comments.push({
         comment: comment || "",

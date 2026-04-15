@@ -253,7 +253,7 @@ const handleDoubleClick = (
   e,
   postId,
   setReactions,
-  { groupId, user, reaction }
+  { groupId, user, reaction, onMarkAsRead }
 ) => {
   if (isPinching) {
     e.preventDefault();
@@ -272,14 +272,14 @@ const handleDoubleClick = (
   if (isTouch) {
     e.preventDefault();
     if (!isPinching && lastTouchTime && currentTime - lastTouchTime < 300) {
-      addReaction(postId, setReactions, { groupId, user, reaction });
+      addReaction(postId, setReactions, { groupId, user, reaction, onMarkAsRead });
       lastTouchTime = 0;
     } else {
       lastTouchTime = currentTime;
     }
   } else {
     if (lastClickTime && currentTime - lastClickTime < 300) {
-      addReaction(postId, setReactions, { groupId, user, reaction });
+      addReaction(postId, setReactions, { groupId, user, reaction, onMarkAsRead });
       lastClickTime = 0;
     } else {
       lastClickTime = currentTime;
@@ -290,7 +290,7 @@ const handleDoubleClick = (
 const addReaction = async (
   postId,
   setReactions,
-  { groupId, user, reaction }
+  { groupId, user, reaction, onMarkAsRead }
 ) => {
   let isRemoving = false;
 
@@ -387,6 +387,8 @@ const addReaction = async (
       throw new Error("Failed to add reaction");
     }
 
+    if (onMarkAsRead) onMarkAsRead(postId);
+
     setReactions((prevReactions) => {
       if (isRemoving) {
         return prevReactions.filter(
@@ -468,7 +470,7 @@ export const MediaPost = forwardRef(
         {
           root: null,
           rootMargin: "0px",
-          threshold: 1.0
+          threshold: 0.5
         }
       );
 
@@ -567,7 +569,8 @@ export const MediaPost = forwardRef(
               handleDoubleClick(e, post.postId, setReactions, {
                 groupId,
                 user,
-                reaction: config.reactions[0]
+                reaction: config.reactions[0],
+                onMarkAsRead: onLoad
               })
             }
             getImageUrl={getImageUrl}
@@ -633,7 +636,8 @@ export const MediaPost = forwardRef(
                   addReaction(post.postId, setReactions, {
                     groupId,
                     user,
-                    reaction
+                    reaction,
+                    onMarkAsRead: onLoad
                   })
                 }
                 disabled={
@@ -652,6 +656,7 @@ export const MediaPost = forwardRef(
           user={user}
           users={users}
           disabled={isUploadedThisPageLoad && !isDoneUploading}
+          onMarkAsRead={() => onLoad(post.postId)}
         />
       </Container>
     );
