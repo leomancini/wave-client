@@ -165,6 +165,8 @@ const ImageContainer = styled.div`
 
 const FullImage = styled.img`
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   position: absolute;
   top: 0;
   left: 0;
@@ -183,6 +185,8 @@ const FullVideo = styled.video`
 const Thumbnail = styled.img`
   display: block;
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
   transition: opacity 0.2s;
 `;
