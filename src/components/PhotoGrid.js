@@ -181,6 +181,7 @@ const FullVideo = styled.video`
 `;
 
 const Thumbnail = styled.img`
+  display: block;
   width: 100%;
   opacity: ${({ isThumbnailLoaded }) => (isThumbnailLoaded ? 1 : 0)};
   transition: opacity 0.2s;
