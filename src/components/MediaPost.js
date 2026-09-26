@@ -514,14 +514,21 @@ export const MediaPost = forwardRef(
               const response = await fetch(mediaUrl);
               const blob = await response.blob();
               const suffix = post.items.length > 1 ? ` ${index + 1}` : "";
-              const isVideoItem = item.metadata?.mediaType === "video";
-              const ext = isVideoItem ? ".mp4" : ".jpg";
-              const label = isVideoItem ? "Video" : "Photo";
+              const mediaType = item.metadata?.mediaType;
+              const isVideoItem = mediaType === "video";
+              const isAudioItem = mediaType === "audio";
+              const ext = isAudioItem ? ".m4a" : isVideoItem ? ".mp4" : ".jpg";
+              const label = isAudioItem ? "Audio" : isVideoItem ? "Video" : "Photo";
+              const fallbackType = isAudioItem
+                ? "audio/mp4"
+                : isVideoItem
+                ? "video/mp4"
+                : "image/jpeg";
               return new File(
                 [blob],
                 `${label}${suffix} from ${post.uploader?.name} in ${groupId}${ext}`,
                 {
-                  type: blob.type || (isVideoItem ? "video/mp4" : "image/jpeg")
+                  type: blob.type || fallbackType
                 }
               );
             })
@@ -531,7 +538,13 @@ export const MediaPost = forwardRef(
             await navigator.share({
               title: post.items.length > 1
                 ? `Media from ${post.uploader?.name} in ${groupId}`
-                : `${post.items[0]?.metadata?.mediaType === "video" ? "Video" : "Photo"} from ${post.uploader?.name} in ${groupId}`,
+                : `${
+                    post.items[0]?.metadata?.mediaType === "audio"
+                      ? "Audio"
+                      : post.items[0]?.metadata?.mediaType === "video"
+                      ? "Video"
+                      : "Photo"
+                  } from ${post.uploader?.name} in ${groupId}`,
               files
             });
             return;

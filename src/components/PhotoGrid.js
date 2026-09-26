@@ -5,6 +5,14 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useDetectDeviceType } from "../utilities/detectDeviceType";
 
 import { Spinner } from "./Spinner";
+import { AudioPlayer } from "./AudioPlayer";
+
+const PostMedia = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+`;
 
 const GridWrapper = styled.div`
   border-radius: 2rem;
@@ -446,6 +454,40 @@ export const PhotoGrid = ({
   getImageUrl,
   getThumbnailUrl
 }) => {
+  // Audio clips don't go in the photo grid; they get their own player
+  // stacked under whatever photos/videos are in the post
+  const audioItems = items.filter((item) => item.metadata?.mediaType === "audio");
+  const visualItems = items.filter((item) => item.metadata?.mediaType !== "audio");
+
+  if (audioItems.length > 0) {
+    const players = audioItems.map((item) => (
+      <AudioPlayer
+        key={item.metadata.itemId}
+        src={getImageUrl(item)}
+        duration={item.metadata?.duration}
+        disabled={isUploadedThisPageLoad && !isDoneUploading}
+      />
+    ));
+
+    return (
+      <PostMedia>
+        {visualItems.length > 0 && (
+          <PhotoGrid
+            items={visualItems}
+            postId={postId}
+            groupId={groupId}
+            isUploadedThisPageLoad={isUploadedThisPageLoad}
+            isDoneUploading={isDoneUploading}
+            onDoubleClick={onDoubleClick}
+            getImageUrl={getImageUrl}
+            getThumbnailUrl={getThumbnailUrl}
+          />
+        )}
+        {players}
+      </PostMedia>
+    );
+  }
+
   if (items.length === 1) {
     const item = items[0];
     return (

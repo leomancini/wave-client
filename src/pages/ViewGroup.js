@@ -14,7 +14,7 @@ import { useConfig } from "../contexts/ConfigContext";
 import { useMoreMenu } from "../contexts/MoreMenuContext";
 import { handleGroupRedirect } from "../utilities/groupRedirects";
 
-import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faBars, faMicrophone } from "@fortawesome/free-solid-svg-icons";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
@@ -23,6 +23,8 @@ import { Spinner } from "../components/Spinner";
 import { MoreMenu } from "../components/MoreMenu";
 import { EmptyCard } from "../components/EmptyCard";
 import { Banner } from "../components/Banner";
+import { RecordingBar } from "../components/RecordingBar";
+import { useAudioRecorder } from "../hooks/useAudioRecorder";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -70,6 +72,7 @@ export const ViewGroup = ({ groupId, userId }) => {
   const { setIsMoreMenuOpen } = useMoreMenu();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const audioRecorder = useAudioRecorder();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -299,26 +302,96 @@ export const ViewGroup = ({ groupId, userId }) => {
     }
   };
 
-  const handleFileUpload = async (event) => {
+  // Read a clip's length off an <audio> element. iOS may not fire
+  // loadedmetadata for a blob without playing it, and Chrome reports
+  // Infinity for freshly recorded webm, so fall back to null and let the
+  // server-measured duration take over once the post reloads.
+  const probeAudioDuration = (file) =>
+    new Promise((resolve) => {
+      const audio = document.createElement("audio");
+      const url = URL.createObjectURL(file);
+      let settled = false;
+      const finish = (value) => {
+        if (settled) return;
+        settled = true;
+        URL.revokeObjectURL(url);
+        resolve(Number.isFinite(value) && value > 0 ? value : null);
+      };
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () => finish(audio.duration);
+      audio.onerror = () => finish(null);
+      setTimeout(() => finish(null), 3000);
+      audio.src = url;
+    });
+
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files || []);
+    // Reset so picking the same file again still fires onChange
+    event.target.value = "";
+    uploadFiles(files.map((file) => ({ file })));
+  };
+
+  const handleStartRecording = async () => {
+    if (isUploading || audioRecorder.isRecording || audioRecorder.isStarting) return;
+    try {
+      await audioRecorder.start();
+    } catch (error) {
+      console.error("Could not start recording:", error);
+      if (error && (error.name === "NotAllowedError" || error.name === "SecurityError")) {
+        alert("Microphone access is blocked. Allow it in your browser settings to record audio.");
+      } else if (error && error.name === "NotFoundError") {
+        alert("No microphone was found on this device.");
+      } else {
+        alert("Could not start recording. Please try again.");
+      }
+    }
+  };
+
+  const handleFinishRecording = async () => {
+    const result = await audioRecorder.stop();
+    if (!result) return;
+    const extension = result.blob.type.includes("webm")
+      ? "webm"
+      : result.blob.type.includes("ogg")
+      ? "ogg"
+      : "m4a";
+    const file = new File([result.blob], `recording.${extension}`, {
+      type: result.blob.type
+    });
+    uploadFiles([{ file, duration: result.duration }]);
+  };
+
+  const handleCancelRecording = () => {
+    audioRecorder.cancel();
+  };
+
+  // entries: [{ file, duration? }] — duration is only known up front for
+  // clips we just recorded
+  const uploadFiles = async (entries) => {
     if (isUploading) return;
 
-    setIsUploading(true);
-    const files = event.target.files;
+    const uploadQueue = entries.filter((entry) => entry && entry.file).slice(0, 4);
 
-    if (files.length === 0) {
-      setIsUploading(false);
+    if (uploadQueue.length === 0) {
       return;
     }
 
-    const uploadQueue = Array.from(files).slice(0, 4);
+    setIsUploading(true);
 
     // Pre-generate all item IDs and dimensions
     const itemsWithMeta = await Promise.all(
-      uploadQueue.map(async (file, index) => {
+      uploadQueue.map(async ({ file, duration: knownDuration }, index) => {
         const isVideo = file.type.startsWith("video/");
+        const isAudio = file.type.startsWith("audio/");
+
+        const duration = isAudio
+          ? knownDuration || (await probeAudioDuration(file))
+          : undefined;
 
         const dimensions = await new Promise((resolve) => {
-          if (isVideo) {
+          if (isAudio) {
+            resolve(null);
+          } else if (isVideo) {
             const video = document.createElement("video");
             video.preload = "metadata";
             video.onloadedmetadata = () => {
@@ -350,7 +423,16 @@ export const ViewGroup = ({ groupId, userId }) => {
           Math.random() * 10000000000
         )}`;
 
-        return { file, itemId, dimensions, localUrl: URL.createObjectURL(file), isVideo, orderIndex: index };
+        return {
+          file,
+          itemId,
+          dimensions,
+          localUrl: URL.createObjectURL(file),
+          isVideo,
+          isAudio,
+          duration,
+          orderIndex: index
+        };
       })
     );
 
@@ -360,7 +442,7 @@ export const ViewGroup = ({ groupId, userId }) => {
     // Create a single optimistic post containing all photos
     const optimisticPost = {
       postId,
-      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo, orderIndex }) => ({
+      items: itemsWithMeta.map(({ file, itemId, dimensions, localUrl, isVideo, isAudio, duration, orderIndex }) => ({
         metadata: {
           itemId,
           postId,
@@ -368,7 +450,8 @@ export const ViewGroup = ({ groupId, userId }) => {
           uploaderId: userId,
           dimensions,
           orderIndex,
-          ...(isVideo ? { mediaType: "video" } : {})
+          ...(isVideo ? { mediaType: "video" } : {}),
+          ...(isAudio ? { mediaType: "audio", duration: duration || undefined } : {})
         },
         localUrl,
         isUploadedThisPageLoad: true
@@ -686,30 +769,53 @@ export const ViewGroup = ({ groupId, userId }) => {
       <PageContainerInteractionBlocker visible={isMoreMenuVisible} />
       <PageContainer>
         <ButtonContainer>
-          <Button
-            type="icon-small"
-            size="large"
-            stretch="fit"
-            prominence="secondary"
-            icon={faBars}
-            onClick={handleMenuToggle}
-          />
-          <Button
-            disabled={isUploading}
-            type="icon"
-            size="large"
-            stretch="fill"
-            prominence="primary"
-            icon={faPlus}
-          >
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={handleFileUpload}
-              multiple
-              disabled={isUploading}
+          {audioRecorder.isRecording ? (
+            <RecordingBar
+              elapsed={audioRecorder.elapsed}
+              onCancel={handleCancelRecording}
+              onStop={handleFinishRecording}
             />
-          </Button>
+          ) : (
+            <>
+              <Button
+                type="icon-small"
+                size="large"
+                stretch="fit"
+                prominence="secondary"
+                icon={faBars}
+                onClick={handleMenuToggle}
+              />
+              {audioRecorder.isSupported && (
+                <Button
+                  type="icon-small"
+                  size="large"
+                  stretch="fit"
+                  prominence="secondary"
+                  icon={faMicrophone}
+                  onClick={handleStartRecording}
+                  isLoading={audioRecorder.isStarting}
+                  disabled={isUploading}
+                  aria-label="Record audio"
+                />
+              )}
+              <Button
+                disabled={isUploading}
+                type="icon"
+                size="large"
+                stretch="fill"
+                prominence="primary"
+                icon={faPlus}
+              >
+                <input
+                  type="file"
+                  accept="image/*,video/*,audio/*"
+                  onChange={handleFileUpload}
+                  multiple
+                  disabled={isUploading}
+                />
+              </Button>
+            </>
+          )}
         </ButtonContainer>
         {shouldShowPushNotificationBanner && (
           <Banner
