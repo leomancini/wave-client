@@ -14,7 +14,13 @@ import { useConfig } from "../contexts/ConfigContext";
 import { useMoreMenu } from "../contexts/MoreMenuContext";
 import { handleGroupRedirect } from "../utilities/groupRedirects";
 
-import { faPlus, faBars, faMicrophone } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlus,
+  faBars,
+  faMicrophone,
+  faPhotoFilm,
+  faXmark
+} from "@fortawesome/free-solid-svg-icons";
 
 import { Page } from "../components/Page";
 import { Button } from "../components/Button";
@@ -72,6 +78,8 @@ export const ViewGroup = ({ groupId, userId }) => {
   const { setIsMoreMenuOpen } = useMoreMenu();
   const [mediaItems, setMediaItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  // true while the + button is expanded into photo/video + audio + close
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
   const audioRecorder = useAudioRecorder();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -328,11 +336,13 @@ export const ViewGroup = ({ groupId, userId }) => {
     const files = Array.from(event.target.files || []);
     // Reset so picking the same file again still fires onChange
     event.target.value = "";
+    setIsComposeOpen(false);
     uploadFiles(files.map((file) => ({ file })));
   };
 
   const handleStartRecording = async () => {
     if (isUploading || audioRecorder.isRecording || audioRecorder.isStarting) return;
+    setIsComposeOpen(false);
     try {
       await audioRecorder.start();
     } catch (error) {
@@ -775,6 +785,51 @@ export const ViewGroup = ({ groupId, userId }) => {
               onCancel={handleCancelRecording}
               onStop={handleFinishRecording}
             />
+          ) : isComposeOpen ? (
+            <>
+              <Button
+                disabled={isUploading}
+                type="icon"
+                size="large"
+                stretch="fill"
+                prominence="primary"
+                icon={faPhotoFilm}
+                key="compose-photo"
+                aria-label="Add photo or video"
+              >
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleFileUpload}
+                  multiple
+                  disabled={isUploading}
+                />
+              </Button>
+              {audioRecorder.isSupported && (
+                <Button
+                  type="icon"
+                  size="large"
+                  stretch="fill"
+                  prominence="primary"
+                  icon={faMicrophone}
+                  key="compose-audio"
+                  onClick={handleStartRecording}
+                  isLoading={audioRecorder.isStarting}
+                  disabled={isUploading}
+                  aria-label="Record audio"
+                />
+              )}
+              <Button
+                type="icon-small"
+                size="large"
+                stretch="fit"
+                prominence="secondary"
+                icon={faXmark}
+                key="compose-close"
+                onClick={() => setIsComposeOpen(false)}
+                aria-label="Close"
+              />
+            </>
           ) : (
             <>
               <Button
@@ -783,37 +838,20 @@ export const ViewGroup = ({ groupId, userId }) => {
                 stretch="fit"
                 prominence="secondary"
                 icon={faBars}
+                key="menu"
                 onClick={handleMenuToggle}
               />
-              {audioRecorder.isSupported && (
-                <Button
-                  type="icon-small"
-                  size="large"
-                  stretch="fit"
-                  prominence="secondary"
-                  icon={faMicrophone}
-                  onClick={handleStartRecording}
-                  isLoading={audioRecorder.isStarting}
-                  disabled={isUploading}
-                  aria-label="Record audio"
-                />
-              )}
               <Button
+                key="new-post"
                 disabled={isUploading}
                 type="icon"
                 size="large"
                 stretch="fill"
                 prominence="primary"
                 icon={faPlus}
-              >
-                <input
-                  type="file"
-                  accept="image/*,video/*,audio/*"
-                  onChange={handleFileUpload}
-                  multiple
-                  disabled={isUploading}
-                />
-              </Button>
+                onClick={() => setIsComposeOpen(true)}
+                aria-label="New post"
+              />
             </>
           )}
         </ButtonContainer>
