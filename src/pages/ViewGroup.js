@@ -18,7 +18,7 @@ import {
   faPlus,
   faBars,
   faMicrophone,
-  faPhotoFilm,
+  faCamera,
   faXmark
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -829,7 +829,7 @@ export const ViewGroup = ({ groupId, userId }) => {
                 size="large"
                 stretch="fill"
                 prominence="primary"
-                icon={faPhotoFilm}
+                icon={faCamera}
                 key="compose-photo"
                 aria-label="Add photo or video"
               >
