@@ -99,6 +99,15 @@ export const ViewGroup = ({ groupId, userId }) => {
       setIsComposeOpen(false);
     }
   }, [composerMode]);
+
+  // Keep the compose row (with the mic spinner) up while the mic permission
+  // prompt is pending. Only once recording is really underway do we collapse
+  // it, so the toolbar lands back on menu + plus after the recording ends.
+  useEffect(() => {
+    if (audioRecorder.isRecording) {
+      setIsComposeOpen(false);
+    }
+  }, [audioRecorder.isRecording]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({});
@@ -359,7 +368,6 @@ export const ViewGroup = ({ groupId, userId }) => {
 
   const handleStartRecording = async () => {
     if (isUploading || audioRecorder.isRecording || audioRecorder.isStarting) return;
-    setIsComposeOpen(false);
     try {
       await audioRecorder.start();
     } catch (error) {
@@ -812,11 +820,12 @@ export const ViewGroup = ({ groupId, userId }) => {
                 icon={faXmark}
                 key="compose-close"
                 onClick={() => setIsComposeOpen(false)}
+                disabled={audioRecorder.isStarting}
                 aria-label="Close"
               />
               <Button
-                disabled={isUploading}
-                type="icon"
+                disabled={isUploading || audioRecorder.isStarting}
+                type="icon-small"
                 size="large"
                 stretch="fill"
                 prominence="primary"
@@ -829,12 +838,12 @@ export const ViewGroup = ({ groupId, userId }) => {
                   accept="image/*,video/*"
                   onChange={handleFileUpload}
                   multiple
-                  disabled={isUploading}
+                  disabled={isUploading || audioRecorder.isStarting}
                 />
               </Button>
               {audioRecorder.isSupported && (
                 <Button
-                  type="icon"
+                  type="icon-small"
                   size="large"
                   stretch="fill"
                   prominence="primary"
@@ -861,7 +870,7 @@ export const ViewGroup = ({ groupId, userId }) => {
               {composerMode === "audio" ? (
                 <Button
                   key="new-post-audio"
-                  type="icon"
+                  type="icon-small"
                   size="large"
                   stretch="fill"
                   prominence="primary"
