@@ -788,6 +788,16 @@ export const ViewGroup = ({ groupId, userId }) => {
           ) : isComposeOpen ? (
             <>
               <Button
+                type="icon-small"
+                size="large"
+                stretch="fit"
+                prominence="secondary"
+                icon={faXmark}
+                key="compose-close"
+                onClick={() => setIsComposeOpen(false)}
+                aria-label="Close"
+              />
+              <Button
                 disabled={isUploading}
                 type="icon"
                 size="large"
@@ -819,16 +829,6 @@ export const ViewGroup = ({ groupId, userId }) => {
                   aria-label="Record audio"
                 />
               )}
-              <Button
-                type="icon-small"
-                size="large"
-                stretch="fit"
-                prominence="secondary"
-                icon={faXmark}
-                key="compose-close"
-                onClick={() => setIsComposeOpen(false)}
-                aria-label="Close"
-              />
             </>
           ) : (
             <>
