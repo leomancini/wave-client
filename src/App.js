@@ -31,7 +31,7 @@ const Container = styled.div`
 
   /* iOS 27's top blur eats into the first row on phones, so sit a bit lower */
   @media not all and (min-width: 32rem) {
-    padding-top: calc(env(safe-area-inset-top) + 1.5rem);
+    padding-top: calc(env(safe-area-inset-top) + 2rem);
   }
 `;
 
