@@ -354,7 +354,7 @@ export const MoreMenu = ({
   onNotificationPreferenceChange,
   onUserUpdate
 }) => {
-  const { config } = useConfig();
+  const { config, setConfig } = useConfig();
   const { themePreference, setThemePreference, getResolvedTheme } = useTheme();
   const contentRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
@@ -369,6 +369,7 @@ export const MoreMenu = ({
   const [reactionEmojiSlotIndex, setReactionEmojiSlotIndex] = useState(null);
   const [reactionEmojisLoading, setReactionEmojisLoading] = useState(true);
   const [notificationPreference, setNotificationPreference] = useState(null);
+  const [isSwitchingPostTypes, setIsSwitchingPostTypes] = useState(false);
   const [
     isSwitchingNotificationPreference,
     setIsSwitchingNotificationPreference
@@ -593,6 +594,42 @@ export const MoreMenu = ({
       .catch((error) => console.error("Error sharing:", error));
   };
 
+  // "all" | "visual" | "audio". Only changes what the composer offers;
+  // posts that already exist are left alone.
+  const postTypes = config?.postTypes || "all";
+
+  const handleSwitchPostTypes = async (option) => {
+    const selected = option.toLowerCase();
+    if (selected === postTypes || isSwitchingPostTypes) {
+      return;
+    }
+    setIsSwitchingPostTypes(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/update-post-types/${groupId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ postTypes: selected })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update post types");
+      }
+
+      setConfig({ ...config, postTypes: selected });
+    } catch (error) {
+      console.error("Error updating post types:", error);
+      alert("Could not update post types. Please try again.");
+    } finally {
+      setIsSwitchingPostTypes(false);
+    }
+  };
+
   const handleEmojiSelect = async (emoji) => {
     const updatedEmojis = [...reactionEmojis];
     updatedEmojis[reactionEmojiSlotIndex] = emoji.native;
@@ -783,6 +820,18 @@ export const MoreMenu = ({
                   </EmojiPickerContainer>
                 )}
               </SectionContent>
+            </Section>
+            <Section>
+              <SectionHeader>
+                <SectionLabel>Post types</SectionLabel>
+                {isSwitchingPostTypes && <Spinner size="small" />}
+              </SectionHeader>
+              <SegmentedController
+                options={["All", "Visual", "Audio"]}
+                selectedOption={postTypes}
+                setSelectedOption={handleSwitchPostTypes}
+                isLoading={isSwitchingPostTypes}
+              />
             </Section>
             <Section>
               <SectionHeader>
